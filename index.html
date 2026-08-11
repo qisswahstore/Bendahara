@@ -1,1 +1,2933 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0D5C4A">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="BendaharaKu">
+
+    <!-- MANIFEST -->
+    <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22BendaharaKu%22,%22short_name%22:%22BendaharaKu%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22%230D5C4A%22,%22theme_color%22:%22%230D5C4A%22,%22icons%22:[{%22src%22:%22https://img.icons8.com/color/192/cash-register.png%22,%22sizes%22:%22192x192%22,%22type%22:%22image/png%22},{%22src%22:%22https://img.icons8.com/color/512/cash-register.png%22,%22sizes%22:%22512x512%22,%22type%22:%22image/png%22}]}">
+
+    <link rel="icon" href="https://img.icons8.com/color/96/cash-register.png">
+    <link rel="apple-touch-icon" href="https://img.icons8.com/color/192/cash-register.png">
+
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="format-detection" content="telephone=no">
+
+    <title>BendaharaKu - Aplikasi Keuangan Sekolah</title>
+
+    <style>
+        /* ==========================================================
+           CSS VARIABLES (TERPUSAT)
+           ========================================================== */
+        :root {
+            --primary: #0D5C4A;
+            --primary-dark: #0A3D31;
+            --primary-light: #E7F5F1;
+            --accent: #D4AF37;
+            --bg: #F4F6FA;
+            --white: #FFFFFF;
+            --card-bg: #FFFFFF;
+            --red: #EF4444;
+            --green: #10B981;
+            --orange: #F59E0B;
+            --blue: #3B82F6;
+            --purple: #8B5CF6;
+            --teal: #14B8A6;
+            --wa: #25D366;
+            --dark: #1E293B;
+            --gray: #64748B;
+            --gray-light: #F1F5F9;
+            --gray-200: #E2E8F0;
+            --gray-300: #CBD5E1;
+            --gray-400: #94A3B8;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1E293B;
+            --border: #E2E8F0;
+            --surface-1: #F8FAFC;
+        }
+
+        /* Dark Mode */
+        body.dark-mode {
+            --bg: #121212;
+            --white: #1E1E2E;
+            --card-bg: #1E1E2E;
+            --dark: #E2E2E2;
+            --gray-light: #2A2A3A;
+            --border: #3D3D4D;
+            --surface-1: #262636;
+            --gray-200: #3D3D4D;
+            --gray-300: #4A4A5A;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--dark);
+            padding-bottom: 80px;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .container { max-width: 480px; margin: 0 auto; padding: 0 16px; }
+
+        /* ---------- UTILITY CLASSES ---------- */
+        .flex { display: flex; }
+        .flex-col { display: flex; flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .justify-center { justify-content: center; }
+        .gap-8 { gap: 8px; }
+        .gap-12 { gap: 12px; }
+        .txt-in { color: var(--green); font-weight: bold; }
+        .txt-out { color: var(--red); font-weight: bold; }
+        .txt-muted { color: var(--gray); font-size: 12px; }
+        .text-center { text-align: center; }
+        .mt-8 { margin-top: 8px; }
+        .mt-16 { margin-top: 16px; }
+        .mb-8 { margin-bottom: 8px; }
+        .mb-16 { margin-bottom: 16px; }
+        .hidden { display: none !important; }
+        .w-full { width: 100%; }
+        .rounded-card { border-radius: 16px; }
+
+        /* ---------- HEADER ---------- */
+        .header-premium {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 20px 16px 24px;
+            border-radius: 0 0 24px 24px;
+        }
+        .header-premium-small { padding: 16px; border-radius: 0 0 18px 18px; }
+        .back-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .back-header i { font-size: 18px; cursor: pointer; }
+        .back-header h2 { font-size: 16px; font-weight: 700; }
+
+        /* ---------- CARD ---------- */
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            margin-bottom: 14px;
+        }
+        .setting-card {
+            background: var(--card-bg);
+            border-radius: 14px;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+        }
+
+        /* ---------- BUTTONS ---------- */
+        .btn {
+            padding: 13px 18px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.1s ease, opacity 0.2s ease;
+        }
+        .btn:active { transform: scale(0.97); }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-blue { background: var(--blue); color: white; }
+        .btn-orange { background: var(--orange); color: white; }
+        .btn-red { background: var(--red); color: white; }
+        .btn-gray { background: var(--gray-200); color: var(--gray-800); }
+        .btn-small { padding: 9px 14px; font-size: 12.5px; border-radius: 10px; }
+        .row { display: flex; gap: 10px; }
+
+        input, select, textarea {
+            font-family: inherit;
+            border: 1.5px solid var(--gray-300);
+            border-radius: 10px;
+            padding: 11px 12px;
+            font-size: 14px;
+            background: var(--card-bg);
+            color: var(--dark);
+            width: 100%;
+        }
+        body.dark-mode input,
+        body.dark-mode select,
+        body.dark-mode textarea { border-color: var(--gray-300); }
+        label { font-size: 12.5px; font-weight: 600; color: var(--gray-700); margin-bottom: 5px; display: block; }
+
+        /* ---------- BOTTOM NAV ---------- */
+        .bottom-nav-premium {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: var(--card-bg);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+            z-index: 500;
+        }
+        .nav-item { flex: 1; text-align: center; cursor: pointer; color: var(--gray); font-size: 10.5px; padding: 4px 0; }
+        .nav-item i { font-size: 18px; display: block; margin-bottom: 2px; }
+        .nav-item.active { color: var(--primary); font-weight: 700; }
+
+        /* ---------- PAGES ---------- */
+        .page { display: none; padding-top: 8px; }
+        .page.active { display: block; }
+
+        /* ---------- TOAST ---------- */
+        .toast-premium {
+            position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px);
+            background: rgba(30,41,59,0.95); color: white;
+            padding: 12px 20px; border-radius: 30px; font-size: 13.5px;
+            opacity: 0; pointer-events: none; transition: all 0.3s ease;
+            z-index: 10000; max-width: 88%; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+        }
+        .toast-premium.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* ---------- MODAL ---------- */
+        .modal {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+            z-index: 9000; align-items: center; justify-content: center; padding: 20px;
+        }
+        .modal-content {
+            background: var(--card-bg); border-radius: 18px; padding: 22px;
+            width: 100%; max-width: 420px; max-height: 88vh; overflow-y: auto;
+        }
+
+        /* ---------- SPLASH ---------- */
+        #splashScreen {
+            position: fixed; inset: 0;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            z-index: 99999; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            transition: opacity 0.5s ease; padding: 30px;
+        }
+        @keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.05);} }
+
+        /* ---------- PRINT ---------- */
+        @media print {
+            body { margin: 0; padding: 0; background: white; }
+            .header-premium, .bottom-nav-premium, .no-print, button:not(.print-visible) { display: none !important; }
+        }
+    </style>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<div id="toastPremium" class="toast-premium"></div>
+
+<!-- ==========================================================
+     SPLASH SCREEN + LOGIN ADMIN
+     ========================================================== -->
+<div id="splashScreen">
+    <div style="width:110px;height:110px;background:white;border-radius:28px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;animation:pulse 2s infinite;box-shadow:0 8px 32px rgba(0,0,0,0.2);">
+        <div style="font-size:60px;">💰</div>
+    </div>
+    <div style="color:white;font-size:32px;font-weight:bold;margin-bottom:6px;">BendaharaKu</div>
+    <div style="color:rgba(255,255,255,0.85);font-size:13.5px;margin-bottom:50px;text-align:center;">Aplikasi Keuangan Sekolah</div>
+    <div id="splashChoice" style="display:block;width:100%;max-width:320px;">
+        <button onclick="loginAdmin()" style="width:100%;padding:16px;background:white;color:var(--primary);border:none;border-radius:16px;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,0.15);">
+            🔐 Masuk sebagai Bendahara
+        </button>
+    </div>
+</div>
+
+<!-- Modal Login Admin -->
+<div id="modalLoginAdmin" class="modal">
+    <div class="modal-content" style="max-width:340px;">
+        <h3 style="color:var(--primary);margin-bottom:14px;text-align:center;">🔐 Login Bendahara</h3>
+        <label>Password</label>
+        <input type="password" id="inputAdminPassword" placeholder="Masukkan password" onkeydown="if(event.key==='Enter')doLoginAdmin()">
+        <div id="adminLoginError" style="display:none;color:var(--red);font-size:12px;margin-top:8px;"></div>
+        <button class="btn btn-primary w-full mt-16" onclick="doLoginAdmin()">Masuk</button>
+        <div style="text-align:center;margin-top:10px;font-size:11px;color:var(--gray);">Password default: <b>admin123</b> (ubah di Pengaturan)</div>
+    </div>
+</div>
+
+<!-- ==========================================================
+     HOME PAGE
+     ========================================================== -->
+<div id="page-home" class="page active">
+    <div class="header-premium">
+        <div class="flex items-center justify-between">
+            <div>
+                <div style="font-size:12px;opacity:0.85;">Selamat datang,</div>
+                <div style="font-size:19px;font-weight:800;">Bendahara Sekolah</div>
+            </div>
+            <div onclick="toggleDarkMode()" style="width:38px;height:38px;background:rgba(255,255,255,0.15);border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+                <i class="fas fa-moon" id="darkModeIcon"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" style="padding-top:18px;">
+        <div class="card" id="homeSaldoCard" style="background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;">
+            <div style="font-size:12px;opacity:0.85;">Saldo Kas Saat Ini</div>
+            <div id="homeSaldoValue" style="font-size:26px;font-weight:800;margin-top:2px;">Rp 0</div>
+            <div class="row mt-16">
+                <div style="flex:1;">
+                    <div style="font-size:11px;opacity:0.8;">Masuk Bulan Ini</div>
+                    <div id="homeMasukValue" style="font-size:14px;font-weight:700;">Rp 0</div>
+                </div>
+                <div style="flex:1;">
+                    <div style="font-size:11px;opacity:0.8;">Keluar Bulan Ini</div>
+                    <div id="homeKeluarValue" style="font-size:14px;font-weight:700;">Rp 0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div style="font-weight:700;margin-bottom:10px;">Menu</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('kas')">
+                    <div style="font-size:26px;">💵</div>
+                    <div style="font-size:12.5px;font-weight:600;margin-top:4px;">Kas Masuk/Keluar</div>
+                </div>
+                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('spp')">
+                    <div style="font-size:26px;">🎓</div>
+                    <div style="font-size:12.5px;font-weight:600;margin-top:4px;">SPP Siswa</div>
+                </div>
+                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('kuitansi')">
+                    <div style="font-size:26px;">🧾</div>
+                    <div style="font-size:12.5px;font-weight:600;margin-top:4px;">Invoice/Kuitansi</div>
+                </div>
+                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('laporan')">
+                    <div style="font-size:26px;">📊</div>
+                    <div style="font-size:12.5px;font-weight:600;margin-top:4px;">Laporan Keuangan</div>
+                </div>
+                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('dashboard')">
+                    <div style="font-size:26px;">📈</div>
+                    <div style="font-size:12.5px;font-weight:600;margin-top:4px;">Dashboard</div>
+                </div>
+                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('rkas')">
+                    <div style="font-size:26px;">🗂️</div>
+                    <div style="font-size:12.5px;font-weight:600;margin-top:4px;">RKAS</div>
+                </div>
+                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('gaji')">
+                    <div style="font-size:26px;">👩‍🏫</div>
+                    <div style="font-size:12.5px;font-weight:600;margin-top:4px;">Gaji/Honor Guru</div>
+                </div>
+                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('jurnal')">
+                    <div style="font-size:26px;">📖</div>
+                    <div style="font-size:12.5px;font-weight:600;margin-top:4px;">Jurnal Harian</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================================
+     KAS MASUK/KELUAR PAGE
+     ========================================================== -->
+<div id="page-kas" class="page">
+    <div class="header-premium header-premium-small">
+        <div class="back-header">
+            <i class="fas fa-arrow-left" onclick="showPage('home')"></i>
+            <h2>💵 Kas Masuk/Keluar</h2>
+            <div style="width:18px;" onclick="showKasMenuLain()"><i class="fas fa-ellipsis-v"></i></div>
+        </div>
+    </div>
+
+    <div class="container" style="padding-top:16px;">
+
+        <div class="card" id="summaryKasCard">
+            <div class="row">
+                <div style="flex:1;text-align:center;">
+                    <div class="txt-muted">Masuk</div>
+                    <div id="totalMasukKas" class="txt-in" style="font-size:15px;">Rp 0</div>
+                </div>
+                <div style="flex:1;text-align:center;border-left:1px solid var(--border);border-right:1px solid var(--border);">
+                    <div class="txt-muted">Keluar</div>
+                    <div id="totalKeluarKas" class="txt-out" style="font-size:15px;">Rp 0</div>
+                </div>
+                <div style="flex:1;text-align:center;">
+                    <div class="txt-muted">Saldo</div>
+                    <div id="summaryKas" style="font-size:15px;font-weight:800;color:var(--primary);">Rp 0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div style="font-weight:700;margin-bottom:10px;">➕ Tambah Transaksi</div>
+            <div class="row mb-8">
+                <button class="btn btn-small" id="btnTipeMasuk" style="flex:1;background:var(--green);color:white;" onclick="pilihTipeKas('masuk')">⬆️ Masuk</button>
+                <button class="btn btn-small btn-gray" id="btnTipeKeluar" style="flex:1;" onclick="pilihTipeKas('keluar')">⬇️ Keluar</button>
+            </div>
+            <input type="hidden" id="tipeKas" value="masuk">
+
+            <label>Kategori</label>
+            <div class="row mb-8">
+                <select id="kategoriKas" style="flex:1;"></select>
+                <button class="btn btn-gray btn-small" onclick="tambahKategoriBaru()"><i class="fas fa-plus"></i></button>
+            </div>
+
+            <label>Keterangan</label>
+            <input type="text" id="ketKas" placeholder="cth: SPP Kelas 4A bulan Agustus">
+
+            <label class="mt-16">Nominal (Rp)</label>
+            <input type="text" id="nomKas" placeholder="0" inputmode="numeric" oninput="formatNominalInput(this)">
+
+            <button class="btn btn-primary w-full mt-16" onclick="tambahTransaksiKas()">💾 Simpan Transaksi</button>
+        </div>
+
+        <div class="card">
+            <div class="flex items-center justify-between mb-8">
+                <div style="font-weight:700;">📋 Riwayat Transaksi</div>
+            </div>
+            <div class="row mb-8">
+                <select id="filterKategoriKas" onchange="renderKasTable()" style="flex:1;">
+                    <option value="">Semua Kategori</option>
+                </select>
+                <input type="month" id="filterBulanKas" onchange="renderKasTable()" style="flex:1;">
+            </div>
+            <div style="overflow-x:auto;">
+                <table style="width:100%;border-collapse:collapse;font-size:12.5px;">
+                    <thead>
+                        <tr style="background:var(--surface-1);">
+                            <th style="text-align:left;padding:8px 6px;">Tgl</th>
+                            <th style="text-align:left;padding:8px 6px;">Kategori</th>
+                            <th style="text-align:left;padding:8px 6px;">Keterangan</th>
+                            <th style="text-align:right;padding:8px 6px;">Nominal</th>
+                            <th style="padding:8px 6px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="bodyKas"></tbody>
+                </table>
+                <div id="kasEmptyState" class="text-center txt-muted" style="padding:24px 0;display:none;">Belum ada transaksi</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div style="font-weight:700;margin-bottom:10px;">🖨️ Cetak &amp; Ekspor</div>
+            <div class="row">
+                <button class="btn btn-blue btn-small" style="flex:1" onclick="cetakKasHTML()"><i class="fas fa-print"></i> Cetak</button>
+                <button class="btn btn-orange btn-small" style="flex:1" onclick="exportKasExcel()"><i class="fas fa-file-excel"></i> Excel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Tambah Kategori -->
+<div id="modalKategoriKas" class="modal">
+    <div class="modal-content" style="max-width:340px;">
+        <h3 style="color:var(--primary);margin-bottom:14px;">🏷️ Kategori Baru</h3>
+        <label>Nama Kategori</label>
+        <input type="text" id="inputKategoriBaru" placeholder="cth: Kantin Sekolah" onkeydown="if(event.key==='Enter')simpanKategoriBaru()">
+        <div class="row mt-16">
+            <button class="btn btn-primary" style="flex:1" onclick="simpanKategoriBaru()">Simpan</button>
+            <button class="btn btn-gray" style="flex:1" onclick="document.getElementById('modalKategoriKas').style.display='none'">Batal</button>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================================
+     PENGATURAN PAGE (Konfigurasi Instansi + Backup/Restore + Dark Mode)
+     ========================================================== -->
+<div id="page-pengaturan" class="page">
+    <div class="header-premium header-premium-small">
+        <div class="back-header">
+            <i class="fas fa-arrow-left" onclick="showPage('home')"></i>
+            <h2>⚙️ Pengaturan</h2>
+            <div style="width:18px;"></div>
+        </div>
+    </div>
+    <div class="container" style="padding-top:18px;">
+
+        <div class="setting-card" onclick="showPage('konfigurasi-instansi')" style="cursor:pointer;border:1.5px solid var(--primary);">
+            <div class="flex items-center gap-12">
+                <div style="font-size:24px;">🏫</div>
+                <div>
+                    <div style="font-weight:700;font-size:14px;">Konfigurasi Instansi</div>
+                    <div style="font-size:11.5px;color:var(--gray);">Nama, logo, alamat sekolah untuk cetak dokumen</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div style="font-weight:700;margin-bottom:8px;">📅 Tahun Ajaran Aktif</div>
+            <div class="row">
+                <input type="text" id="inputTahunAjaranAktif" placeholder="cth: 2026/2027" style="flex:1;">
+                <button class="btn btn-primary btn-small" onclick="simpanTahunAjaranAktif()">Simpan</button>
+            </div>
+            <div class="txt-muted mt-8">Dipakai sebagai acuan periode RKAS (Juli–Juni) dan tercantum di cetakan laporan.</div>
+        </div>
+
+        <div class="setting-card">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-12">
+                    <div style="font-size:24px;">🌙</div>
+                    <div style="font-weight:700;font-size:14px;">Mode Gelap</div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()">
+                </label>
+            </div>
+        </div>
+
+        <div class="card">
+            <div style="font-weight:700;margin-bottom:10px;">💾 Backup &amp; Restore</div>
+            <div class="row mb-8">
+                <button class="btn btn-blue btn-small" style="flex:1" onclick="backupZipData()"><i class="fas fa-file-archive"></i> Backup ZIP</button>
+                <button class="btn btn-orange btn-small" style="flex:1" onclick="document.getElementById('restoreZipFile').click()"><i class="fas fa-upload"></i> Restore ZIP</button>
+            </div>
+            <input type="file" id="restoreZipFile" accept=".zip" style="display:none" onchange="restoreZipData(this)">
+            <div class="row">
+                <button class="btn btn-gray btn-small" style="flex:1" onclick="backupJsonKeClipboard()"><i class="fas fa-copy"></i> Salin JSON</button>
+                <button class="btn btn-gray btn-small" style="flex:1" onclick="showRestoreJsonPasteModal()"><i class="fas fa-paste"></i> Tempel JSON</button>
+            </div>
+        </div>
+
+        <div class="setting-card" style="cursor:pointer;" onclick="gantiPasswordAdmin()">
+            <div class="flex items-center gap-12">
+                <div style="font-size:24px;">🔑</div>
+                <div style="font-weight:700;font-size:14px;">Ganti Password Bendahara</div>
+            </div>
+        </div>
+
+        <div class="setting-card" style="cursor:pointer;color:var(--red);" onclick="logoutAdmin()">
+            <div class="flex items-center gap-12">
+                <div style="font-size:24px;">🚪</div>
+                <div style="font-weight:700;font-size:14px;">Keluar</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================================
+     KONFIGURASI INSTANSI PAGE
+     ========================================================== -->
+<div id="page-konfigurasi-instansi" class="page">
+    <div class="header-premium header-premium-small">
+        <div class="back-header">
+            <i class="fas fa-arrow-left" onclick="showPage('pengaturan')"></i>
+            <h2>🏫 Konfigurasi Instansi</h2>
+            <div style="width:18px;"></div>
+        </div>
+    </div>
+    <div class="container" style="padding-top:18px;">
+        <div class="card">
+            <label>Nama Sekolah</label>
+            <input type="text" id="cfgNamaSekolah" placeholder="cth: SDN 1 Contoh">
+            <label class="mt-16">Alamat</label>
+            <input type="text" id="cfgAlamat" placeholder="Alamat lengkap sekolah">
+            <label class="mt-16">Telepon</label>
+            <input type="text" id="cfgTelp" placeholder="08xxxxxxxxxx">
+            <label class="mt-16">Nama Kepala Sekolah</label>
+            <input type="text" id="cfgPimpinan" placeholder="Nama kepala sekolah">
+            <label class="mt-16">Nama Bendahara</label>
+            <input type="text" id="cfgBendahara" placeholder="Nama bendahara">
+            <button class="btn btn-primary w-full mt-16" onclick="simpanKonfigurasiInstansi()">💾 Simpan</button>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================================
+     DATA KELAS & SISWA PAGE
+     ========================================================== -->
+<div id="page-kelas-siswa" class="page">
+    <div class="header-premium header-premium-small">
+        <div class="back-header">
+            <i class="fas fa-arrow-left" onclick="showPage('spp')"></i>
+            <h2>🏫 Data Kelas &amp; Siswa</h2>
+            <div style="width:18px;" onclick="showImportEduKuModal()"><i class="fas fa-file-import"></i></div>
+        </div>
+    </div>
+    <div class="container" style="padding-top:16px;">
+
+        <div class="card">
+            <button class="btn btn-gray w-full mb-8" onclick="showImportEduKuModal()"><i class="fas fa-file-import"></i> Impor Data dari Backup JSON EduKu</button>
+        </div>
+
+        <div class="card">
+            <div class="flex items-center justify-between mb-8">
+                <div style="font-weight:700;">🏷️ Kelas</div>
+                <button class="btn btn-primary btn-small" onclick="tambahKelasBaru()"><i class="fas fa-plus"></i> Kelas</button>
+            </div>
+            <div id="listKelas"></div>
+            <div id="kelasEmptyState" class="text-center txt-muted" style="padding:16px 0;display:none;">Belum ada kelas</div>
+        </div>
+
+        <div class="card">
+            <div class="flex items-center justify-between mb-8">
+                <div style="font-weight:700;">🎓 Siswa</div>
+                <button class="btn btn-primary btn-small" onclick="tambahSiswaBaru()"><i class="fas fa-plus"></i> Siswa</button>
+            </div>
+            <select id="filterKelasSiswa" class="mb-8" onchange="renderListSiswa()">
+                <option value="">Semua Kelas</option>
+            </select>
+            <div id="listSiswa"></div>
+            <div id="siswaEmptyState" class="text-center txt-muted" style="padding:16px 0;display:none;">Belum ada siswa</div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Form Kelas -->
+<div id="modalFormKelas" class="modal">
+    <div class="modal-content" style="max-width:360px;">
+        <h3 id="titleModalKelas" style="color:var(--primary);margin-bottom:14px;">🏷️ Kelas Baru</h3>
+        <input type="hidden" id="editKelasId">
+        <label>Nama Kelas</label>
+        <input type="text" id="inputNamaKelas" placeholder="cth: 4A">
+        <label class="mt-16">Nominal SPP Kelas Ini (Rp)</label>
+        <input type="text" id="inputSppKelas" placeholder="Kosongkan jika ikut nominal default" inputmode="numeric" oninput="formatNominalInput(this)">
+        <div class="row mt-16">
+            <button class="btn btn-primary" style="flex:1" onclick="simpanFormKelas()">Simpan</button>
+            <button class="btn btn-gray" style="flex:1" onclick="document.getElementById('modalFormKelas').style.display='none'">Batal</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Form Siswa -->
+<div id="modalFormSiswa" class="modal">
+    <div class="modal-content" style="max-width:360px;">
+        <h3 id="titleModalSiswa" style="color:var(--primary);margin-bottom:14px;">🎓 Siswa Baru</h3>
+        <input type="hidden" id="editSiswaId">
+        <label>Nama Siswa</label>
+        <input type="text" id="inputNamaSiswa" placeholder="Nama lengkap">
+        <label class="mt-16">Kelas</label>
+        <select id="inputKelasSiswa"></select>
+        <label class="mt-16">Nominal SPP Khusus (opsional)</label>
+        <input type="text" id="inputSppSiswa" placeholder="Kosongkan jika ikut nominal kelas" inputmode="numeric" oninput="formatNominalInput(this)">
+        <div class="row mt-16">
+            <button class="btn btn-primary" style="flex:1" onclick="simpanFormSiswa()">Simpan</button>
+            <button class="btn btn-gray" style="flex:1" onclick="document.getElementById('modalFormSiswa').style.display='none'">Batal</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Import EduKu -->
+<div id="modalImportEduKu" class="modal">
+    <div class="modal-content" style="max-width:500px;">
+        <h3 style="color:var(--primary);margin-bottom:10px;">📥 Impor dari Backup JSON EduKu</h3>
+        <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px;padding:10px;margin-bottom:12px;font-size:12px;color:#166534;">
+            Buka EduKu → Pengaturan → Salin JSON, lalu tempel di sini. Data kelas &amp; siswa akan ditambahkan (data yang sudah ada di BendaharaKu tidak dihapus).
+        </div>
+        <textarea id="importEduKuText" placeholder="Tempel teks JSON backup EduKu di sini..." style="width:100%;height:160px;padding:10px;border:1.5px solid var(--gray-300);border-radius:8px;font-size:11px;font-family:monospace;margin-bottom:12px;"></textarea>
+        <div class="row">
+            <button class="btn btn-primary" style="flex:1" onclick="prosesImportEduKu()">✅ Impor Sekarang</button>
+            <button class="btn btn-gray" style="flex:1" onclick="document.getElementById('modalImportEduKu').style.display='none'">Batal</button>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================================
+     SPP PAGE
+     ========================================================== -->
+<div id="page-spp" class="page">
+    <div class="header-premium header-premium-small">
+        <div class="back-header">
+            <i class="fas fa-arrow-left" onclick="showPage('home')"></i>
+            <h2>🎓 SPP Siswa</h2>
+            <div style="width:18px;" onclick="showPengaturanSppModal()"><i class="fas fa-cog"></i></div>
+        </div>
+    </div>
+    <div class="container" style="padding-top:16px;">
+
+        <div class="card">
+            <div class="row mb-8">
+                <input type="month" id="sppBulanAktif" style="flex:1;" onchange="renderSppList()">
+                <select id="sppFilterKelas" style="flex:1;" onchange="renderSppList()">
+                    <option value="">Semua Kelas</option>
+                </select>
+            </div>
+            <div class="row">
+                <div style="flex:1;text-align:center;">
+                    <div class="txt-muted">Lunas</div>
+                    <div id="sppCountLunas" style="font-size:15px;font-weight:800;color:var(--green);">0</div>
+                </div>
+                <div style="flex:1;text-align:center;border-left:1px solid var(--border);border-right:1px solid var(--border);">
+                    <div class="txt-muted">Cicil</div>
+                    <div id="sppCountCicil" style="font-size:15px;font-weight:800;color:var(--orange);">0</div>
+                </div>
+                <div style="flex:1;text-align:center;">
+                    <div class="txt-muted">Belum</div>
+                    <div id="sppCountBelum" style="font-size:15px;font-weight:800;color:var(--red);">0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <button class="btn btn-gray w-full mb-8" onclick="showPage('kelas-siswa')"><i class="fas fa-users-cog"></i> Kelola Data Kelas &amp; Siswa</button>
+            <button class="btn btn-orange w-full" onclick="cetakRekapTunggakan()"><i class="fas fa-file-invoice"></i> Cetak Rekap Tunggakan</button>
+        </div>
+
+        <div id="sppListWrap"></div>
+        <div id="sppEmptyState" class="text-center txt-muted card" style="display:none;">Belum ada data siswa. Tambahkan dulu di Data Kelas &amp; Siswa.</div>
+    </div>
+</div>
+
+<!-- Modal Pengaturan Nominal SPP -->
+<div id="modalPengaturanSpp" class="modal">
+    <div class="modal-content" style="max-width:400px;">
+        <h3 style="color:var(--primary);margin-bottom:14px;">⚙️ Nominal SPP Default</h3>
+        <label>Nominal SPP Default (Rp/bulan)</label>
+        <input type="text" id="inputSppDefault" placeholder="0" inputmode="numeric" oninput="formatNominalInput(this)">
+        <div class="txt-muted mt-8">Nominal ini dipakai kalau kelas/siswa tidak punya nominal khusus. Atur nominal khusus per kelas atau per siswa lewat menu Data Kelas &amp; Siswa.</div>
+        <button class="btn btn-primary w-full mt-16" onclick="simpanPengaturanSpp()">💾 Simpan</button>
+    </div>
+</div>
+
+<!-- Modal Bayar SPP -->
+<div id="modalBayarSpp" class="modal">
+    <div class="modal-content" style="max-width:380px;">
+        <h3 style="color:var(--primary);margin-bottom:6px;">💳 Catat Pembayaran SPP</h3>
+        <div id="bayarSppInfo" style="font-size:12.5px;color:var(--gray-700);margin-bottom:14px;"></div>
+        <input type="hidden" id="bayarSppSiswaId">
+        <input type="hidden" id="bayarSppBulan">
+        <label>Nominal Dibayar (Rp)</label>
+        <input type="text" id="inputBayarSpp" placeholder="0" inputmode="numeric" oninput="formatNominalInput(this)">
+        <label class="mt-16">Keterangan (opsional)</label>
+        <input type="text" id="inputKetBayarSpp" placeholder="cth: Cicilan ke-1">
+        <div class="row mt-16">
+            <button class="btn btn-primary" style="flex:1" onclick="simpanPembayaranSpp()">Simpan</button>
+            <button class="btn btn-gray" style="flex:1" onclick="document.getElementById('modalBayarSpp').style.display='none'">Batal</button>
+        </div>
+        <div id="riwayatBayarSppWrap" class="mt-16"></div>
+    </div>
+</div>
+
+<!-- ==========================================================
+     RIWAYAT KUITANSI PAGE
+     ========================================================== -->
+<div id="page-kuitansi" class="page">
+    <div class="header-premium header-premium-small">
+        <div class="back-header">
+            <i class="fas fa-arrow-left" onclick="showPage('home')"></i>
+            <h2>🧾 Riwayat Kuitansi</h2>
+            <div style="width:18px;"></div>
+        </div>
+    </div>
+    <div class="container" style="padding-top:16px;">
+        <div class="card">
+            <input type="month" id="filterBulanKuitansi" onchange="renderRiwayatKuitansi()">
+        </div>
+        <div id="listKuitansi"></div>
+        <div id="kuitansiEmptyState" class="text-center txt-muted card" style="display:none;">Belum ada kuitansi yang diterbitkan</div>
+    </div>
+</div>
+
+<!-- ==========================================================
+     LAPORAN KEUANGAN PAGE
+     ========================================================== -->
+<div id="page-laporan" class="page">
+    <div class="header-premium header-premium-small">
+        <div class="back-header">
+            <i class="fas fa-arrow-left" onclick="showPage('home')"></i>
+            <h2>📊 Laporan Keuangan</h2>
+            <div style="width:18px;"></div>
+        </div>
+    </div>
+    <div class="container" style="padding-top:16px;">
+
+        <div class="card">
+            <label>Periode</label>
+            <input type="month" id="laporanBulanAktif" onchange="renderLaporanKeuangan()">
+        </div>
+
+        <div class="card" style="background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;">
+            <div class="row">
+                <div style="flex:1;">
+                    <div style="font-size:11px;opacity:0.85;">Total Pemasukan</div>
+                    <div id="lapTotalMasuk" style="font-size:16px;font-weight:800;">Rp 0</div>
+                </div>
+                <div style="flex:1;">
+                    <div style="font-size:11px;opacity:0.85;">Total Pengeluaran</div>
+                    <div id="lapTotalKeluar" style="font-size:16px;font-weight:800;">Rp 0</div>
+                </div>
+            </div>
+            <div class="mt-16" style="border-top:1px solid rgba(255,255,255,0.25);padding-top:10px;">
+                <div style="font-size:11px;opacity:0.85;">Saldo Periode Ini</div>
+                <div id="lapSaldo" style="font-size:22px;font-weight:800;">Rp 0</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div style="font-weight:700;margin-bottom:10px;">💵 Rincian Kas per Kategori</div>
+            <div id="lapKasKategori"></div>
+        </div>
+
+        <div class="card">
+            <div style="font-weight:700;margin-bottom:10px;">🎓 Rincian SPP per Kelas</div>
+            <div id="lapSppKelas"></div>
+        </div>
+
+        <div class="card">
+            <div style="font-weight:700;margin-bottom:10px;">🖨️ Cetak &amp; Ekspor</div>
+            <div class="row mb-8">
+                <button class="btn btn-blue btn-small" style="flex:1" onclick="cetakLaporanKeuangan()"><i class="fas fa-print"></i> Cetak</button>
+                <button class="btn btn-orange btn-small" style="flex:1" onclick="exportLaporanKeuanganExcel()"><i class="fas fa-file-excel"></i> Excel</button>
+            </div>
+            <button class="btn btn-gray w-full" onclick="cetakLaporanBos()"><i class="fas fa-file-invoice-dollar"></i> Cetak Laporan Dana BOS (Sederhana)</button>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================================
+     DASHBOARD PAGE
+     ========================================================== -->
+<div id="page-dashboard" class="page">
+    <div class="header-premium header-premium-small">
+        <div class="back-header">
+            <i class="fas fa-arrow-left" onclick="showPage('home')"></i>
+            <h2>📈 Dashboard Keuangan</h2>
+            <div style="width:18px;"></div>
+        </div>
+    </div>
+    <div class="container" style="padding-top:16px;">
+
+        <div class="card">
+            <div style="font-weight:700;margin-bottom:8px;">📅 Hari Ini</div>
+            <div class="row">
+                <div style="flex:1;"><div class="txt-muted">Masuk</div><div id="dbHariMasuk" class="txt-in">Rp 0</div></div>
+                <div style="flex:1;"><div class="txt-muted">Keluar</div><div id="dbHariKeluar" class="txt-out">Rp 0</div></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div style="font-weight:700;margin-bottom:8px;">🗓️ Bulan Ini</div>
+            <div class="row">
+                <div style="flex:1;"><div class="txt-muted">Masuk</div><div id="dbBulanMasuk" class="txt-in">Rp 0</div></div>
+                <div style="flex:1;"><div class="txt-muted">Keluar</div><div id="dbBulanKeluar" class="txt-out">Rp 0</div></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div style="font-weight:700;margin-bottom:8px;">📆 Tahun Ajaran <span id="dbTaLabel"></span></div>
+            <div class="row">
+                <div style="flex:1;"><div class="txt-muted">Masuk</div><div id="dbTahunMasuk" class="txt-in">Rp 0</div></div>
+                <div style="flex:1;"><div class="txt-muted">Keluar</div><div id="dbTahunKeluar" class="txt-out">Rp 0</div></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div style="font-weight:700;margin-bottom:10px;">📊 Grafik 6 Bulan Terakhir</div>
+            <canvas id="chartTrenKeuangan" height="220"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================================
+     RKAS PAGE (Anggaran vs Realisasi)
+     ========================================================== -->
+<div id="page-rkas" class="page">
+    <div class="header-premium header-premium-small">
+        <div class="back-header">
+            <i class="fas fa-arrow-left" onclick="showPage('home')"></i>
+            <h2>🗂️ RKAS (Anggaran vs Realisasi)</h2>
+            <div style="width:18px;"></div>
+        </div>
+    </div>
+    <div class="container" style="padding-top:16px;">
+        <div class="card">
+            <div class="txt-muted">Tahun Ajaran Aktif: <b id="rkasTaLabel">-</b></div>
+        </div>
+
+        <div class="card">
+            <div style="font-weight:700;margin-bottom:10px;">➕ Tambah Anggaran</div>
+            <label>Kategori</label>
+            <select id="rkasKategori"></select>
+            <label class="mt-16">Nominal Anggaran (Rp)</label>
+            <input type="text" id="rkasNominal" placeholder="0" inputmode="numeric" oninput="formatNominalInput(this)">
+            <button class="btn btn-primary w-full mt-16" onclick="tambahRkas()">💾 Simpan Anggaran</button>
+        </div>
+
+        <div id="rkasListWrap"></div>
+        <div id="rkasEmptyState" class="text-center txt-muted card" style="display:none;">Belum ada anggaran untuk tahun ajaran ini</div>
+
+        <div class="card">
+            <button class="btn btn-blue w-full" onclick="cetakRkas()"><i class="fas fa-print"></i> Cetak RKAS</button>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================================
+     GAJI/HONOR GURU PAGE
+     ========================================================== -->
+<div id="page-gaji" class="page">
+    <div class="header-premium header-premium-small">
+        <div class="back-header">
+            <i class="fas fa-arrow-left" onclick="showPage('home')"></i>
+            <h2>👩‍🏫 Gaji/Honor Guru</h2>
+            <div style="width:18px;" onclick="tambahGuruBaru()"><i class="fas fa-user-plus"></i></div>
+        </div>
+    </div>
+    <div class="container" style="padding-top:16px;">
+        <div class="card">
+            <input type="month" id="gajiBulanAktif" onchange="renderGajiList()">
+        </div>
+        <div id="gajiListWrap"></div>
+        <div id="gajiEmptyState" class="text-center txt-muted card" style="display:none;">Belum ada data guru. Tambahkan lewat ikon + di pojok kanan atas.</div>
+    </div>
+</div>
+
+<!-- Modal Form Guru -->
+<div id="modalFormGuru" class="modal">
+    <div class="modal-content" style="max-width:360px;">
+        <h3 id="titleModalGuru" style="color:var(--primary);margin-bottom:14px;">👩‍🏫 Guru Baru</h3>
+        <input type="hidden" id="editGuruId">
+        <label>Nama Guru</label>
+        <input type="text" id="inputNamaGuru" placeholder="Nama lengkap">
+        <label class="mt-16">Jabatan</label>
+        <input type="text" id="inputJabatanGuru" placeholder="cth: Wali Kelas 4A / Guru Mapel">
+        <label class="mt-16">Honor Default per Bulan (Rp)</label>
+        <input type="text" id="inputHonorGuru" placeholder="0" inputmode="numeric" oninput="formatNominalInput(this)">
+        <div class="row mt-16">
+            <button class="btn btn-primary" style="flex:1" onclick="simpanFormGuru()">Simpan</button>
+            <button class="btn btn-gray" style="flex:1" onclick="document.getElementById('modalFormGuru').style.display='none'">Batal</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Bayar Honor -->
+<div id="modalBayarHonor" class="modal">
+    <div class="modal-content" style="max-width:360px;">
+        <h3 style="color:var(--primary);margin-bottom:6px;">💳 Bayar Honor</h3>
+        <div id="bayarHonorInfo" style="font-size:12.5px;color:var(--gray-700);margin-bottom:14px;"></div>
+        <input type="hidden" id="bayarHonorGuruId">
+        <input type="hidden" id="bayarHonorBulan">
+        <label>Nominal (Rp)</label>
+        <input type="text" id="inputBayarHonor" placeholder="0" inputmode="numeric" oninput="formatNominalInput(this)">
+        <div class="txt-muted mt-8">Pembayaran ini otomatis tercatat sebagai pengeluaran Kas kategori "Gaji/Honor".</div>
+        <div class="row mt-16">
+            <button class="btn btn-primary" style="flex:1" onclick="simpanBayarHonor()">Simpan</button>
+            <button class="btn btn-gray" style="flex:1" onclick="document.getElementById('modalBayarHonor').style.display='none'">Batal</button>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================================
+     JURNAL HARIAN PAGE
+     ========================================================== -->
+<div id="page-jurnal" class="page">
+    <div class="header-premium header-premium-small">
+        <div class="back-header">
+            <i class="fas fa-arrow-left" onclick="showPage('home')"></i>
+            <h2>📖 Jurnal Harian</h2>
+            <div style="width:18px;" onclick="cetakJurnal()"><i class="fas fa-print"></i></div>
+        </div>
+    </div>
+    <div class="container" style="padding-top:16px;">
+        <div class="card">
+            <input type="month" id="jurnalBulanAktif" onchange="renderJurnal()">
+        </div>
+        <div class="card" style="overflow-x:auto;">
+            <table style="width:100%;border-collapse:collapse;font-size:12px;">
+                <thead>
+                    <tr style="background:var(--surface-1);">
+                        <th style="text-align:left;padding:6px 4px;">Tgl</th>
+                        <th style="text-align:left;padding:6px 4px;">Uraian</th>
+                        <th style="text-align:right;padding:6px 4px;">Masuk</th>
+                        <th style="text-align:right;padding:6px 4px;">Keluar</th>
+                        <th style="text-align:right;padding:6px 4px;">Saldo</th>
+                    </tr>
+                </thead>
+                <tbody id="bodyJurnal"></tbody>
+            </table>
+            <div id="jurnalEmptyState" class="text-center txt-muted" style="padding:20px 0;display:none;">Tidak ada transaksi bulan ini</div>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================================
+     BOTTOM NAVIGATION
+     ========================================================== -->
+<div class="bottom-nav-premium" id="bottomNav">
+    <div class="nav-item active" data-page="home" onclick="showPage('home')"><i class="fas fa-home"></i>Beranda</div>
+    <div class="nav-item" data-page="kas" onclick="showPage('kas')"><i class="fas fa-wallet"></i>Kas</div>
+    <div class="nav-item" data-page="spp" onclick="showPage('spp')"><i class="fas fa-graduation-cap"></i>SPP</div>
+    <div class="nav-item" data-page="laporan" onclick="showPage('laporan')"><i class="fas fa-chart-pie"></i>Laporan</div>
+    <div class="nav-item" data-page="pengaturan" onclick="showPage('pengaturan')"><i class="fas fa-cog"></i>Pengaturan</div>
+</div>
+
+
+<script>
+/* ==============================================================
+   SECTION: NAVIGASI ANTAR HALAMAN
+   ============================================================== */
+function showPage(pageId) {
+    document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+    var page = document.getElementById('page-' + pageId);
+    if (page) page.classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(function(n){
+        n.classList.toggle('active', n.dataset.page === pageId);
+    });
+    if (pageId === 'konfigurasi-instansi') loadKonfigurasiInstansiForm();
+    if (pageId === 'kas') renderKasTable();
+    if (pageId === 'kelas-siswa') { renderListKelas(); renderListSiswa(); }
+    if (pageId === 'spp') renderSppList();
+    if (pageId === 'kuitansi') renderRiwayatKuitansi();
+    if (pageId === 'laporan') renderLaporanKeuangan();
+    if (pageId === 'dashboard') renderDashboard();
+    if (pageId === 'rkas') renderRkasPage();
+    if (pageId === 'gaji') renderGajiList();
+    if (pageId === 'jurnal') renderJurnal();
+    if (pageId === 'pengaturan') loadTahunAjaranForm();
+    window.scrollTo(0, 0);
+}
+
+/* ==============================================================
+   SECTION: TOAST
+   ============================================================== */
+function showToast(msg) {
+    var toast = document.getElementById('toastPremium');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(function(){ toast.classList.remove('show'); }, 3000);
+}
+
+/* ==============================================================
+   SECTION: DARK MODE
+   ============================================================== */
+function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+    var isDark = document.body.classList.contains('dark-mode');
+    localStorage.setItem('bendaharaku_dark_mode', isDark);
+    var icon = document.getElementById('darkModeIcon');
+    if (icon) icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+    var toggle = document.getElementById('darkModeToggle');
+    if (toggle) toggle.checked = isDark;
+}
+function applyDarkModeFromStorage() {
+    var isDark = localStorage.getItem('bendaharaku_dark_mode') === 'true';
+    if (isDark) document.body.classList.add('dark-mode');
+    var icon = document.getElementById('darkModeIcon');
+    if (icon) icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+    var toggle = document.getElementById('darkModeToggle');
+    if (toggle) toggle.checked = isDark;
+}
+
+/* ==============================================================
+   SECTION: INDEXEDDB TERPUSAT (helper generik)
+   ============================================================== */
+var DB_NAME = 'BendaharaKuDB', DB_VERSION = 1,
+    STORE_KAS = 'kasData',
+    STORE_SPP = 'sppData',
+    STORE_SISWA = 'siswaData',
+    STORE_KELAS = 'kelasData',
+    STORE_PEMBAYARAN = 'pembayaranData',
+    STORE_KONFIGURASI = 'konfigurasiData',
+    STORE_RKAS = 'rkasData',
+    STORE_GAJI = 'gajiData',
+    STORE_JURNAL = 'jurnalData';
+
+var _dbInstance = null;
+
+function openIndexedDB() {
+    return new Promise(function(resolve, reject) {
+        if (_dbInstance) { resolve(_dbInstance); return; }
+        var request = indexedDB.open(DB_NAME, DB_VERSION);
+        request.onerror = function(e) { console.error('IndexedDB error:', e); reject(request.error); };
+        request.onsuccess = function() { _dbInstance = request.result; resolve(_dbInstance); };
+        request.onblocked = function() { _dbInstance = null; window.location.reload(); };
+        request.onupgradeneeded = function(event) {
+            var d = event.target.result;
+            [STORE_KAS, STORE_SPP, STORE_SISWA, STORE_KELAS, STORE_PEMBAYARAN,
+             STORE_KONFIGURASI, STORE_RKAS, STORE_GAJI, STORE_JURNAL].forEach(function(name) {
+                if (!d.objectStoreNames.contains(name)) d.createObjectStore(name, { keyPath: 'id' });
+            });
+        };
+    });
+}
+
+async function idbSet(storeName, key, value) {
+    var d = await openIndexedDB();
+    return new Promise(function(resolve, reject) {
+        var tx = d.transaction([storeName], 'readwrite');
+        tx.objectStore(storeName).put({ id: key, data: value });
+        tx.oncomplete = function() { resolve(); };
+        tx.onerror = function() { reject(tx.error); };
+    });
+}
+
+async function idbGet(storeName, key) {
+    var d = await openIndexedDB();
+    return new Promise(function(resolve) {
+        var tx = d.transaction([storeName], 'readonly');
+        var req = tx.objectStore(storeName).get(key);
+        req.onsuccess = function() { resolve(req.result ? req.result.data : null); };
+        req.onerror = function() { resolve(null); };
+    });
+}
+
+async function idbDelete(storeName, key) {
+    var d = await openIndexedDB();
+    return new Promise(function(resolve) {
+        var tx = d.transaction([storeName], 'readwrite');
+        tx.objectStore(storeName).delete(key);
+        tx.oncomplete = function() { resolve(); };
+        tx.onerror = function() { resolve(); };
+    });
+}
+
+/* ==============================================================
+   SECTION: LOGIN BENDAHARA (single-role, tanpa sistem lisensi)
+   ============================================================== */
+var BK_ADMIN_PASS_KEY = 'bendaharaku_admin_password';
+var BK_DEFAULT_PASS = 'admin123';
+var BK_SESSION_KEY = 'bendaharaku_session';
+
+function getBkSession() {
+    try { return JSON.parse(localStorage.getItem(BK_SESSION_KEY) || 'null'); } catch(e) { return null; }
+}
+function setBkSession(data) { localStorage.setItem(BK_SESSION_KEY, JSON.stringify(data)); }
+function clearBkSession() { localStorage.removeItem(BK_SESSION_KEY); }
+
+function loginAdmin() {
+    var modal = document.getElementById('modalLoginAdmin');
+    var inp = document.getElementById('inputAdminPassword');
+    if (inp) inp.value = '';
+    var err = document.getElementById('adminLoginError');
+    if (err) err.style.display = 'none';
+    modal.style.display = 'flex';
+    setTimeout(function(){ if (inp) inp.focus(); }, 100);
+}
+
+function doLoginAdmin() {
+    var inp = document.getElementById('inputAdminPassword');
+    var pass = inp ? inp.value.trim() : '';
+    var err = document.getElementById('adminLoginError');
+    var savedPass = localStorage.getItem(BK_ADMIN_PASS_KEY) || BK_DEFAULT_PASS;
+    if (!pass) { if (err) { err.textContent = 'Password tidak boleh kosong!'; err.style.display = 'block'; } return; }
+    if (pass !== savedPass) {
+        if (err) { err.textContent = 'Password salah! Coba lagi.'; err.style.display = 'block'; }
+        if (inp) { inp.value = ''; inp.focus(); }
+        return;
+    }
+    setBkSession({ loginTime: new Date().toISOString() });
+    document.getElementById('modalLoginAdmin').style.display = 'none';
+    tutupSplash();
+    showToast('Selamat datang, Bendahara!');
+}
+
+function logoutAdmin() {
+    if (!confirm('Keluar dari aplikasi?')) return;
+    clearBkSession();
+    location.reload();
+}
+
+function gantiPasswordAdmin() {
+    var lama = prompt('Masukkan password lama:');
+    if (lama === null) return;
+    var savedPass = localStorage.getItem(BK_ADMIN_PASS_KEY) || BK_DEFAULT_PASS;
+    if (lama !== savedPass) { showToast('Password lama salah!'); return; }
+    var baru = prompt('Masukkan password baru:');
+    if (!baru) return;
+    localStorage.setItem(BK_ADMIN_PASS_KEY, baru);
+    showToast('Password berhasil diubah');
+}
+
+function tutupSplash() {
+    var splash = document.getElementById('splashScreen');
+    if (splash) { splash.style.opacity = '0'; setTimeout(function(){ splash.style.display = 'none'; }, 400); }
+}
+
+function cekSessionAwal() {
+    var session = getBkSession();
+    if (session) { tutupSplash(); } // sudah login sebelumnya, langsung masuk
+}
+
+/* ==============================================================
+   SECTION: KONFIGURASI INSTANSI
+   ============================================================== */
+function getKonfigurasiInstansiData() {
+    var saved = localStorage.getItem('bendaharaku_konfigurasi_instansi');
+    var data = null;
+    if (saved) { try { data = JSON.parse(saved); } catch(e) {} }
+    if (!data) data = {
+        nama: 'BendaharaKu', alamat: '', telp: '', email: '', npwp: '',
+        pimpinan: '', jabatan_pimpinan: 'Kepala Sekolah',
+        bendahara: '', logo: '',
+        watermark: { enabled: true, text: 'DOKUMEN RESMI', opacity: 0.15, fontsize: 60, position: 'diagonal' },
+        settings: { show_logo: true, show_pimpinan: true, invoice_prefix: 'KWT' }
+    };
+    return data;
+}
+
+function loadKonfigurasiInstansiForm() {
+    var cfg = getKonfigurasiInstansiData();
+    document.getElementById('cfgNamaSekolah').value = cfg.nama || '';
+    document.getElementById('cfgAlamat').value = cfg.alamat || '';
+    document.getElementById('cfgTelp').value = cfg.telp || '';
+    document.getElementById('cfgPimpinan').value = cfg.pimpinan || '';
+    document.getElementById('cfgBendahara').value = cfg.bendahara || '';
+}
+
+function simpanKonfigurasiInstansi() {
+    var cfg = getKonfigurasiInstansiData();
+    cfg.nama = document.getElementById('cfgNamaSekolah').value.trim();
+    cfg.alamat = document.getElementById('cfgAlamat').value.trim();
+    cfg.telp = document.getElementById('cfgTelp').value.trim();
+    cfg.pimpinan = document.getElementById('cfgPimpinan').value.trim();
+    cfg.bendahara = document.getElementById('cfgBendahara').value.trim();
+    localStorage.setItem('bendaharaku_konfigurasi_instansi', JSON.stringify(cfg));
+    showToast('✅ Konfigurasi tersimpan');
+}
+
+/* ==============================================================
+   SECTION: KAS MASUK/KELUAR + KATEGORI
+   ============================================================== */
+var dataKas = [];
+var kategoriKasList = [];
+var KATEGORI_KAS_DEFAULT = ['SPP', 'Dana BOS', 'Donasi/Sumbangan', 'ATK', 'Listrik/Air',
+    'Gaji/Honor', 'Kegiatan Sekolah', 'Perawatan/Perbaikan', 'Lain-lain'];
+
+async function loadKasData() {
+    var saved = await idbGet(STORE_KAS, 'kas_data');
+    dataKas = saved || [];
+    var savedKategori = await idbGet(STORE_KAS, 'kategori_list');
+    kategoriKasList = (savedKategori && savedKategori.length) ? savedKategori : KATEGORI_KAS_DEFAULT.slice();
+    isiDropdownKategoriKas();
+    renderKasTable();
+    updateHomeSaldoRingkasan();
+}
+
+async function saveKasData() {
+    await idbSet(STORE_KAS, 'kas_data', dataKas);
+    renderKasTable();
+    updateHomeSaldoRingkasan();
+}
+
+async function saveKategoriKasList() {
+    await idbSet(STORE_KAS, 'kategori_list', kategoriKasList);
+    isiDropdownKategoriKas();
+}
+
+function isiDropdownKategoriKas() {
+    var sel = document.getElementById('kategoriKas');
+    var filterSel = document.getElementById('filterKategoriKas');
+    if (sel) {
+        sel.innerHTML = kategoriKasList.map(function(k){ return '<option value="' + k + '">' + k + '</option>'; }).join('');
+    }
+    if (filterSel) {
+        var current = filterSel.value;
+        filterSel.innerHTML = '<option value="">Semua Kategori</option>' +
+            kategoriKasList.map(function(k){ return '<option value="' + k + '">' + k + '</option>'; }).join('');
+        filterSel.value = current || '';
+    }
+}
+
+function tambahKategoriBaru() {
+    document.getElementById('inputKategoriBaru').value = '';
+    document.getElementById('modalKategoriKas').style.display = 'flex';
+}
+
+function simpanKategoriBaru() {
+    var nama = document.getElementById('inputKategoriBaru').value.trim();
+    if (!nama) return showToast('Nama kategori tidak boleh kosong!');
+    if (kategoriKasList.indexOf(nama) !== -1) return showToast('Kategori sudah ada!');
+    kategoriKasList.push(nama);
+    saveKategoriKasList();
+    document.getElementById('kategoriKas').value = nama;
+    document.getElementById('modalKategoriKas').style.display = 'none';
+    showToast('✅ Kategori "' + nama + '" ditambahkan');
+}
+
+function pilihTipeKas(tipe) {
+    document.getElementById('tipeKas').value = tipe;
+    var btnMasuk = document.getElementById('btnTipeMasuk');
+    var btnKeluar = document.getElementById('btnTipeKeluar');
+    if (tipe === 'masuk') {
+        btnMasuk.className = 'btn btn-small'; btnMasuk.style.background = 'var(--green)'; btnMasuk.style.color = 'white';
+        btnKeluar.className = 'btn btn-small btn-gray'; btnKeluar.style.background = ''; btnKeluar.style.color = '';
+    } else {
+        btnKeluar.className = 'btn btn-small'; btnKeluar.style.background = 'var(--red)'; btnKeluar.style.color = 'white';
+        btnMasuk.className = 'btn btn-small btn-gray'; btnMasuk.style.background = ''; btnMasuk.style.color = '';
+    }
+}
+
+function formatNominalInput(el) {
+    var raw = el.value.replace(/\./g, '').replace(/[^0-9]/g, '');
+    var num = parseInt(raw) || 0;
+    el.value = num > 0 ? num.toLocaleString('id-ID') : '';
+}
+
+function parseNominal(str) {
+    if (!str) return 0;
+    var cleaned = String(str).replace(/\./g, '').replace(/[^0-9]/g, '');
+    return parseInt(cleaned) || 0;
+}
+
+function tambahTransaksiKas() {
+    var tipe = document.getElementById('tipeKas').value;
+    var kategori = document.getElementById('kategoriKas').value;
+    var ket = document.getElementById('ketKas').value.trim();
+    var nom = parseNominal(document.getElementById('nomKas').value);
+    if (!ket) return showToast('Isi keterangan dulu!');
+    if (nom <= 0) return showToast('Isi nominal yang benar!');
+    dataKas.unshift({
+        id: Date.now(),
+        tgl: new Date().toLocaleDateString('id-ID'),
+        tglIso: new Date().toISOString().slice(0,10),
+        kategori: kategori,
+        ket: ket,
+        nom: nom,
+        tipe: tipe
+    });
+    saveKasData();
+    document.getElementById('ketKas').value = '';
+    document.getElementById('nomKas').value = '';
+    showToast('✅ Transaksi tersimpan');
+}
+
+function editTransaksiKas(id) {
+    var item = dataKas.find(function(x){ return x.id === id; });
+    if (!item) return;
+    var ket = prompt('Keterangan:', item.ket);
+    if (ket === null) return;
+    var nom = prompt('Nominal:', item.nom);
+    if (nom === null) return;
+    item.ket = ket.trim() || item.ket;
+    item.nom = parseNominal(nom) || item.nom;
+    saveKasData();
+    showToast('✅ Transaksi diperbarui');
+}
+
+function hapusTransaksiKas(id) {
+    if (!confirm('Hapus transaksi ini?')) return;
+    dataKas = dataKas.filter(function(i){ return i.id !== id; });
+    saveKasData();
+    showToast('🗑️ Transaksi dihapus');
+}
+
+function getKasFiltered() {
+    var kategori = (document.getElementById('filterKategoriKas') || {}).value || '';
+    var bulan = (document.getElementById('filterBulanKas') || {}).value || '';
+    return dataKas.filter(function(i) {
+        if (kategori && i.kategori !== kategori) return false;
+        if (bulan && i.tglIso && i.tglIso.slice(0,7) !== bulan) return false;
+        return true;
+    });
+}
+
+function renderKasTable() {
+    var body = document.getElementById('bodyKas');
+    if (!body) return;
+    var list = getKasFiltered();
+    var masuk = 0, keluar = 0;
+    body.innerHTML = '';
+    list.forEach(function(i) {
+        if (i.tipe === 'masuk') masuk += i.nom; else keluar += i.nom;
+        body.innerHTML += '<tr>' +
+            '<td style="padding:8px 6px;vertical-align:middle;">' + i.tgl + '</td>' +
+            '<td style="padding:8px 6px;vertical-align:middle;"><span style="background:var(--teal);color:white;padding:2px 8px;border-radius:12px;font-size:10px;white-space:nowrap;">' + escapeHtmlKas(i.kategori) + '</span></td>' +
+            '<td style="padding:8px 6px;vertical-align:middle;">' + escapeHtmlKas(i.ket) + '</td>' +
+            '<td style="padding:8px 6px;vertical-align:middle;text-align:right;" class="' + (i.tipe === 'masuk' ? 'txt-in' : 'txt-out') + '">Rp ' + i.nom.toLocaleString('id-ID') + '</td>' +
+            '<td style="padding:8px 6px;vertical-align:middle;white-space:nowrap;">' +
+                '<button onclick="editTransaksiKas(' + i.id + ')" style="background:none;border:none;color:var(--blue);font-size:14px;cursor:pointer;padding:4px;"><i class="fas fa-edit"></i></button>' +
+                '<button onclick="hapusTransaksiKas(' + i.id + ')" style="background:none;border:none;color:var(--red);font-size:14px;cursor:pointer;padding:4px;"><i class="fas fa-trash"></i></button>' +
+            '</td></tr>';
+    });
+    document.getElementById('kasEmptyState').style.display = list.length === 0 ? 'block' : 'none';
+    document.getElementById('totalMasukKas').textContent = 'Rp ' + masuk.toLocaleString('id-ID');
+    document.getElementById('totalKeluarKas').textContent = 'Rp ' + keluar.toLocaleString('id-ID');
+    var saldoTotal = dataKas.reduce(function(s,i){ return s + (i.tipe === 'masuk' ? i.nom : -i.nom); }, 0);
+    document.getElementById('summaryKas').textContent = 'Rp ' + saldoTotal.toLocaleString('id-ID');
+}
+
+function updateHomeSaldoRingkasan() {
+    var saldoEl = document.getElementById('homeSaldoValue');
+    if (!saldoEl) return;
+    var saldoTotal = dataKas.reduce(function(s,i){ return s + (i.tipe === 'masuk' ? i.nom : -i.nom); }, 0);
+    saldoEl.textContent = 'Rp ' + saldoTotal.toLocaleString('id-ID');
+    var bulanIni = new Date().toISOString().slice(0,7);
+    var masukBulan = 0, keluarBulan = 0;
+    dataKas.forEach(function(i) {
+        if (i.tglIso && i.tglIso.slice(0,7) === bulanIni) {
+            if (i.tipe === 'masuk') masukBulan += i.nom; else keluarBulan += i.nom;
+        }
+    });
+    document.getElementById('homeMasukValue').textContent = 'Rp ' + masukBulan.toLocaleString('id-ID');
+    document.getElementById('homeKeluarValue').textContent = 'Rp ' + keluarBulan.toLocaleString('id-ID');
+}
+
+function escapeHtmlKas(str) {
+    var div = document.createElement('div');
+    div.textContent = str || '';
+    return div.innerHTML;
+}
+
+function showKasMenuLain() {
+    // Placeholder untuk menu tambahan (mis. reset kas) di fase berikutnya
+}
+
+async function cetakKasHTML() {
+    var list = getKasFiltered();
+    if (list.length === 0) return showToast('Tidak ada data untuk dicetak!');
+    var cfg = getKonfigurasiInstansiData();
+    var tglCetak = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+    var masuk = 0, keluar = 0;
+    list.forEach(function(i) { if (i.tipe === 'masuk') masuk += i.nom; else keluar += i.nom; });
+    var saldo = masuk - keluar;
+    var saldoColor = saldo >= 0 ? '#10B981' : '#EF4444';
+    var headerHtml = buildPrintHeader(cfg, tglCetak);
+    var watermarkHtml = buildPrintWatermark(cfg);
+    var ttdHtml = buildPrintTandaTangan(cfg, tglCetak);
+    var qrHtml = await buildPrintQR('Laporan Kas\nSaldo: Rp ' + saldo.toLocaleString('id-ID') + '\nTanggal: ' + tglCetak);
+    var rowsHtml = '';
+    list.forEach(function(i, idx) {
+        var warna = i.tipe === 'masuk' ? '#10B981' : '#EF4444';
+        rowsHtml += '<tr><td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">' + (idx+1) + '</td>' +
+            '<td style="padding:8px;border-bottom:1px solid #eee;">' + i.tgl + '</td>' +
+            '<td style="padding:8px;border-bottom:1px solid #eee;">' + i.kategori + '</td>' +
+            '<td style="padding:8px;border-bottom:1px solid #eee;">' + i.ket + '</td>' +
+            '<td style="padding:8px;border-bottom:1px solid #eee;text-align:center;color:' + warna + ';font-weight:bold;">' + (i.tipe === 'masuk' ? 'MASUK' : 'KELUAR') + '</td>' +
+            '<td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">Rp ' + i.nom.toLocaleString('id-ID') + '</td></tr>';
+    });
+    var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Laporan Kas</title><style>' +
+        '*{margin:0;padding:0;box-sizing:border-box;}body{font-family:Arial,sans-serif;background:#f0f0f0;padding:20px;}' +
+        '.box{background:white;max-width:800px;margin:0 auto;border-radius:16px;padding:30px;box-shadow:0 2px 16px rgba(0,0,0,0.1);position:relative;overflow:hidden;}' +
+        'h2{color:#0D5C4A;font-size:20px;margin-bottom:2px;}.tgl{color:#aaa;font-size:11px;margin-bottom:20px;}' +
+        'table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:20px;}' +
+        'th{background:#0D5C4A;color:white;padding:10px 8px;text-align:left;-webkit-print-color-adjust:exact;print-color-adjust:exact;}' +
+        'tr:nth-child(even) td{background:#f9f9f9;}' +
+        '.summary{background:#f8f8f8;border-radius:10px;padding:16px;font-size:13px;line-height:2.2;}' +
+        '.no-print{text-align:center;margin-top:24px;}.no-print button{padding:12px 32px;margin:0 8px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;}' +
+        '@page{size:A4 portrait;margin:10mm 12mm;}@media print{*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}html{width:210mm;}body{background:white;padding:0;margin:0;width:210mm;}.box{box-shadow:none;border-radius:0;max-width:none;width:100%;}.no-print{display:none!important;}}' +
+        '</style></head><body><div class="box">' +
+        '<div class="content">' + headerHtml +
+        '<h2>LAPORAN KAS</h2><div class="tgl">Tanggal Cetak: ' + tglCetak + '</div>' +
+        '<table><thead><tr><th style="width:36px;">No</th><th>Tgl</th><th>Kategori</th><th>Keterangan</th><th style="text-align:center;">Tipe</th><th style="text-align:right;">Nominal</th></tr></thead><tbody>' + rowsHtml + '</tbody></table>' +
+        '<div class="summary"><div>Total Pemasukan &nbsp;: <strong style="color:#10B981;">Rp ' + masuk.toLocaleString('id-ID') + '</strong></div>' +
+        '<div>Total Pengeluaran : <strong style="color:#EF4444;">Rp ' + keluar.toLocaleString('id-ID') + '</strong></div>' +
+        '<div style="font-size:16px;font-weight:bold;color:' + saldoColor + ';margin-top:8px;">SALDO: Rp ' + saldo.toLocaleString('id-ID') + '</div></div>' +
+        ttdHtml + qrHtml + '</div></div>' +
+        '<div class="no-print"><button onclick="window.print()" style="background:#0D5C4A;color:white;">🖨️ CETAK</button>' +
+        '<button onclick="window.close()" style="background:#E2E8F0;color:#1E293B;">✕ TUTUP</button></div>' +
+        watermarkHtml + '</body></html>';
+    var win = window.open('', '_blank');
+    if (!win) return showToast('Izinkan popup untuk cetak!');
+    win.document.write(html);
+    injectWatermarkToPrintWin(win);
+    win.document.close();
+}
+
+function exportKasExcel() {
+    var list = getKasFiltered();
+    if (list.length === 0) return showToast('Tidak ada data!');
+    showToast('Membuat Excel...');
+    setTimeout(function() {
+        try {
+            var masuk = 0, keluar = 0;
+            list.forEach(function(i) { if (i.tipe === 'masuk') masuk += i.nom; else keluar += i.nom; });
+            var wsData = list.map(function(i) {
+                return { Tanggal: i.tgl, Kategori: i.kategori, Keterangan: i.ket, Tipe: i.tipe.toUpperCase(), Nominal: i.nom };
+            });
+            wsData.push({ Tanggal: '', Kategori: '', Keterangan: 'TOTAL PEMASUKAN', Tipe: '', Nominal: masuk });
+            wsData.push({ Tanggal: '', Kategori: '', Keterangan: 'TOTAL PENGELUARAN', Tipe: '', Nominal: keluar });
+            wsData.push({ Tanggal: '', Kategori: '', Keterangan: 'SALDO', Tipe: '', Nominal: masuk - keluar });
+            var wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(wsData), 'Kas');
+            XLSX.writeFile(wb, 'Laporan_Kas_' + new Date().toISOString().slice(0,10) + '.xlsx');
+            showToast('✅ Excel berhasil diunduh');
+        } catch(e) {
+            showToast('❌ Gagal export Excel: ' + e.message);
+        }
+    }, 100);
+}
+
+/* ==============================================================
+   SECTION: DATA KELAS & SISWA
+   ============================================================== */
+var kelasList = [];
+var siswaList = [];
+
+async function loadKelasSiswaData() {
+    var savedKelas = await idbGet(STORE_KELAS, 'kelas_list');
+    kelasList = savedKelas || [];
+    var savedSiswa = await idbGet(STORE_SISWA, 'siswa_list');
+    siswaList = savedSiswa || [];
+    isiDropdownKelas();
+}
+
+async function saveKelasList() { await idbSet(STORE_KELAS, 'kelas_list', kelasList); isiDropdownKelas(); }
+async function saveSiswaList() { await idbSet(STORE_SISWA, 'siswa_list', siswaList); }
+
+function isiDropdownKelas() {
+    var opts = '<option value="">- Pilih Kelas -</option>' + kelasList.map(function(k){
+        return '<option value="' + k.id + '">' + escapeHtmlKas(k.nama) + '</option>';
+    }).join('');
+    var optsAll = '<option value="">Semua Kelas</option>' + kelasList.map(function(k){
+        return '<option value="' + k.id + '">' + escapeHtmlKas(k.nama) + '</option>';
+    }).join('');
+    ['inputKelasSiswa'].forEach(function(id){ var el = document.getElementById(id); if (el) el.innerHTML = opts; });
+    ['filterKelasSiswa','sppFilterKelas'].forEach(function(id){
+        var el = document.getElementById(id);
+        if (el) { var cur = el.value; el.innerHTML = optsAll; el.value = cur || ''; }
+    });
+}
+
+function getNamaKelas(kelasId) {
+    var k = kelasList.find(function(x){ return String(x.id) === String(kelasId); });
+    return k ? k.nama : '-';
+}
+
+function tambahKelasBaru() {
+    document.getElementById('titleModalKelas').textContent = '🏷️ Kelas Baru';
+    document.getElementById('editKelasId').value = '';
+    document.getElementById('inputNamaKelas').value = '';
+    document.getElementById('inputSppKelas').value = '';
+    document.getElementById('modalFormKelas').style.display = 'flex';
+}
+
+function editKelas(id) {
+    var k = kelasList.find(function(x){ return String(x.id) === String(id); });
+    if (!k) return;
+    document.getElementById('titleModalKelas').textContent = '✏️ Edit Kelas';
+    document.getElementById('editKelasId').value = k.id;
+    document.getElementById('inputNamaKelas').value = k.nama;
+    document.getElementById('inputSppKelas').value = k.sppNominal ? k.sppNominal.toLocaleString('id-ID') : '';
+    document.getElementById('modalFormKelas').style.display = 'flex';
+}
+
+function simpanFormKelas() {
+    var nama = document.getElementById('inputNamaKelas').value.trim();
+    if (!nama) return showToast('Nama kelas tidak boleh kosong!');
+    var sppNominal = parseNominal(document.getElementById('inputSppKelas').value) || null;
+    var editId = document.getElementById('editKelasId').value;
+    if (editId) {
+        var k = kelasList.find(function(x){ return String(x.id) === String(editId); });
+        if (k) { k.nama = nama; k.sppNominal = sppNominal; }
+    } else {
+        kelasList.push({ id: Date.now(), nama: nama, sppNominal: sppNominal });
+    }
+    saveKelasList();
+    renderListKelas();
+    document.getElementById('modalFormKelas').style.display = 'none';
+    showToast('✅ Kelas tersimpan');
+}
+
+function hapusKelas(id) {
+    var jumlahSiswa = siswaList.filter(function(s){ return String(s.kelasId) === String(id); }).length;
+    var pesan = jumlahSiswa > 0 ? 'Kelas ini punya ' + jumlahSiswa + ' siswa. Siswa tidak akan dihapus, hanya keluar dari kelas ini. Lanjutkan?' : 'Hapus kelas ini?';
+    if (!confirm(pesan)) return;
+    kelasList = kelasList.filter(function(x){ return String(x.id) !== String(id); });
+    siswaList.forEach(function(s){ if (String(s.kelasId) === String(id)) s.kelasId = ''; });
+    saveKelasList();
+    saveSiswaList();
+    renderListKelas();
+    renderListSiswa();
+    showToast('🗑️ Kelas dihapus');
+}
+
+function renderListKelas() {
+    var wrap = document.getElementById('listKelas');
+    if (!wrap) return;
+    wrap.innerHTML = '';
+    kelasList.forEach(function(k) {
+        var jumlah = siswaList.filter(function(s){ return String(s.kelasId) === String(k.id); }).length;
+        wrap.innerHTML += '<div class="setting-card flex items-center justify-between">' +
+            '<div><div style="font-weight:700;font-size:13.5px;">' + escapeHtmlKas(k.nama) + '</div>' +
+            '<div class="txt-muted">' + jumlah + ' siswa' + (k.sppNominal ? ' · SPP Rp ' + k.sppNominal.toLocaleString('id-ID') : '') + '</div></div>' +
+            '<div>' +
+                '<button onclick="editKelas(' + k.id + ')" style="background:none;border:none;color:var(--blue);font-size:14px;cursor:pointer;padding:4px;"><i class="fas fa-edit"></i></button>' +
+                '<button onclick="hapusKelas(' + k.id + ')" style="background:none;border:none;color:var(--red);font-size:14px;cursor:pointer;padding:4px;"><i class="fas fa-trash"></i></button>' +
+            '</div></div>';
+    });
+    document.getElementById('kelasEmptyState').style.display = kelasList.length === 0 ? 'block' : 'none';
+}
+
+function tambahSiswaBaru() {
+    document.getElementById('titleModalSiswa').textContent = '🎓 Siswa Baru';
+    document.getElementById('editSiswaId').value = '';
+    document.getElementById('inputNamaSiswa').value = '';
+    document.getElementById('inputKelasSiswa').value = '';
+    document.getElementById('inputSppSiswa').value = '';
+    document.getElementById('modalFormSiswa').style.display = 'flex';
+}
+
+function editSiswa(id) {
+    var s = siswaList.find(function(x){ return String(x.id) === String(id); });
+    if (!s) return;
+    document.getElementById('titleModalSiswa').textContent = '✏️ Edit Siswa';
+    document.getElementById('editSiswaId').value = s.id;
+    document.getElementById('inputNamaSiswa').value = s.nama;
+    document.getElementById('inputKelasSiswa').value = s.kelasId || '';
+    document.getElementById('inputSppSiswa').value = s.sppNominal ? s.sppNominal.toLocaleString('id-ID') : '';
+    document.getElementById('modalFormSiswa').style.display = 'flex';
+}
+
+function simpanFormSiswa() {
+    var nama = document.getElementById('inputNamaSiswa').value.trim();
+    if (!nama) return showToast('Nama siswa tidak boleh kosong!');
+    var kelasId = document.getElementById('inputKelasSiswa').value;
+    var sppNominal = parseNominal(document.getElementById('inputSppSiswa').value) || null;
+    var editId = document.getElementById('editSiswaId').value;
+    if (editId) {
+        var s = siswaList.find(function(x){ return String(x.id) === String(editId); });
+        if (s) { s.nama = nama; s.kelasId = kelasId; s.sppNominal = sppNominal; }
+    } else {
+        siswaList.push({ id: Date.now(), nama: nama, kelasId: kelasId, sppNominal: sppNominal });
+    }
+    saveSiswaList();
+    renderListKelas();
+    renderListSiswa();
+    document.getElementById('modalFormSiswa').style.display = 'none';
+    showToast('✅ Siswa tersimpan');
+}
+
+function hapusSiswa(id) {
+    if (!confirm('Hapus siswa ini? Riwayat pembayaran SPP-nya juga akan hilang.')) return;
+    siswaList = siswaList.filter(function(x){ return String(x.id) !== String(id); });
+    pembayaranSppList = pembayaranSppList.filter(function(p){ return String(p.siswaId) !== String(id); });
+    saveSiswaList();
+    savePembayaranSppList();
+    renderListSiswa();
+    showToast('🗑️ Siswa dihapus');
+}
+
+function renderListSiswa() {
+    var wrap = document.getElementById('listSiswa');
+    if (!wrap) return;
+    var filterKelas = (document.getElementById('filterKelasSiswa') || {}).value || '';
+    var list = filterKelas ? siswaList.filter(function(s){ return String(s.kelasId) === String(filterKelas); }) : siswaList;
+    wrap.innerHTML = '';
+    list.forEach(function(s) {
+        wrap.innerHTML += '<div class="setting-card flex items-center justify-between">' +
+            '<div><div style="font-weight:700;font-size:13.5px;">' + escapeHtmlKas(s.nama) + '</div>' +
+            '<div class="txt-muted">' + escapeHtmlKas(getNamaKelas(s.kelasId)) + (s.sppNominal ? ' · SPP khusus Rp ' + s.sppNominal.toLocaleString('id-ID') : '') + '</div></div>' +
+            '<div>' +
+                '<button onclick="editSiswa(' + s.id + ')" style="background:none;border:none;color:var(--blue);font-size:14px;cursor:pointer;padding:4px;"><i class="fas fa-edit"></i></button>' +
+                '<button onclick="hapusSiswa(' + s.id + ')" style="background:none;border:none;color:var(--red);font-size:14px;cursor:pointer;padding:4px;"><i class="fas fa-trash"></i></button>' +
+            '</div></div>';
+    });
+    document.getElementById('siswaEmptyState').style.display = list.length === 0 ? 'block' : 'none';
+}
+
+/* ---------- IMPOR DARI BACKUP JSON EDUKU ---------- */
+function showImportEduKuModal() {
+    document.getElementById('importEduKuText').value = '';
+    document.getElementById('modalImportEduKu').style.display = 'flex';
+}
+
+function prosesImportEduKu() {
+    var text = document.getElementById('importEduKuText').value.trim();
+    if (!text) return showToast('Tempel teks JSON EduKu dulu!');
+    var backup;
+    try { backup = JSON.parse(text); } catch(e) { return showToast('❌ Teks JSON tidak valid'); }
+
+    var eduKuKelas = backup.kelas || [];
+    var eduKuSiswa = (backup.peserta && backup.peserta.data) || backup.jamaah && backup.jamaah.data || [];
+    var eduKuMapping = backup.kelas_mapping || {};
+
+    if (eduKuKelas.length === 0 && eduKuSiswa.length === 0) {
+        return showToast('❌ Tidak ditemukan data kelas/siswa pada JSON ini');
+    }
+
+    // Peta id kelas lama EduKu -> id kelas baru BendaharaKu
+    var petaKelas = {};
+    eduKuKelas.forEach(function(k) {
+        var sudahAda = kelasList.find(function(x){ return x.nama.toLowerCase() === (k.nama||'').toLowerCase(); });
+        if (sudahAda) { petaKelas[k.id] = sudahAda.id; }
+        else {
+            var baru = { id: Date.now() + Math.floor(Math.random()*1000), nama: k.nama || 'Tanpa Nama', sppNominal: null };
+            kelasList.push(baru);
+            petaKelas[k.id] = baru.id;
+        }
+    });
+
+    // Balik mapping siswa->kelas dari kelas_mapping { kelasId: [siswaId,...] }
+    var siswaKeKelas = {};
+    Object.keys(eduKuMapping).forEach(function(kelasIdLama) {
+        (eduKuMapping[kelasIdLama] || []).forEach(function(sId) { siswaKeKelas[String(sId)] = kelasIdLama; });
+    });
+
+    var jumlahImpor = 0;
+    eduKuSiswa.forEach(function(j) {
+        var namaSiswa = j.nama_lengkap || j.nama || '';
+        if (!namaSiswa) return;
+        var sudahAda = siswaList.find(function(x){ return x.nama.toLowerCase() === namaSiswa.toLowerCase(); });
+        if (sudahAda) return; // lewati duplikat berdasarkan nama
+        var kelasIdLama = siswaKeKelas[String(j.id)];
+        var kelasIdBaru = kelasIdLama ? (petaKelas[kelasIdLama] || '') : '';
+        siswaList.push({ id: Date.now() + Math.floor(Math.random()*1000), nama: namaSiswa, kelasId: kelasIdBaru, sppNominal: null });
+        jumlahImpor++;
+    });
+
+    saveKelasList();
+    saveSiswaList();
+    renderListKelas();
+    renderListSiswa();
+    document.getElementById('modalImportEduKu').style.display = 'none';
+    showToast('✅ Impor selesai: ' + kelasList.length + ' kelas, ' + jumlahImpor + ' siswa baru ditambahkan');
+}
+
+/* ==============================================================
+   SECTION: SPP (Nominal, Pembayaran, Status, Rekap Tunggakan)
+   ============================================================== */
+var pembayaranSppList = [];
+var sppConfig = { default: 0 };
+
+async function loadSppData() {
+    var savedConfig = await idbGet(STORE_SPP, 'spp_config');
+    sppConfig = savedConfig || { default: 0 };
+    var savedBayar = await idbGet(STORE_PEMBAYARAN, 'pembayaran_spp_list');
+    pembayaranSppList = savedBayar || [];
+    var bulanInput = document.getElementById('sppBulanAktif');
+    if (bulanInput && !bulanInput.value) bulanInput.value = new Date().toISOString().slice(0,7);
+}
+
+async function saveSppConfig() { await idbSet(STORE_SPP, 'spp_config', sppConfig); }
+async function savePembayaranSppList() { await idbSet(STORE_PEMBAYARAN, 'pembayaran_spp_list', pembayaranSppList); }
+
+function getNominalSppSiswa(siswa) {
+    if (siswa.sppNominal) return siswa.sppNominal;
+    var kelas = kelasList.find(function(k){ return String(k.id) === String(siswa.kelasId); });
+    if (kelas && kelas.sppNominal) return kelas.sppNominal;
+    return sppConfig.default || 0;
+}
+
+function getTotalBayarSpp(siswaId, bulan) {
+    return pembayaranSppList
+        .filter(function(p){ return String(p.siswaId) === String(siswaId) && p.bulan === bulan; })
+        .reduce(function(s, p){ return s + p.nominal; }, 0);
+}
+
+function getStatusSppSiswa(siswa, bulan) {
+    var nominal = getNominalSppSiswa(siswa);
+    var terbayar = getTotalBayarSpp(siswa.id, bulan);
+    if (nominal <= 0) return { status: 'BELUM DIATUR', warna: 'var(--gray)', sisa: 0, nominal: 0, terbayar: terbayar };
+    var sisa = nominal - terbayar;
+    if (sisa <= 0) return { status: 'LUNAS', warna: 'var(--green)', sisa: 0, nominal: nominal, terbayar: terbayar };
+    if (terbayar > 0) return { status: 'CICIL', warna: 'var(--orange)', sisa: sisa, nominal: nominal, terbayar: terbayar };
+    return { status: 'BELUM BAYAR', warna: 'var(--red)', sisa: sisa, nominal: nominal, terbayar: terbayar };
+}
+
+function showPengaturanSppModal() {
+    document.getElementById('inputSppDefault').value = sppConfig.default ? sppConfig.default.toLocaleString('id-ID') : '';
+    document.getElementById('modalPengaturanSpp').style.display = 'flex';
+}
+
+function simpanPengaturanSpp() {
+    sppConfig.default = parseNominal(document.getElementById('inputSppDefault').value);
+    saveSppConfig();
+    renderSppList();
+    document.getElementById('modalPengaturanSpp').style.display = 'none';
+    showToast('✅ Nominal SPP default tersimpan');
+}
+
+function renderSppList() {
+    var wrap = document.getElementById('sppListWrap');
+    if (!wrap) return;
+    var bulanEl = document.getElementById('sppBulanAktif');
+    var bulan = bulanEl ? bulanEl.value : new Date().toISOString().slice(0,7);
+    if (bulanEl && !bulanEl.value) { bulan = new Date().toISOString().slice(0,7); bulanEl.value = bulan; }
+    var filterKelas = (document.getElementById('sppFilterKelas') || {}).value || '';
+    var list = filterKelas ? siswaList.filter(function(s){ return String(s.kelasId) === String(filterKelas); }) : siswaList;
+
+    var lunas = 0, cicil = 0, belum = 0;
+    wrap.innerHTML = '';
+    list.forEach(function(s) {
+        var st = getStatusSppSiswa(s, bulan);
+        if (st.status === 'LUNAS') lunas++;
+        else if (st.status === 'CICIL') cicil++;
+        else if (st.status === 'BELUM BAYAR') belum++;
+        wrap.innerHTML += '<div class="setting-card flex items-center justify-between" style="cursor:pointer;" onclick="showBayarSppModal(' + s.id + ',\'' + bulan + '\')">' +
+            '<div><div style="font-weight:700;font-size:13.5px;">' + escapeHtmlKas(s.nama) + '</div>' +
+            '<div class="txt-muted">' + escapeHtmlKas(getNamaKelas(s.kelasId)) + '</div></div>' +
+            '<div style="text-align:right;">' +
+                '<span style="background:' + st.warna + ';color:white;padding:3px 10px;border-radius:12px;font-size:10.5px;font-weight:700;">' + st.status + '</span>' +
+                (st.sisa > 0 ? '<div class="txt-muted mt-8">Sisa Rp ' + st.sisa.toLocaleString('id-ID') + '</div>' : '') +
+            '</div></div>';
+    });
+    document.getElementById('sppEmptyState').style.display = list.length === 0 ? 'block' : 'none';
+    document.getElementById('sppCountLunas').textContent = lunas;
+    document.getElementById('sppCountCicil').textContent = cicil;
+    document.getElementById('sppCountBelum').textContent = belum;
+}
+
+function showBayarSppModal(siswaId, bulan) {
+    var s = siswaList.find(function(x){ return String(x.id) === String(siswaId); });
+    if (!s) return;
+    var st = getStatusSppSiswa(s, bulan);
+    document.getElementById('bayarSppSiswaId').value = siswaId;
+    document.getElementById('bayarSppBulan').value = bulan;
+    document.getElementById('inputBayarSpp').value = '';
+    document.getElementById('inputKetBayarSpp').value = '';
+    var namaBulan = new Date(bulan + '-01').toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+    document.getElementById('bayarSppInfo').innerHTML =
+        '<b>' + escapeHtmlKas(s.nama) + '</b> · ' + escapeHtmlKas(getNamaKelas(s.kelasId)) + '<br>' +
+        'SPP ' + namaBulan + ' · Tagihan Rp ' + st.nominal.toLocaleString('id-ID') + '<br>' +
+        'Sudah dibayar: Rp ' + st.terbayar.toLocaleString('id-ID') + (st.sisa > 0 ? ' · Sisa Rp ' + st.sisa.toLocaleString('id-ID') : ' · LUNAS');
+
+    var riwayat = pembayaranSppList.filter(function(p){ return String(p.siswaId) === String(siswaId) && p.bulan === bulan; });
+    var riwayatWrap = document.getElementById('riwayatBayarSppWrap');
+    if (riwayat.length > 0) {
+        riwayatWrap.innerHTML = '<div class="txt-muted mb-8">Riwayat pembayaran bulan ini:</div>' +
+            riwayat.map(function(p) {
+                return '<div class="flex items-center justify-between" style="font-size:12px;padding:6px 0;border-bottom:1px solid var(--border);">' +
+                    '<span>' + p.tgl + (p.ket ? ' · ' + escapeHtmlKas(p.ket) : '') + '</span>' +
+                    '<span class="flex items-center gap-8"><span style="font-weight:700;">Rp ' + p.nominal.toLocaleString('id-ID') + '</span>' +
+                    '<button onclick="cetakKuitansiPdf(' + p.id + ')" style="background:none;border:none;color:var(--blue);cursor:pointer;padding:2px;"><i class="fas fa-print"></i></button></span></div>';
+            }).join('');
+    } else {
+        riwayatWrap.innerHTML = '';
+    }
+    document.getElementById('modalBayarSpp').style.display = 'flex';
+}
+
+async function simpanPembayaranSpp() {
+    var siswaId = document.getElementById('bayarSppSiswaId').value;
+    var bulan = document.getElementById('bayarSppBulan').value;
+    var nominal = parseNominal(document.getElementById('inputBayarSpp').value);
+    var ket = document.getElementById('inputKetBayarSpp').value.trim();
+    if (nominal <= 0) return showToast('Isi nominal pembayaran yang benar!');
+    var noKuitansi = await generateNomorKuitansi();
+    pembayaranSppList.unshift({
+        id: Date.now(), siswaId: siswaId, bulan: bulan, nominal: nominal, ket: ket,
+        noKuitansi: noKuitansi,
+        tgl: new Date().toLocaleDateString('id-ID'), tglIso: new Date().toISOString().slice(0,10)
+    });
+    savePembayaranSppList();
+    document.getElementById('modalBayarSpp').style.display = 'none';
+    renderSppList();
+    showToast('✅ Pembayaran tersimpan · Kuitansi ' + noKuitansi);
+}
+
+async function cetakRekapTunggakan() {
+    var bulanEl = document.getElementById('sppBulanAktif');
+    var bulan = bulanEl && bulanEl.value ? bulanEl.value : new Date().toISOString().slice(0,7);
+    var namaBulan = new Date(bulan + '-01').toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+    var cfg = getKonfigurasiInstansiData();
+    var tglCetak = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+
+    var perKelas = {};
+    siswaList.forEach(function(s) {
+        var st = getStatusSppSiswa(s, bulan);
+        if (st.sisa > 0) {
+            var namaKelas = getNamaKelas(s.kelasId);
+            if (!perKelas[namaKelas]) perKelas[namaKelas] = [];
+            perKelas[namaKelas].push({ nama: s.nama, sisa: st.sisa });
+        }
+    });
+
+    var kelasNames = Object.keys(perKelas);
+    if (kelasNames.length === 0) return showToast('Tidak ada tunggakan bulan ini 🎉');
+
+    var totalTunggakan = 0;
+    var bodyHtml = '';
+    kelasNames.forEach(function(nk) {
+        var siswaKelas = perKelas[nk];
+        var subtotal = siswaKelas.reduce(function(s,x){ return s + x.sisa; }, 0);
+        totalTunggakan += subtotal;
+        bodyHtml += '<tr><td colspan="3" style="padding:8px;background:#f0fdf4;font-weight:bold;">' + nk + '</td></tr>';
+        siswaKelas.forEach(function(x, idx) {
+            bodyHtml += '<tr><td style="padding:6px 8px;border-bottom:1px solid #eee;">' + (idx+1) + '</td>' +
+                '<td style="padding:6px 8px;border-bottom:1px solid #eee;">' + x.nama + '</td>' +
+                '<td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;color:#EF4444;font-weight:bold;">Rp ' + x.sisa.toLocaleString('id-ID') + '</td></tr>';
+        });
+        bodyHtml += '<tr><td colspan="2" style="padding:6px 8px;text-align:right;font-size:11.5px;color:#666;">Subtotal ' + nk + '</td>' +
+            '<td style="padding:6px 8px;text-align:right;font-size:11.5px;font-weight:bold;">Rp ' + subtotal.toLocaleString('id-ID') + '</td></tr>';
+    });
+
+    var headerHtml = buildPrintHeader(cfg, tglCetak);
+    var watermarkHtml = buildPrintWatermark(cfg);
+    var ttdHtml = buildPrintTandaTangan(cfg, tglCetak);
+
+    var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Rekap Tunggakan SPP</title><style>' +
+        '*{margin:0;padding:0;box-sizing:border-box;}body{font-family:Arial,sans-serif;background:#f0f0f0;padding:20px;}' +
+        '.box{background:white;max-width:800px;margin:0 auto;border-radius:16px;padding:30px;box-shadow:0 2px 16px rgba(0,0,0,0.1);}' +
+        'h2{color:#0D5C4A;font-size:20px;margin-bottom:2px;}.tgl{color:#aaa;font-size:11px;margin-bottom:20px;}' +
+        'table{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:20px;}' +
+        '.summary{background:#fef2f2;border-radius:10px;padding:16px;font-size:14px;font-weight:bold;color:#991b1b;}' +
+        '.no-print{text-align:center;margin-top:24px;}.no-print button{padding:12px 32px;margin:0 8px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;}' +
+        '@page{size:A4 portrait;margin:10mm 12mm;}@media print{*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}html{width:210mm;}body{background:white;padding:0;margin:0;width:210mm;}.box{box-shadow:none;border-radius:0;max-width:none;width:100%;}.no-print{display:none!important;}}' +
+        '</style></head><body><div class="box">' + headerHtml +
+        '<h2>REKAP TUNGGAKAN SPP — ' + namaBulan.toUpperCase() + '</h2><div class="tgl">Tanggal Cetak: ' + tglCetak + '</div>' +
+        '<table><thead><tr><th style="text-align:left;padding:8px;background:#0D5C4A;color:white;">No</th><th style="text-align:left;padding:8px;background:#0D5C4A;color:white;">Nama Siswa</th><th style="text-align:right;padding:8px;background:#0D5C4A;color:white;">Tunggakan</th></tr></thead><tbody>' + bodyHtml + '</tbody></table>' +
+        '<div class="summary">TOTAL TUNGGAKAN: Rp ' + totalTunggakan.toLocaleString('id-ID') + '</div>' +
+        ttdHtml +
+        '</div><div class="no-print"><button onclick="window.print()" style="background:#0D5C4A;color:white;">🖨️ CETAK</button>' +
+        '<button onclick="window.close()" style="background:#E2E8F0;color:#1E293B;">✕ TUTUP</button></div>' +
+        watermarkHtml + '</body></html>';
+    var win = window.open('', '_blank');
+    if (!win) return showToast('Izinkan popup untuk cetak!');
+    win.document.write(html);
+    injectWatermarkToPrintWin(win);
+    win.document.close();
+}
+
+/* ==============================================================
+   SECTION: KUITANSI (Nomor Urut + Cetak PDF)
+   ============================================================== */
+async function generateNomorKuitansi() {
+    var counter = await idbGet(STORE_KONFIGURASI, 'kuitansi_counter');
+    var urut = (counter || 0) + 1;
+    await idbSet(STORE_KONFIGURASI, 'kuitansi_counter', urut);
+    var cfg = getKonfigurasiInstansiData();
+    var prefix = (cfg.settings && cfg.settings.invoice_prefix) ? cfg.settings.invoice_prefix : 'KWT';
+    var romawiBulan = ['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'][new Date().getMonth()];
+    var tahun = new Date().getFullYear();
+    return prefix + '/' + String(urut).padStart(4, '0') + '/' + romawiBulan + '/' + tahun;
+}
+
+var SATUAN_TERBILANG = ['', 'satu', 'dua', 'tiga', 'empat', 'lima', 'enam', 'tujuh', 'delapan', 'sembilan', 'sepuluh',
+    'sebelas', 'dua belas', 'tiga belas', 'empat belas', 'lima belas', 'enam belas', 'tujuh belas', 'delapan belas', 'sembilan belas'];
+
+function angkaTerbilang(num) {
+    num = Math.floor(Math.abs(num));
+    if (num === 0) return 'nol';
+    function bagi(n) {
+        if (n < 20) return SATUAN_TERBILANG[n];
+        if (n < 100) return SATUAN_TERBILANG[Math.floor(n/10)] + ' puluh' + (n%10 ? ' ' + SATUAN_TERBILANG[n%10] : '');
+        if (n < 200) return 'seratus' + (n%100 ? ' ' + bagi(n%100) : '');
+        if (n < 1000) return SATUAN_TERBILANG[Math.floor(n/100)] + ' ratus' + (n%100 ? ' ' + bagi(n%100) : '');
+        if (n < 2000) return 'seribu' + (n%1000 ? ' ' + bagi(n%1000) : '');
+        if (n < 1000000) return bagi(Math.floor(n/1000)) + ' ribu' + (n%1000 ? ' ' + bagi(n%1000) : '');
+        if (n < 1000000000) return bagi(Math.floor(n/1000000)) + ' juta' + (n%1000000 ? ' ' + bagi(n%1000000) : '');
+        return bagi(Math.floor(n/1000000000)) + ' milyar' + (n%1000000000 ? ' ' + bagi(n%1000000000) : '');
+    }
+    var hasil = bagi(num).replace(/\s+/g, ' ').trim();
+    return hasil.charAt(0).toUpperCase() + hasil.slice(1) + ' rupiah';
+}
+
+async function cetakKuitansiPdf(paymentId) {
+    var p = pembayaranSppList.find(function(x){ return x.id === paymentId; });
+    if (!p) return showToast('Data pembayaran tidak ditemukan');
+    var s = siswaList.find(function(x){ return String(x.id) === String(p.siswaId); });
+    if (!s) return showToast('Data siswa tidak ditemukan');
+    if (!p.noKuitansi) { p.noKuitansi = await generateNomorKuitansi(); savePembayaranSppList(); }
+
+    var cfg = getKonfigurasiInstansiData();
+    var namaBulan = new Date(p.bulan + '-01').toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+    var { jsPDF } = window.jspdf;
+    var doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: [148, 105] }); // ukuran A6 landscape
+
+    doc.setFillColor(13, 92, 74);
+    doc.rect(0, 0, 148, 22, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(13);
+    doc.setFont(undefined, 'bold');
+    doc.text(cfg.nama || 'BendaharaKu', 8, 10);
+    doc.setFontSize(8);
+    doc.setFont(undefined, 'normal');
+    if (cfg.alamat) doc.text(cfg.alamat, 8, 15);
+    if (cfg.telp) doc.text('Telp: ' + cfg.telp, 8, 19);
+
+    doc.setTextColor(30, 41, 59);
+    doc.setFontSize(14);
+    doc.setFont(undefined, 'bold');
+    doc.text('KUITANSI PEMBAYARAN SPP', 8, 32);
+    doc.setFontSize(9);
+    doc.setFont(undefined, 'normal');
+    doc.text('No: ' + p.noKuitansi, 8, 38);
+    doc.text('Tanggal: ' + p.tgl, 100, 38);
+
+    doc.setDrawColor(226, 232, 240);
+    doc.line(8, 42, 140, 42);
+
+    var baris = [
+        ['Telah terima dari', ': ' + s.nama],
+        ['Kelas', ': ' + getNamaKelas(s.kelasId)],
+        ['Untuk pembayaran', ': SPP bulan ' + namaBulan],
+        ['Keterangan', ': ' + (p.ket || '-')]
+    ];
+    var y = 50;
+    doc.setFontSize(10);
+    baris.forEach(function(row) {
+        doc.text(row[0], 8, y);
+        doc.text(row[1], 42, y);
+        y += 7;
+    });
+
+    doc.setFillColor(240, 253, 244);
+    doc.rect(8, y + 2, 132, 14, 'F');
+    doc.setFontSize(9);
+    doc.text('Sebesar', 10, y + 7);
+    doc.setFontSize(13);
+    doc.setFont(undefined, 'bold');
+    doc.text('Rp ' + p.nominal.toLocaleString('id-ID'), 10, y + 13);
+    doc.setFontSize(8);
+    doc.setFont(undefined, 'italic');
+    doc.text('(' + angkaTerbilang(p.nominal) + ')', 55, y + 13);
+
+    var yTtd = y + 24;
+    doc.setFont(undefined, 'normal');
+    doc.setFontSize(9);
+    doc.text((cfg.alamat ? cfg.alamat.split(',')[cfg.alamat.split(',').length-1].trim() : '') + ', ' + p.tgl, 90, yTtd);
+    doc.text('Bendahara,', 100, yTtd + 6);
+    doc.text(cfg.bendahara || '( ___________________ )', 90, yTtd + 22);
+
+    doc.save('Kuitansi_' + s.nama.replace(/[^a-zA-Z0-9]/g,'_') + '_' + p.bulan + '.pdf');
+    showToast('✅ Kuitansi diunduh');
+}
+
+function renderRiwayatKuitansi() {
+    var wrap = document.getElementById('listKuitansi');
+    if (!wrap) return;
+    var bulan = (document.getElementById('filterBulanKuitansi') || {}).value || '';
+    var list = pembayaranSppList.filter(function(p){ return !bulan || p.bulan === bulan; });
+    wrap.innerHTML = '';
+    list.forEach(function(p) {
+        var s = siswaList.find(function(x){ return String(x.id) === String(p.siswaId); });
+        var namaBulan = new Date(p.bulan + '-01').toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+        wrap.innerHTML += '<div class="setting-card flex items-center justify-between">' +
+            '<div><div style="font-weight:700;font-size:13.5px;">' + escapeHtmlKas(s ? s.nama : '(siswa dihapus)') + '</div>' +
+            '<div class="txt-muted">' + (p.noKuitansi || '-') + ' · SPP ' + namaBulan + '</div></div>' +
+            '<div style="text-align:right;">' +
+                '<div style="font-weight:700;color:var(--green);">Rp ' + p.nominal.toLocaleString('id-ID') + '</div>' +
+                '<button onclick="cetakKuitansiPdf(' + p.id + ')" style="background:none;border:none;color:var(--blue);cursor:pointer;padding:2px;"><i class="fas fa-print"></i> Cetak</button>' +
+            '</div></div>';
+    });
+    document.getElementById('kuitansiEmptyState').style.display = list.length === 0 ? 'block' : 'none';
+}
+
+/* ==============================================================
+   SECTION: LAPORAN KEUANGAN (Gabungan Kas + SPP)
+   ============================================================== */
+function renderLaporanKeuangan() {
+    var bulanEl = document.getElementById('laporanBulanAktif');
+    if (bulanEl && !bulanEl.value) bulanEl.value = new Date().toISOString().slice(0,7);
+    var bulan = bulanEl ? bulanEl.value : new Date().toISOString().slice(0,7);
+
+    var kasPeriode = dataKas.filter(function(i){ return i.tglIso && i.tglIso.slice(0,7) === bulan; });
+    var kasMasuk = 0, kasKeluar = 0;
+    var perKategori = {};
+    kasPeriode.forEach(function(i) {
+        if (i.tipe === 'masuk') kasMasuk += i.nom; else kasKeluar += i.nom;
+        if (!perKategori[i.kategori]) perKategori[i.kategori] = { masuk: 0, keluar: 0 };
+        if (i.tipe === 'masuk') perKategori[i.kategori].masuk += i.nom; else perKategori[i.kategori].keluar += i.nom;
+    });
+
+    var sppPeriode = pembayaranSppList.filter(function(p){ return p.bulan === bulan; });
+    var sppTotal = sppPeriode.reduce(function(s,p){ return s + p.nominal; }, 0);
+    var perKelasSpp = {};
+    sppPeriode.forEach(function(p) {
+        var s = siswaList.find(function(x){ return String(x.id) === String(p.siswaId); });
+        var namaKelas = s ? getNamaKelas(s.kelasId) : '-';
+        perKelasSpp[namaKelas] = (perKelasSpp[namaKelas] || 0) + p.nominal;
+    });
+
+    var totalMasuk = kasMasuk + sppTotal;
+    var totalKeluar = kasKeluar;
+    var saldo = totalMasuk - totalKeluar;
+
+    document.getElementById('lapTotalMasuk').textContent = 'Rp ' + totalMasuk.toLocaleString('id-ID');
+    document.getElementById('lapTotalKeluar').textContent = 'Rp ' + totalKeluar.toLocaleString('id-ID');
+    document.getElementById('lapSaldo').textContent = 'Rp ' + saldo.toLocaleString('id-ID');
+
+    var kasWrap = document.getElementById('lapKasKategori');
+    var katKeys = Object.keys(perKategori);
+    if (katKeys.length === 0) {
+        kasWrap.innerHTML = '<div class="txt-muted">Tidak ada transaksi kas periode ini</div>';
+    } else {
+        kasWrap.innerHTML = katKeys.map(function(k) {
+            var v = perKategori[k];
+            return '<div class="flex items-center justify-between" style="font-size:12.5px;padding:6px 0;border-bottom:1px solid var(--border);">' +
+                '<span>' + escapeHtmlKas(k) + '</span>' +
+                '<span>' + (v.masuk ? '<span class="txt-in">+Rp ' + v.masuk.toLocaleString('id-ID') + '</span>' : '') +
+                (v.masuk && v.keluar ? ' / ' : '') +
+                (v.keluar ? '<span class="txt-out">-Rp ' + v.keluar.toLocaleString('id-ID') + '</span>' : '') + '</span></div>';
+        }).join('');
+    }
+
+    var sppWrap = document.getElementById('lapSppKelas');
+    var kelasKeys = Object.keys(perKelasSpp);
+    if (kelasKeys.length === 0) {
+        sppWrap.innerHTML = '<div class="txt-muted">Tidak ada pembayaran SPP periode ini</div>';
+    } else {
+        sppWrap.innerHTML = kelasKeys.map(function(k) {
+            return '<div class="flex items-center justify-between" style="font-size:12.5px;padding:6px 0;border-bottom:1px solid var(--border);">' +
+                '<span>' + escapeHtmlKas(k) + '</span><span class="txt-in">Rp ' + perKelasSpp[k].toLocaleString('id-ID') + '</span></div>';
+        }).join('') + '<div class="flex items-center justify-between mt-8" style="font-weight:700;"><span>Total SPP</span><span>Rp ' + sppTotal.toLocaleString('id-ID') + '</span></div>';
+    }
+}
+
+async function cetakLaporanKeuangan() {
+    var bulan = document.getElementById('laporanBulanAktif').value || new Date().toISOString().slice(0,7);
+    var namaBulan = new Date(bulan + '-01').toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+    var cfg = getKonfigurasiInstansiData();
+    var tglCetak = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+
+    var kasPeriode = dataKas.filter(function(i){ return i.tglIso && i.tglIso.slice(0,7) === bulan; });
+    var sppPeriode = pembayaranSppList.filter(function(p){ return p.bulan === bulan; });
+    var kasMasuk = 0, kasKeluar = 0;
+    kasPeriode.forEach(function(i){ if (i.tipe === 'masuk') kasMasuk += i.nom; else kasKeluar += i.nom; });
+    var sppTotal = sppPeriode.reduce(function(s,p){ return s + p.nominal; }, 0);
+    var totalMasuk = kasMasuk + sppTotal, totalKeluar = kasKeluar, saldo = totalMasuk - totalKeluar;
+
+    var rowsHtml = '';
+    kasPeriode.forEach(function(i) {
+        var warna = i.tipe === 'masuk' ? '#10B981' : '#EF4444';
+        rowsHtml += '<tr><td style="padding:6px 8px;border-bottom:1px solid #eee;">' + i.tgl + '</td>' +
+            '<td style="padding:6px 8px;border-bottom:1px solid #eee;">' + i.kategori + ' - ' + i.ket + '</td>' +
+            '<td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;color:' + warna + ';font-weight:bold;">' +
+            (i.tipe === 'masuk' ? '+' : '-') + 'Rp ' + i.nom.toLocaleString('id-ID') + '</td></tr>';
+    });
+    sppPeriode.forEach(function(p) {
+        var s = siswaList.find(function(x){ return String(x.id) === String(p.siswaId); });
+        rowsHtml += '<tr><td style="padding:6px 8px;border-bottom:1px solid #eee;">' + p.tgl + '</td>' +
+            '<td style="padding:6px 8px;border-bottom:1px solid #eee;">SPP - ' + (s ? s.nama : '-') + '</td>' +
+            '<td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;color:#10B981;font-weight:bold;">+Rp ' + p.nominal.toLocaleString('id-ID') + '</td></tr>';
+    });
+
+    var headerHtml = buildPrintHeader(cfg, tglCetak);
+    var watermarkHtml = buildPrintWatermark(cfg);
+    var ttdHtml = buildPrintTandaTangan(cfg, tglCetak);
+
+    var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Laporan Keuangan</title><style>' +
+        '*{margin:0;padding:0;box-sizing:border-box;}body{font-family:Arial,sans-serif;background:#f0f0f0;padding:20px;}' +
+        '.box{background:white;max-width:800px;margin:0 auto;border-radius:16px;padding:30px;box-shadow:0 2px 16px rgba(0,0,0,0.1);}' +
+        'h2{color:#0D5C4A;font-size:20px;margin-bottom:2px;}.tgl{color:#aaa;font-size:11px;margin-bottom:20px;}' +
+        'table{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:20px;}' +
+        'th{background:#0D5C4A;color:white;padding:8px;text-align:left;-webkit-print-color-adjust:exact;print-color-adjust:exact;}' +
+        '.summary{background:#f8f8f8;border-radius:10px;padding:16px;font-size:13px;line-height:2;}' +
+        '.no-print{text-align:center;margin-top:24px;}.no-print button{padding:12px 32px;margin:0 8px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;}' +
+        '@page{size:A4 portrait;margin:10mm 12mm;}@media print{*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}html{width:210mm;}body{background:white;padding:0;margin:0;width:210mm;}.box{box-shadow:none;border-radius:0;max-width:none;width:100%;}.no-print{display:none!important;}}' +
+        '</style></head><body><div class="box">' + headerHtml +
+        '<h2>LAPORAN KEUANGAN — ' + namaBulan.toUpperCase() + '</h2><div class="tgl">Tanggal Cetak: ' + tglCetak + '</div>' +
+        '<div class="summary">' +
+            '<div>Total Pemasukan (Kas + SPP) &nbsp;: <strong style="color:#10B981;">Rp ' + totalMasuk.toLocaleString('id-ID') + '</strong></div>' +
+            '<div>Total Pengeluaran &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <strong style="color:#EF4444;">Rp ' + totalKeluar.toLocaleString('id-ID') + '</strong></div>' +
+            '<div style="font-size:16px;font-weight:bold;color:#0D5C4A;margin-top:6px;">SALDO: Rp ' + saldo.toLocaleString('id-ID') + '</div>' +
+        '</div>' +
+        '<table><thead><tr><th>Tgl</th><th>Uraian</th><th style="text-align:right;">Nominal</th></tr></thead><tbody>' + (rowsHtml || '<tr><td colspan="3" style="padding:10px;text-align:center;color:#999;">Tidak ada transaksi</td></tr>') + '</tbody></table>' +
+        ttdHtml +
+        '</div><div class="no-print"><button onclick="window.print()" style="background:#0D5C4A;color:white;">🖨️ CETAK</button>' +
+        '<button onclick="window.close()" style="background:#E2E8F0;color:#1E293B;">✕ TUTUP</button></div>' +
+        watermarkHtml + '</body></html>';
+    var win = window.open('', '_blank');
+    if (!win) return showToast('Izinkan popup untuk cetak!');
+    win.document.write(html);
+    injectWatermarkToPrintWin(win);
+    win.document.close();
+}
+
+function exportLaporanKeuanganExcel() {
+    var bulan = document.getElementById('laporanBulanAktif').value || new Date().toISOString().slice(0,7);
+    var kasPeriode = dataKas.filter(function(i){ return i.tglIso && i.tglIso.slice(0,7) === bulan; });
+    var sppPeriode = pembayaranSppList.filter(function(p){ return p.bulan === bulan; });
+    if (kasPeriode.length === 0 && sppPeriode.length === 0) return showToast('Tidak ada data periode ini!');
+    showToast('Membuat Excel...');
+    setTimeout(function() {
+        try {
+            var kasMasuk = 0, kasKeluar = 0;
+            kasPeriode.forEach(function(i){ if (i.tipe === 'masuk') kasMasuk += i.nom; else kasKeluar += i.nom; });
+            var sppTotal = sppPeriode.reduce(function(s,p){ return s + p.nominal; }, 0);
+
+            var wsRingkasan = XLSX.utils.json_to_sheet([
+                { Uraian: 'Total Pemasukan Kas', Nominal: kasMasuk },
+                { Uraian: 'Total Pemasukan SPP', Nominal: sppTotal },
+                { Uraian: 'Total Pengeluaran Kas', Nominal: kasKeluar },
+                { Uraian: 'SALDO', Nominal: (kasMasuk + sppTotal) - kasKeluar }
+            ]);
+            var wsKas = XLSX.utils.json_to_sheet(kasPeriode.map(function(i){
+                return { Tanggal: i.tgl, Kategori: i.kategori, Keterangan: i.ket, Tipe: i.tipe.toUpperCase(), Nominal: i.nom };
+            }));
+            var wsSpp = XLSX.utils.json_to_sheet(sppPeriode.map(function(p){
+                var s = siswaList.find(function(x){ return String(x.id) === String(p.siswaId); });
+                return { Tanggal: p.tgl, Siswa: s ? s.nama : '-', Kelas: s ? getNamaKelas(s.kelasId) : '-', NoKuitansi: p.noKuitansi || '-', Nominal: p.nominal };
+            }));
+            var wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, wsRingkasan, 'Ringkasan');
+            XLSX.utils.book_append_sheet(wb, wsKas, 'Kas');
+            XLSX.utils.book_append_sheet(wb, wsSpp, 'SPP');
+            XLSX.writeFile(wb, 'Laporan_Keuangan_' + bulan + '.xlsx');
+            showToast('✅ Excel berhasil diunduh');
+        } catch(e) {
+            showToast('❌ Gagal export Excel: ' + e.message);
+        }
+    }, 100);
+}
+
+/* ==============================================================
+   SECTION: TAHUN AJARAN (Multi Tahun Ajaran)
+   ============================================================== */
+function getTahunAjaranAktif() {
+    var saved = localStorage.getItem('bendaharaku_tahun_ajaran_aktif');
+    if (saved) return saved;
+    var now = new Date();
+    var y = now.getFullYear();
+    return (now.getMonth() >= 6) ? (y + '/' + (y+1)) : ((y-1) + '/' + y); // Juli = bulan index 6
+}
+
+function loadTahunAjaranForm() {
+    var el = document.getElementById('inputTahunAjaranAktif');
+    if (el) el.value = getTahunAjaranAktif();
+}
+
+function simpanTahunAjaranAktif() {
+    var val = document.getElementById('inputTahunAjaranAktif').value.trim();
+    if (!/^\d{4}\/\d{4}$/.test(val)) return showToast('Format harus: 2026/2027');
+    localStorage.setItem('bendaharaku_tahun_ajaran_aktif', val);
+    showToast('✅ Tahun Ajaran Aktif: ' + val);
+}
+
+function getRentangTahunAjaran(ta) {
+    var parts = ta.split('/');
+    return { start: parts[0] + '-07-01', end: parts[1] + '-06-30' };
+}
+
+/* ==============================================================
+   SECTION: DASHBOARD (Ringkasan Harian/Bulanan/Tahunan + Grafik)
+   ============================================================== */
+var chartTrenInstance = null;
+
+function hitungTotalPeriode(tglMulaiIso, tglSelesaiIso) {
+    var masuk = 0, keluar = 0;
+    dataKas.forEach(function(i) {
+        if (i.tglIso >= tglMulaiIso && i.tglIso <= tglSelesaiIso) {
+            if (i.tipe === 'masuk') masuk += i.nom; else keluar += i.nom;
+        }
+    });
+    pembayaranSppList.forEach(function(p) {
+        if (p.tglIso >= tglMulaiIso && p.tglIso <= tglSelesaiIso) masuk += p.nominal;
+    });
+    return { masuk: masuk, keluar: keluar };
+}
+
+function renderDashboard() {
+    var hariIni = new Date().toISOString().slice(0,10);
+    var totHari = hitungTotalPeriode(hariIni, hariIni);
+    document.getElementById('dbHariMasuk').textContent = 'Rp ' + totHari.masuk.toLocaleString('id-ID');
+    document.getElementById('dbHariKeluar').textContent = 'Rp ' + totHari.keluar.toLocaleString('id-ID');
+
+    var bulanIni = hariIni.slice(0,7);
+    var totBulan = hitungTotalPeriode(bulanIni + '-01', bulanIni + '-31');
+    document.getElementById('dbBulanMasuk').textContent = 'Rp ' + totBulan.masuk.toLocaleString('id-ID');
+    document.getElementById('dbBulanKeluar').textContent = 'Rp ' + totBulan.keluar.toLocaleString('id-ID');
+
+    var ta = getTahunAjaranAktif();
+    var rentang = getRentangTahunAjaran(ta);
+    var totTahun = hitungTotalPeriode(rentang.start, rentang.end);
+    document.getElementById('dbTaLabel').textContent = ta;
+    document.getElementById('dbTahunMasuk').textContent = 'Rp ' + totTahun.masuk.toLocaleString('id-ID');
+    document.getElementById('dbTahunKeluar').textContent = 'Rp ' + totTahun.keluar.toLocaleString('id-ID');
+
+    renderChartTren();
+}
+
+function renderChartTren() {
+    var canvas = document.getElementById('chartTrenKeuangan');
+    if (!canvas || typeof Chart === 'undefined') return;
+    var labels = [], dataMasuk = [], dataKeluar = [];
+    var now = new Date();
+    for (var i = 5; i >= 0; i--) {
+        var d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        var bulanKey = d.toISOString().slice(0,7);
+        var tot = hitungTotalPeriode(bulanKey + '-01', bulanKey + '-31');
+        labels.push(d.toLocaleDateString('id-ID', { month: 'short', year: '2-digit' }));
+        dataMasuk.push(tot.masuk);
+        dataKeluar.push(tot.keluar);
+    }
+    if (chartTrenInstance) chartTrenInstance.destroy();
+    chartTrenInstance = new Chart(canvas.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                { label: 'Pemasukan', data: dataMasuk, backgroundColor: '#10B981' },
+                { label: 'Pengeluaran', data: dataKeluar, backgroundColor: '#EF4444' }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'bottom' } },
+            scales: { y: { beginAtZero: true, ticks: { callback: function(v){ return 'Rp ' + (v/1000) + 'rb'; } } } }
+        }
+    });
+}
+
+/* ==============================================================
+   SECTION: RKAS (Anggaran vs Realisasi)
+   ============================================================== */
+var rkasList = [];
+
+async function loadRkasData() {
+    var saved = await idbGet(STORE_RKAS, 'rkas_list');
+    rkasList = saved || [];
+    isiDropdownKategoriRkas();
+}
+async function saveRkasList() { await idbSet(STORE_RKAS, 'rkas_list', rkasList); }
+
+function isiDropdownKategoriRkas() {
+    var sel = document.getElementById('rkasKategori');
+    if (sel) sel.innerHTML = kategoriKasList.map(function(k){ return '<option value="' + k + '">' + k + '</option>'; }).join('');
+}
+
+function tambahRkas() {
+    var kategori = document.getElementById('rkasKategori').value;
+    var nominal = parseNominal(document.getElementById('rkasNominal').value);
+    if (nominal <= 0) return showToast('Isi nominal anggaran yang benar!');
+    var ta = getTahunAjaranAktif();
+    var existing = rkasList.find(function(r){ return r.tahunAjaran === ta && r.kategori === kategori; });
+    if (existing) { existing.anggaran = nominal; }
+    else { rkasList.push({ id: Date.now(), tahunAjaran: ta, kategori: kategori, anggaran: nominal }); }
+    saveRkasList();
+    renderRkasPage();
+    document.getElementById('rkasNominal').value = '';
+    showToast('✅ Anggaran tersimpan');
+}
+
+function hapusRkas(id) {
+    if (!confirm('Hapus anggaran ini?')) return;
+    rkasList = rkasList.filter(function(r){ return r.id !== id; });
+    saveRkasList();
+    renderRkasPage();
+}
+
+function getRealisasiKategori(kategori, rentang) {
+    return dataKas
+        .filter(function(i){ return i.kategori === kategori && i.tipe === 'keluar' && i.tglIso >= rentang.start && i.tglIso <= rentang.end; })
+        .reduce(function(s,i){ return s + i.nom; }, 0);
+}
+
+function renderRkasPage() {
+    var ta = getTahunAjaranAktif();
+    document.getElementById('rkasTaLabel').textContent = ta;
+    var rentang = getRentangTahunAjaran(ta);
+    var list = rkasList.filter(function(r){ return r.tahunAjaran === ta; });
+    var wrap = document.getElementById('rkasListWrap');
+    wrap.innerHTML = '';
+    list.forEach(function(r) {
+        var realisasi = getRealisasiKategori(r.kategori, rentang);
+        var persen = r.anggaran > 0 ? Math.min(100, Math.round((realisasi / r.anggaran) * 100)) : 0;
+        var warna = persen >= 100 ? 'var(--red)' : (persen >= 80 ? 'var(--orange)' : 'var(--green)');
+        wrap.innerHTML += '<div class="card">' +
+            '<div class="flex items-center justify-between mb-8">' +
+                '<div style="font-weight:700;">' + escapeHtmlKas(r.kategori) + '</div>' +
+                '<button onclick="hapusRkas(' + r.id + ')" style="background:none;border:none;color:var(--red);cursor:pointer;"><i class="fas fa-trash"></i></button>' +
+            '</div>' +
+            '<div class="flex items-center justify-between" style="font-size:12.5px;margin-bottom:6px;">' +
+                '<span>Anggaran: Rp ' + r.anggaran.toLocaleString('id-ID') + '</span>' +
+                '<span>Realisasi: Rp ' + realisasi.toLocaleString('id-ID') + '</span></div>' +
+            '<div style="background:var(--gray-light);border-radius:8px;height:10px;overflow:hidden;">' +
+                '<div style="width:' + persen + '%;background:' + warna + ';height:100%;"></div></div>' +
+            '<div class="text-center mt-8" style="font-size:11.5px;color:' + warna + ';font-weight:700;">' + persen + '% terealisasi</div>' +
+        '</div>';
+    });
+    document.getElementById('rkasEmptyState').style.display = list.length === 0 ? 'block' : 'none';
+    isiDropdownKategoriRkas();
+}
+
+async function cetakRkas() {
+    var ta = getTahunAjaranAktif();
+    var rentang = getRentangTahunAjaran(ta);
+    var list = rkasList.filter(function(r){ return r.tahunAjaran === ta; });
+    if (list.length === 0) return showToast('Belum ada anggaran untuk dicetak!');
+    var cfg = getKonfigurasiInstansiData();
+    var tglCetak = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+    var headerHtml = buildPrintHeader(cfg, tglCetak);
+    var watermarkHtml = buildPrintWatermark(cfg);
+    var ttdHtml = buildPrintTandaTangan(cfg, tglCetak);
+    var totalAnggaran = 0, totalRealisasi = 0;
+    var rowsHtml = list.map(function(r, idx) {
+        var realisasi = getRealisasiKategori(r.kategori, rentang);
+        totalAnggaran += r.anggaran; totalRealisasi += realisasi;
+        var sisa = r.anggaran - realisasi;
+        return '<tr><td style="padding:6px 8px;border-bottom:1px solid #eee;">' + (idx+1) + '</td>' +
+            '<td style="padding:6px 8px;border-bottom:1px solid #eee;">' + r.kategori + '</td>' +
+            '<td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;">Rp ' + r.anggaran.toLocaleString('id-ID') + '</td>' +
+            '<td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;">Rp ' + realisasi.toLocaleString('id-ID') + '</td>' +
+            '<td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;color:' + (sisa<0?'#EF4444':'#10B981') + ';">Rp ' + sisa.toLocaleString('id-ID') + '</td></tr>';
+    }).join('');
+    var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>RKAS</title><style>' +
+        '*{margin:0;padding:0;box-sizing:border-box;}body{font-family:Arial,sans-serif;background:#f0f0f0;padding:20px;}' +
+        '.box{background:white;max-width:800px;margin:0 auto;border-radius:16px;padding:30px;box-shadow:0 2px 16px rgba(0,0,0,0.1);}' +
+        'h2{color:#0D5C4A;font-size:20px;margin-bottom:2px;}.tgl{color:#aaa;font-size:11px;margin-bottom:20px;}' +
+        'table{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:16px;}' +
+        'th{background:#0D5C4A;color:white;padding:8px;text-align:left;-webkit-print-color-adjust:exact;print-color-adjust:exact;}' +
+        '.summary{background:#f8f8f8;border-radius:10px;padding:14px;font-size:13px;font-weight:bold;}' +
+        '.no-print{text-align:center;margin-top:24px;}.no-print button{padding:12px 32px;margin:0 8px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;}' +
+        '@page{size:A4 portrait;margin:10mm 12mm;}@media print{*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}html{width:210mm;}body{background:white;padding:0;margin:0;width:210mm;}.box{box-shadow:none;border-radius:0;max-width:none;width:100%;}.no-print{display:none!important;}}' +
+        '</style></head><body><div class="box">' + headerHtml +
+        '<h2>RKAS (RENCANA KERJA &amp; ANGGARAN SEKOLAH)</h2><div class="tgl">Tahun Ajaran ' + ta + ' · Tanggal Cetak: ' + tglCetak + '</div>' +
+        '<table><thead><tr><th>No</th><th>Kategori</th><th style="text-align:right;">Anggaran</th><th style="text-align:right;">Realisasi</th><th style="text-align:right;">Sisa</th></tr></thead><tbody>' + rowsHtml + '</tbody></table>' +
+        '<div class="summary">TOTAL ANGGARAN: Rp ' + totalAnggaran.toLocaleString('id-ID') + ' &nbsp;|&nbsp; TOTAL REALISASI: Rp ' + totalRealisasi.toLocaleString('id-ID') + '</div>' +
+        ttdHtml + '</div><div class="no-print"><button onclick="window.print()" style="background:#0D5C4A;color:white;">🖨️ CETAK</button>' +
+        '<button onclick="window.close()" style="background:#E2E8F0;color:#1E293B;">✕ TUTUP</button></div>' +
+        watermarkHtml + '</body></html>';
+    var win = window.open('', '_blank');
+    if (!win) return showToast('Izinkan popup untuk cetak!');
+    win.document.write(html); injectWatermarkToPrintWin(win); win.document.close();
+}
+
+/* ==============================================================
+   SECTION: GAJI/HONOR GURU
+   ============================================================== */
+var guruList = [];
+var gajiPembayaranList = [];
+
+async function loadGajiData() {
+    var savedGuru = await idbGet(STORE_GAJI, 'guru_list');
+    guruList = savedGuru || [];
+    var savedBayar = await idbGet(STORE_GAJI, 'gaji_pembayaran');
+    gajiPembayaranList = savedBayar || [];
+}
+async function saveGuruList() { await idbSet(STORE_GAJI, 'guru_list', guruList); }
+async function saveGajiPembayaranList() { await idbSet(STORE_GAJI, 'gaji_pembayaran', gajiPembayaranList); }
+
+function tambahGuruBaru() {
+    document.getElementById('titleModalGuru').textContent = '👩‍🏫 Guru Baru';
+    document.getElementById('editGuruId').value = '';
+    document.getElementById('inputNamaGuru').value = '';
+    document.getElementById('inputJabatanGuru').value = '';
+    document.getElementById('inputHonorGuru').value = '';
+    document.getElementById('modalFormGuru').style.display = 'flex';
+}
+
+function editGuru(id) {
+    var g = guruList.find(function(x){ return String(x.id) === String(id); });
+    if (!g) return;
+    document.getElementById('titleModalGuru').textContent = '✏️ Edit Guru';
+    document.getElementById('editGuruId').value = g.id;
+    document.getElementById('inputNamaGuru').value = g.nama;
+    document.getElementById('inputJabatanGuru').value = g.jabatan || '';
+    document.getElementById('inputHonorGuru').value = g.honorDefault ? g.honorDefault.toLocaleString('id-ID') : '';
+    document.getElementById('modalFormGuru').style.display = 'flex';
+}
+
+function simpanFormGuru() {
+    var nama = document.getElementById('inputNamaGuru').value.trim();
+    if (!nama) return showToast('Nama guru tidak boleh kosong!');
+    var jabatan = document.getElementById('inputJabatanGuru').value.trim();
+    var honorDefault = parseNominal(document.getElementById('inputHonorGuru').value);
+    var editId = document.getElementById('editGuruId').value;
+    if (editId) {
+        var g = guruList.find(function(x){ return String(x.id) === String(editId); });
+        if (g) { g.nama = nama; g.jabatan = jabatan; g.honorDefault = honorDefault; }
+    } else {
+        guruList.push({ id: Date.now(), nama: nama, jabatan: jabatan, honorDefault: honorDefault });
+    }
+    saveGuruList();
+    renderGajiList();
+    document.getElementById('modalFormGuru').style.display = 'none';
+    showToast('✅ Data guru tersimpan');
+}
+
+function hapusGuru(id) {
+    if (!confirm('Hapus guru ini? Riwayat honor tetap tersimpan di Kas.')) return;
+    guruList = guruList.filter(function(x){ return String(x.id) !== String(id); });
+    saveGuruList();
+    renderGajiList();
+    showToast('🗑️ Guru dihapus');
+}
+
+function getStatusHonor(guruId, bulan) {
+    return gajiPembayaranList.find(function(p){ return String(p.guruId) === String(guruId) && p.bulan === bulan; });
+}
+
+function renderGajiList() {
+    var bulanEl = document.getElementById('gajiBulanAktif');
+    if (bulanEl && !bulanEl.value) bulanEl.value = new Date().toISOString().slice(0,7);
+    var bulan = bulanEl ? bulanEl.value : new Date().toISOString().slice(0,7);
+    var wrap = document.getElementById('gajiListWrap');
+    wrap.innerHTML = '';
+    guruList.forEach(function(g) {
+        var bayar = getStatusHonor(g.id, bulan);
+        var statusHtml = bayar
+            ? '<span style="background:var(--green);color:white;padding:3px 10px;border-radius:12px;font-size:10.5px;font-weight:700;">DIBAYAR</span>'
+            : '<span style="background:var(--red);color:white;padding:3px 10px;border-radius:12px;font-size:10.5px;font-weight:700;">BELUM</span>';
+        wrap.innerHTML += '<div class="setting-card">' +
+            '<div class="flex items-center justify-between">' +
+                '<div><div style="font-weight:700;font-size:13.5px;">' + escapeHtmlKas(g.nama) + '</div>' +
+                '<div class="txt-muted">' + escapeHtmlKas(g.jabatan || '-') + ' · Honor Rp ' + (g.honorDefault||0).toLocaleString('id-ID') + '</div></div>' +
+                statusHtml +
+            '</div>' +
+            '<div class="row mt-8">' +
+                (bayar ? '' : '<button class="btn btn-primary btn-small" style="flex:1" onclick="showBayarHonorModal(' + g.id + ',\'' + bulan + '\')">💳 Bayar</button>') +
+                '<button class="btn btn-blue btn-small" style="flex:1" onclick="editGuru(' + g.id + ')"><i class="fas fa-edit"></i> Edit</button>' +
+                '<button class="btn btn-red btn-small" style="flex:1" onclick="hapusGuru(' + g.id + ')"><i class="fas fa-trash"></i></button>' +
+            '</div></div>';
+    });
+    document.getElementById('gajiEmptyState').style.display = guruList.length === 0 ? 'block' : 'none';
+}
+
+function showBayarHonorModal(guruId, bulan) {
+    var g = guruList.find(function(x){ return String(x.id) === String(guruId); });
+    if (!g) return;
+    document.getElementById('bayarHonorGuruId').value = guruId;
+    document.getElementById('bayarHonorBulan').value = bulan;
+    document.getElementById('inputBayarHonor').value = g.honorDefault ? g.honorDefault.toLocaleString('id-ID') : '';
+    var namaBulan = new Date(bulan + '-01').toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+    document.getElementById('bayarHonorInfo').innerHTML = '<b>' + escapeHtmlKas(g.nama) + '</b> · ' + escapeHtmlKas(g.jabatan||'-') + '<br>Honor ' + namaBulan;
+    document.getElementById('modalBayarHonor').style.display = 'flex';
+}
+
+function simpanBayarHonor() {
+    var guruId = document.getElementById('bayarHonorGuruId').value;
+    var bulan = document.getElementById('bayarHonorBulan').value;
+    var nominal = parseNominal(document.getElementById('inputBayarHonor').value);
+    if (nominal <= 0) return showToast('Isi nominal honor yang benar!');
+    var g = guruList.find(function(x){ return String(x.id) === String(guruId); });
+    var namaBulan = new Date(bulan + '-01').toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+
+    // Catat otomatis sebagai pengeluaran Kas kategori "Gaji/Honor"
+    if (kategoriKasList.indexOf('Gaji/Honor') === -1) { kategoriKasList.push('Gaji/Honor'); saveKategoriKasList(); }
+    var kasId = Date.now();
+    dataKas.unshift({
+        id: kasId, tgl: new Date().toLocaleDateString('id-ID'), tglIso: new Date().toISOString().slice(0,10),
+        kategori: 'Gaji/Honor', ket: 'Honor ' + g.nama + ' - ' + namaBulan, nom: nominal, tipe: 'keluar'
+    });
+    saveKasData();
+
+    gajiPembayaranList.unshift({ id: Date.now()+1, guruId: guruId, bulan: bulan, nominal: nominal, kasId: kasId, tgl: new Date().toLocaleDateString('id-ID') });
+    saveGajiPembayaranList();
+
+    document.getElementById('modalBayarHonor').style.display = 'none';
+    renderGajiList();
+    showToast('✅ Honor dibayar & tercatat di Kas');
+}
+
+/* ==============================================================
+   SECTION: JURNAL HARIAN (Otomatis dari Kas + SPP)
+   ============================================================== */
+function getJurnalEntries(bulan) {
+    var entries = [];
+    dataKas.forEach(function(i) {
+        if (i.tglIso && i.tglIso.slice(0,7) === bulan) {
+            entries.push({ tglIso: i.tglIso, tgl: i.tgl, uraian: i.kategori + ' - ' + i.ket, masuk: i.tipe==='masuk'?i.nom:0, keluar: i.tipe==='keluar'?i.nom:0 });
+        }
+    });
+    pembayaranSppList.forEach(function(p) {
+        if (p.tglIso && p.tglIso.slice(0,7) === bulan) {
+            var s = siswaList.find(function(x){ return String(x.id) === String(p.siswaId); });
+            entries.push({ tglIso: p.tglIso, tgl: p.tgl, uraian: 'SPP - ' + (s?s.nama:'-'), masuk: p.nominal, keluar: 0 });
+        }
+    });
+    entries.sort(function(a,b){ return a.tglIso.localeCompare(b.tglIso); });
+    var saldoBerjalan = dataKas
+        .filter(function(i){ return i.tglIso && i.tglIso.slice(0,7) < bulan; })
+        .reduce(function(s,i){ return s + (i.tipe==='masuk'?i.nom:-i.nom); }, 0)
+        + pembayaranSppList.filter(function(p){ return p.tglIso && p.tglIso.slice(0,7) < bulan; }).reduce(function(s,p){ return s + p.nominal; }, 0);
+    entries.forEach(function(e) {
+        saldoBerjalan += (e.masuk - e.keluar);
+        e.saldo = saldoBerjalan;
+    });
+    return entries;
+}
+
+function renderJurnal() {
+    var bulanEl = document.getElementById('jurnalBulanAktif');
+    if (bulanEl && !bulanEl.value) bulanEl.value = new Date().toISOString().slice(0,7);
+    var bulan = bulanEl ? bulanEl.value : new Date().toISOString().slice(0,7);
+    var entries = getJurnalEntries(bulan);
+    var body = document.getElementById('bodyJurnal');
+    body.innerHTML = '';
+    entries.forEach(function(e) {
+        body.innerHTML += '<tr>' +
+            '<td style="padding:6px 4px;">' + e.tgl + '</td>' +
+            '<td style="padding:6px 4px;">' + escapeHtmlKas(e.uraian) + '</td>' +
+            '<td style="padding:6px 4px;text-align:right;" class="' + (e.masuk?'txt-in':'') + '">' + (e.masuk ? e.masuk.toLocaleString('id-ID') : '-') + '</td>' +
+            '<td style="padding:6px 4px;text-align:right;" class="' + (e.keluar?'txt-out':'') + '">' + (e.keluar ? e.keluar.toLocaleString('id-ID') : '-') + '</td>' +
+            '<td style="padding:6px 4px;text-align:right;font-weight:700;">' + e.saldo.toLocaleString('id-ID') + '</td>' +
+        '</tr>';
+    });
+    document.getElementById('jurnalEmptyState').style.display = entries.length === 0 ? 'block' : 'none';
+}
+
+async function cetakJurnal() {
+    var bulanEl = document.getElementById('jurnalBulanAktif');
+    var bulan = bulanEl && bulanEl.value ? bulanEl.value : new Date().toISOString().slice(0,7);
+    var entries = getJurnalEntries(bulan);
+    if (entries.length === 0) return showToast('Tidak ada transaksi bulan ini!');
+    var namaBulan = new Date(bulan + '-01').toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+    var cfg = getKonfigurasiInstansiData();
+    var tglCetak = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+    var headerHtml = buildPrintHeader(cfg, tglCetak);
+    var watermarkHtml = buildPrintWatermark(cfg);
+    var ttdHtml = buildPrintTandaTangan(cfg, tglCetak);
+    var rowsHtml = entries.map(function(e) {
+        return '<tr><td style="padding:5px 6px;border-bottom:1px solid #eee;">' + e.tgl + '</td>' +
+            '<td style="padding:5px 6px;border-bottom:1px solid #eee;">' + e.uraian + '</td>' +
+            '<td style="padding:5px 6px;border-bottom:1px solid #eee;text-align:right;color:#10B981;">' + (e.masuk?e.masuk.toLocaleString('id-ID'):'-') + '</td>' +
+            '<td style="padding:5px 6px;border-bottom:1px solid #eee;text-align:right;color:#EF4444;">' + (e.keluar?e.keluar.toLocaleString('id-ID'):'-') + '</td>' +
+            '<td style="padding:5px 6px;border-bottom:1px solid #eee;text-align:right;font-weight:bold;">' + e.saldo.toLocaleString('id-ID') + '</td></tr>';
+    }).join('');
+    var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Jurnal Harian</title><style>' +
+        '*{margin:0;padding:0;box-sizing:border-box;}body{font-family:Arial,sans-serif;background:#f0f0f0;padding:20px;}' +
+        '.box{background:white;max-width:800px;margin:0 auto;border-radius:16px;padding:30px;box-shadow:0 2px 16px rgba(0,0,0,0.1);}' +
+        'h2{color:#0D5C4A;font-size:20px;margin-bottom:2px;}.tgl{color:#aaa;font-size:11px;margin-bottom:20px;}' +
+        'table{width:100%;border-collapse:collapse;font-size:11.5px;margin-bottom:16px;}' +
+        'th{background:#0D5C4A;color:white;padding:7px;text-align:left;-webkit-print-color-adjust:exact;print-color-adjust:exact;}' +
+        '.no-print{text-align:center;margin-top:24px;}.no-print button{padding:12px 32px;margin:0 8px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;}' +
+        '@page{size:A4 portrait;margin:10mm 12mm;}@media print{*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}html{width:210mm;}body{background:white;padding:0;margin:0;width:210mm;}.box{box-shadow:none;border-radius:0;max-width:none;width:100%;}.no-print{display:none!important;}}' +
+        '</style></head><body><div class="box">' + headerHtml +
+        '<h2>JURNAL HARIAN — ' + namaBulan.toUpperCase() + '</h2><div class="tgl">Tanggal Cetak: ' + tglCetak + '</div>' +
+        '<table><thead><tr><th>Tgl</th><th>Uraian</th><th style="text-align:right;">Masuk</th><th style="text-align:right;">Keluar</th><th style="text-align:right;">Saldo</th></tr></thead><tbody>' + rowsHtml + '</tbody></table>' +
+        ttdHtml + '</div><div class="no-print"><button onclick="window.print()" style="background:#0D5C4A;color:white;">🖨️ CETAK</button>' +
+        '<button onclick="window.close()" style="background:#E2E8F0;color:#1E293B;">✕ TUTUP</button></div>' +
+        watermarkHtml + '</body></html>';
+    var win = window.open('', '_blank');
+    if (!win) return showToast('Izinkan popup untuk cetak!');
+    win.document.write(html); injectWatermarkToPrintWin(win); win.document.close();
+}
+
+/* ==============================================================
+   SECTION: LAPORAN DANA BOS (Sederhana)
+   ============================================================== */
+async function cetakLaporanBos() {
+    var bulan = document.getElementById('laporanBulanAktif').value || new Date().toISOString().slice(0,7);
+    var namaBulan = new Date(bulan + '-01').toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+    var cfg = getKonfigurasiInstansiData();
+    var tglCetak = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+
+    var kasPeriode = dataKas.filter(function(i){ return i.tglIso && i.tglIso.slice(0,7) === bulan; });
+    var danaBosMasuk = kasPeriode.filter(function(i){ return i.kategori === 'Dana BOS' && i.tipe === 'masuk'; }).reduce(function(s,i){ return s+i.nom; }, 0);
+    var pengeluaran = kasPeriode.filter(function(i){ return i.tipe === 'keluar'; });
+    var totalPengeluaran = pengeluaran.reduce(function(s,i){ return s+i.nom; }, 0);
+
+    if (danaBosMasuk === 0 && pengeluaran.length === 0) return showToast('Tidak ada data Dana BOS/pengeluaran periode ini');
+
+    var rowsHtml = pengeluaran.map(function(i, idx) {
+        return '<tr><td style="padding:6px 8px;border-bottom:1px solid #eee;">' + (idx+1) + '</td>' +
+            '<td style="padding:6px 8px;border-bottom:1px solid #eee;">' + i.tgl + '</td>' +
+            '<td style="padding:6px 8px;border-bottom:1px solid #eee;">' + i.kategori + '</td>' +
+            '<td style="padding:6px 8px;border-bottom:1px solid #eee;">' + i.ket + '</td>' +
+            '<td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;">Rp ' + i.nom.toLocaleString('id-ID') + '</td></tr>';
+    }).join('');
+
+    var headerHtml = buildPrintHeader(cfg, tglCetak);
+    var watermarkHtml = buildPrintWatermark(cfg);
+    var ttdHtml = buildPrintTandaTangan(cfg, tglCetak);
+
+    var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Laporan Dana BOS</title><style>' +
+        '*{margin:0;padding:0;box-sizing:border-box;}body{font-family:Arial,sans-serif;background:#f0f0f0;padding:20px;}' +
+        '.box{background:white;max-width:800px;margin:0 auto;border-radius:16px;padding:30px;box-shadow:0 2px 16px rgba(0,0,0,0.1);}' +
+        'h2{color:#0D5C4A;font-size:19px;margin-bottom:2px;}.tgl{color:#aaa;font-size:11px;margin-bottom:16px;}' +
+        '.catatan{background:#fef3c7;border-radius:8px;padding:10px;font-size:11px;color:#92400e;margin-bottom:16px;}' +
+        'table{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:16px;}' +
+        'th{background:#0D5C4A;color:white;padding:8px;text-align:left;-webkit-print-color-adjust:exact;print-color-adjust:exact;}' +
+        '.summary{background:#f8f8f8;border-radius:10px;padding:14px;font-size:13px;line-height:1.9;}' +
+        '.no-print{text-align:center;margin-top:24px;}.no-print button{padding:12px 32px;margin:0 8px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;}' +
+        '@page{size:A4 portrait;margin:10mm 12mm;}@media print{*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}html{width:210mm;}body{background:white;padding:0;margin:0;width:210mm;}.box{box-shadow:none;border-radius:0;max-width:none;width:100%;}.no-print{display:none!important;}}' +
+        '</style></head><body><div class="box">' + headerHtml +
+        '<h2>LAPORAN PENGGUNAAN DANA BOS (SEDERHANA)</h2><div class="tgl">Periode ' + namaBulan + ' · Tanggal Cetak: ' + tglCetak + '</div>' +
+        '<div class="catatan">⚠️ Ini rekap sederhana dari catatan kas internal, bukan formulir resmi BOS K-7A/ARKAS. Untuk pelaporan resmi ke Dinas Pendidikan, gunakan aplikasi ARKAS sesuai ketentuan yang berlaku.</div>' +
+        '<div class="summary">' +
+            '<div>Dana BOS Diterima &nbsp;: <strong style="color:#10B981;">Rp ' + danaBosMasuk.toLocaleString('id-ID') + '</strong></div>' +
+            '<div>Total Realisasi Pengeluaran &nbsp;: <strong style="color:#EF4444;">Rp ' + totalPengeluaran.toLocaleString('id-ID') + '</strong></div>' +
+        '</div>' +
+        '<table><thead><tr><th>No</th><th>Tgl</th><th>Kategori</th><th>Keterangan</th><th style="text-align:right;">Nominal</th></tr></thead><tbody>' +
+        (rowsHtml || '<tr><td colspan="5" style="padding:10px;text-align:center;color:#999;">Tidak ada pengeluaran</td></tr>') + '</tbody></table>' +
+        ttdHtml + '</div><div class="no-print"><button onclick="window.print()" style="background:#0D5C4A;color:white;">🖨️ CETAK</button>' +
+        '<button onclick="window.close()" style="background:#E2E8F0;color:#1E293B;">✕ TUTUP</button></div>' +
+        watermarkHtml + '</body></html>';
+    var win = window.open('', '_blank');
+    if (!win) return showToast('Izinkan popup untuk cetak!');
+    win.document.write(html); injectWatermarkToPrintWin(win); win.document.close();
+}
+
+/* ==============================================================
+   SECTION: HELPER CETAK (Header, Watermark, Tanda Tangan, QR)
+   Dipakai oleh modul Kas/SPP/Invoice/Laporan di fase berikutnya
+   ============================================================== */
+function buildPrintHeader(cfg, tanggal) {
+    var showLogo = !cfg.settings || cfg.settings.show_logo !== false;
+    var logoHtml = showLogo
+        ? (cfg.logo
+            ? '<img src="' + cfg.logo + '" style="width:72px;height:72px;object-fit:contain;border-radius:8px;background:white;padding:4px;">'
+            : '<div style="width:72px;height:72px;background:rgba(255,255,255,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:28px;">🏫</div>')
+        : '';
+    var infoHtml = '';
+    if (cfg.nama) infoHtml += '<div style="font-size:17px;font-weight:bold;">' + cfg.nama + '</div>';
+    if (cfg.alamat) infoHtml += '<div style="font-size:11px;opacity:0.8;margin-top:3px;">' + cfg.alamat + '</div>';
+    if (cfg.telp) infoHtml += '<div style="font-size:11px;opacity:0.8;">Telp: ' + cfg.telp + '</div>';
+    return '<div style="background:var(--primary);color:white;padding:18px 22px;display:flex;align-items:center;gap:18px;margin-bottom:24px;border-radius:12px;-webkit-print-color-adjust:exact;print-color-adjust:exact;">' +
+        logoHtml + '<div style="flex:1;">' + infoHtml + '</div></div>';
+}
+
+function buildPrintWatermark(cfg) {
+    if (!cfg.watermark || !cfg.watermark.enabled) return '';
+    var text = cfg.watermark.text || cfg.nama || 'BendaharaKu';
+    var opacity = cfg.watermark.opacity || 0.15;
+    var fontSize = cfg.watermark.fontsize || 60;
+    var transform = 'translate(-50%, -50%) rotate(-40deg)';
+    return '<style>@media print { body::after { content: "' + text + '"; position: fixed; top: 50%; left: 50%; ' +
+        'transform: ' + transform + '; font-size: ' + fontSize + 'pt; font-weight: bold; ' +
+        'color: rgba(13,92,74,' + opacity + '); pointer-events: none; z-index: 9999; white-space: nowrap; } }</style>';
+}
+
+function buildPrintTandaTangan(cfg, tglCetak) {
+    if (!cfg.settings || cfg.settings.show_pimpinan === false) return '';
+    var lokasiTgl = tglCetak;
+    return '<div style="display:flex;justify-content:space-around;margin-top:40px;padding-top:20px;border-top:1px dashed var(--gray-300);">' +
+        '<div style="text-align:center;flex:1;">' +
+            '<div style="font-size:12px;color:#555;">' + lokasiTgl + '</div>' +
+            '<div style="font-size:12px;color:#555;margin-bottom:60px;">Mengetahui,</div>' +
+            '<div style="border-top:1px solid var(--gray-800);padding-top:6px;font-size:13px;font-weight:bold;">' + (cfg.pimpinan || 'Kepala Sekolah') + '</div>' +
+            '<div style="font-size:11px;color:var(--gray-700);">' + (cfg.jabatan_pimpinan || '') + '</div>' +
+        '</div>' +
+        '<div style="text-align:center;flex:1;">' +
+            '<div style="font-size:12px;color:#555;">' + lokasiTgl + '</div>' +
+            '<div style="font-size:12px;color:#555;margin-bottom:60px;">Bendahara,</div>' +
+            '<div style="border-top:1px solid var(--gray-800);padding-top:6px;font-size:13px;font-weight:bold;">' + (cfg.bendahara || 'Bendahara') + '</div>' +
+        '</div>' +
+    '</div>';
+}
+
+async function buildPrintQR(qrText) {
+    try {
+        var canvas = document.createElement('canvas');
+        await QRCode.toCanvas(canvas, qrText, { width: 90, height: 90 });
+        var dataUrl = canvas.toDataURL('image/png');
+        return '<div style="text-align:right;margin-top:24px;"><img src="' + dataUrl + '" style="width:80px;height:80px;">' +
+            '<div style="font-size:10px;color:#999;margin-top:4px;">Dokumen Resmi</div></div>';
+    } catch(e) { return ''; }
+}
+
+function injectWatermarkToPrintWin(win) {
+    try {
+        var style = win.document.createElement('style');
+        style.textContent = '@media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }';
+        if (win.document.head) win.document.head.appendChild(style);
+    } catch(e) {}
+}
+
+/* ==============================================================
+   SECTION: BACKUP / RESTORE — JSON TEKS (Copy-Paste)
+   Fase 1: mengumpulkan konfigurasi. Modul Kas/SPP/dll akan
+   ditambahkan ke buildBackupJsonData() begitu dibuat di fase berikutnya.
+   ============================================================== */
+async function buildBackupJsonData() {
+    var kuitansiCounter = await idbGet(STORE_KONFIGURASI, 'kuitansi_counter');
+    return {
+        app: 'BendaharaKu',
+        version: '1.0',
+        created: new Date().toISOString(),
+        konfigurasi_instansi: getKonfigurasiInstansiData(),
+        tahun_ajaran_aktif: getTahunAjaranAktif(),
+        kas: { data: dataKas, kategori: kategoriKasList },
+        kelas: kelasList,
+        siswa: siswaList,
+        spp: { config: sppConfig, pembayaran: pembayaranSppList },
+        kuitansi_counter: kuitansiCounter || 0,
+        rkas: rkasList,
+        guru: guruList,
+        gaji_pembayaran: gajiPembayaranList
+    };
+}
+
+async function backupJsonKeClipboard() {
+    showToast('⏳ Menyiapkan backup JSON...');
+    try {
+        var backupData = await buildBackupJsonData();
+        var json = JSON.stringify(backupData);
+        showJsonBackupModal(json);
+    } catch(err) {
+        showToast('❌ Gagal: ' + err.message);
+    }
+}
+
+function showJsonBackupModal(json) {
+    var modal = document.getElementById('jsonBackupModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'jsonBackupModal';
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+    }
+    modal.innerHTML = '<div class="modal-content" style="max-width:500px;">' +
+        '<h3 style="color:var(--primary);margin-bottom:10px;">📋 Backup Data (JSON)</h3>' +
+        '<div style="background:#fef3c7;border:1.5px solid var(--orange);border-radius:10px;padding:10px;margin-bottom:12px;font-size:12px;color:#92400e;">' +
+            '⚠️ Salin teks di bawah, lalu tempel ke WhatsApp (Catatan Pribadi) atau aplikasi Notes untuk menyimpannya.</div>' +
+        '<textarea id="jsonBackupText" readonly style="width:100%;height:150px;padding:10px;border:1.5px solid var(--gray-300);border-radius:8px;font-size:11px;font-family:monospace;margin-bottom:12px;" onclick="this.select()">' +
+            json.replace(/</g,'&lt;') + '</textarea>' +
+        '<button class="btn btn-blue w-full mb-8" onclick="copyJsonBackup()"><i class="fas fa-copy"></i> Copy ke Clipboard</button>' +
+        '<button class="btn btn-gray w-full" onclick="document.getElementById(\'jsonBackupModal\').style.display=\'none\'">Tutup</button>' +
+    '</div>';
+    modal.style.display = 'flex';
+}
+
+function copyJsonBackup() {
+    var textarea = document.getElementById('jsonBackupText');
+    if (!textarea) return;
+    textarea.select();
+    textarea.setSelectionRange(0, 999999);
+    try {
+        navigator.clipboard.writeText(textarea.value).then(function(){
+            showToast('✅ Tersalin! Tempel ke WhatsApp/Notes untuk menyimpan.');
+        }).catch(function(){
+            document.execCommand('copy');
+            showToast('✅ Tersalin!');
+        });
+    } catch(e) {
+        document.execCommand('copy');
+        showToast('✅ Tersalin!');
+    }
+}
+
+function showRestoreJsonPasteModal() {
+    var modal = document.getElementById('restoreJsonPasteModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'restoreJsonPasteModal';
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+    }
+    modal.innerHTML = '<div class="modal-content" style="max-width:500px;">' +
+        '<h3 style="color:var(--primary);margin-bottom:10px;">📥 Restore via Tempel Teks</h3>' +
+        '<div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px;padding:10px;margin-bottom:12px;font-size:12px;color:#166534;">' +
+            'Tempel (paste) teks backup JSON yang sebelumnya Anda salin, lalu klik Restore.</div>' +
+        '<textarea id="restoreJsonPasteText" placeholder="Tempel teks JSON di sini..." style="width:100%;height:180px;padding:10px;border:1.5px solid var(--gray-300);border-radius:8px;font-size:11px;font-family:monospace;margin-bottom:12px;"></textarea>' +
+        '<div class="row">' +
+            '<button class="btn btn-primary" style="flex:1" onclick="processRestoreJsonText()">✅ Restore Sekarang</button>' +
+            '<button class="btn btn-gray" style="flex:1" onclick="document.getElementById(\'restoreJsonPasteModal\').style.display=\'none\'">Batal</button>' +
+        '</div>' +
+    '</div>';
+    modal.style.display = 'flex';
+}
+
+async function processRestoreJsonText() {
+    var text = document.getElementById('restoreJsonPasteText').value.trim();
+    if (!text) return showToast('Tempel teks JSON dulu!');
+    if (!confirm('Restore akan menimpa konfigurasi yang ada. Lanjutkan?')) return;
+    showToast('⏳ Memulihkan data...');
+    try {
+        var backup = JSON.parse(text);
+        await applyRestoreBackupData(backup);
+        document.getElementById('restoreJsonPasteModal').style.display = 'none';
+        showToast('✅ Restore berhasil! Memuat ulang...');
+        setTimeout(function(){ location.reload(); }, 1500);
+    } catch(err) {
+        showToast('❌ Gagal: ' + err.message + ' (pastikan teks JSON lengkap & valid)');
+    }
+}
+
+async function applyRestoreBackupData(backup) {
+    if (backup.konfigurasi_instansi) {
+        localStorage.setItem('bendaharaku_konfigurasi_instansi', JSON.stringify(backup.konfigurasi_instansi));
+    }
+    if (backup.kas) {
+        dataKas = backup.kas.data || [];
+        kategoriKasList = (backup.kas.kategori && backup.kas.kategori.length) ? backup.kas.kategori : KATEGORI_KAS_DEFAULT.slice();
+        await idbSet(STORE_KAS, 'kas_data', dataKas);
+        await idbSet(STORE_KAS, 'kategori_list', kategoriKasList);
+    }
+    if (backup.kelas) { kelasList = backup.kelas; await idbSet(STORE_KELAS, 'kelas_list', kelasList); }
+    if (backup.siswa) { siswaList = backup.siswa; await idbSet(STORE_SISWA, 'siswa_list', siswaList); }
+    if (backup.spp) {
+        sppConfig = backup.spp.config || { default: 0 };
+        pembayaranSppList = backup.spp.pembayaran || [];
+        await idbSet(STORE_SPP, 'spp_config', sppConfig);
+        await idbSet(STORE_PEMBAYARAN, 'pembayaran_spp_list', pembayaranSppList);
+    }
+    if (typeof backup.kuitansi_counter === 'number') {
+        await idbSet(STORE_KONFIGURASI, 'kuitansi_counter', backup.kuitansi_counter);
+    }
+    if (backup.tahun_ajaran_aktif) {
+        localStorage.setItem('bendaharaku_tahun_ajaran_aktif', backup.tahun_ajaran_aktif);
+    }
+    if (backup.rkas) { rkasList = backup.rkas; await idbSet(STORE_RKAS, 'rkas_list', rkasList); }
+    if (backup.guru) { guruList = backup.guru; await idbSet(STORE_GAJI, 'guru_list', guruList); }
+    if (backup.gaji_pembayaran) { gajiPembayaranList = backup.gaji_pembayaran; await idbSet(STORE_GAJI, 'gaji_pembayaran', gajiPembayaranList); }
+}
+
+/* ==============================================================
+   SECTION: BACKUP / RESTORE — ZIP (untuk data + file/foto ke depan)
+   Fase 1: kerangka dasar; isi lengkap menyusul saat modul data ada.
+   ============================================================== */
+async function backupZipData() {
+    showToast('⏳ Menyiapkan backup ZIP...');
+    try {
+        var zip = new JSZip();
+        var backupData = await buildBackupJsonData();
+        zip.file('data.json', JSON.stringify(backupData, null, 2));
+        var blob = await zip.generateAsync({ type: 'blob' });
+        saveAs(blob, 'BendaharaKu_Backup_' + new Date().toISOString().slice(0,10) + '.zip');
+        showToast('✅ Backup ZIP berhasil diunduh');
+    } catch(err) {
+        showToast('❌ Gagal backup: ' + err.message);
+    }
+}
+
+function restoreZipData(input) {
+    var file = input.files[0];
+    if (!file) return;
+    input.value = '';
+    if (!confirm('Restore akan menimpa data yang ada. Lanjutkan?')) return;
+    showToast('⏳ Memulihkan dari ZIP...');
+    JSZip.loadAsync(file).then(function(zip) {
+        return zip.file('data.json').async('string');
+    }).then(function(jsonText) {
+        return applyRestoreBackupData(JSON.parse(jsonText));
+    }).then(function() {
+        showToast('✅ Restore berhasil! Memuat ulang...');
+        setTimeout(function(){ location.reload(); }, 1500);
+    }).catch(function(err) {
+        showToast('❌ Gagal restore: ' + err.message);
+    });
+}
+
+/* ==============================================================
+   SECTION: SERVICE WORKER (agar bisa diinstall & bekerja offline)
+   ============================================================== */
+if ('serviceWorker' in navigator && (location.protocol === 'http:' || location.protocol === 'https:')) {
+    window.addEventListener('load', function() {
+        try {
+            var swCode = "self.addEventListener('install',function(e){self.skipWaiting();});" +
+                "self.addEventListener('activate',function(e){self.clients.claim();});" +
+                "self.addEventListener('fetch',function(e){});";
+            var blob = new Blob([swCode], { type: 'application/javascript' });
+            var swURL = URL.createObjectURL(blob);
+            // Diam-diam abaikan kegagalan (mis. saat dibuka via preview/file lokal) — tidak memengaruhi fungsi aplikasi
+            navigator.serviceWorker.register(swURL).catch(function(){});
+        } catch(e) {}
+    });
+}
+
+/* ==============================================================
+   SECTION: INIT
+   ============================================================== */
+window.addEventListener('DOMContentLoaded', function() {
+    applyDarkModeFromStorage();
+    openIndexedDB().then(function(){
+        loadKasData();
+        loadKelasSiswaData();
+        loadSppData();
+        loadRkasData();
+        loadGajiData();
+    }).catch(function(e){ console.error('Gagal buka IndexedDB:', e); });
+    cekSessionAwal();
+    pilihTipeKas('masuk');
+    // Splash timeout darurat maksimal 5 detik supaya tidak nyangkut
+    setTimeout(function() {
+        var splash = document.getElementById('splashScreen');
+        if (splash && splash.style.display !== 'none' && splash.style.opacity !== '0') {
+            // biarkan splash tampil jika belum login; ini hanya jaga-jaga error JS
+        }
+    }, 5000);
+});
+</script>
+
+<style>
+/* Switch toggle kecil untuk dark mode */
+.switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.switch input + span,
+.switch::before { content: ''; }
+</style>
+<script>
+/* Toggle switch styling via JS injection sederhana (tanpa dependency tambahan) */
+document.addEventListener('DOMContentLoaded', function() {
+    var style = document.createElement('style');
+    style.textContent = '.switch input[type=checkbox]{appearance:none;-webkit-appearance:none;width:44px;height:24px;background:var(--gray-300);border-radius:20px;position:relative;cursor:pointer;outline:none;transition:background .2s;}' +
+        '.switch input[type=checkbox]:checked{background:var(--primary);}' +
+        '.switch input[type=checkbox]::before{content:"";position:absolute;width:18px;height:18px;border-radius:50%;background:white;top:3px;left:3px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,0.3);}' +
+        '.switch input[type=checkbox]:checked::before{left:23px;}';
+    document.head.appendChild(style);
+});
+</script>
+
+</body>
+</html>
 

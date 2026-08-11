@@ -149,6 +149,7 @@
         .btn-orange { background: var(--orange); color: white; }
         .btn-red { background: var(--red); color: white; }
         .btn-gray { background: var(--gray-200); color: var(--gray-800); }
+        .btn-teal { background: var(--teal); color: white; }
         .btn-small { padding: 9px 14px; font-size: 12.5px; border-radius: 10px; }
         .row { display: flex; gap: 10px; }
 
@@ -571,6 +572,11 @@
 
         <div class="card">
             <button class="btn btn-gray w-full mb-8" onclick="showImportEduKuModal()"><i class="fas fa-file-import"></i> Impor Data dari Backup JSON EduKu</button>
+            <div class="row">
+                <button class="btn btn-teal btn-small" style="flex:1;background:#1D6F42;color:white;" onclick="downloadTemplateSiswaExcel()"><i class="fas fa-file-excel"></i> Template Excel</button>
+                <button class="btn btn-orange btn-small" style="flex:1;" onclick="document.getElementById('importSiswaExcelFile').click()"><i class="fas fa-upload"></i> Import Excel</button>
+            </div>
+            <input type="file" id="importSiswaExcelFile" accept=".xlsx,.xls" style="display:none" onchange="importSiswaFromExcel(this)">
         </div>
 
         <div class="card">
@@ -1684,6 +1690,122 @@ function prosesImportEduKu() {
     renderListSiswa();
     document.getElementById('modalImportEduKu').style.display = 'none';
     showToast('✅ Impor selesai: ' + kelasList.length + ' kelas, ' + jumlahImpor + ' siswa baru ditambahkan');
+}
+
+/* ---------- TEMPLATE & IMPORT EXCEL (pola sama seperti EduKu) ---------- */
+function downloadTemplateSiswaExcel() {
+    var headers = ['Nama Lengkap', 'Kelas', 'Nominal SPP Khusus (opsional)'];
+    var contohKelas = kelasList.length > 0 ? kelasList[0].nama : '4A';
+    var contohRow = ['MOHAMMAD SUPRIYADI', contohKelas, ''];
+    var emptyRows = Array(14).fill(null).map(function(){ return Array(headers.length).fill(''); });
+
+    var wsData = [headers, contohRow].concat(emptyRows);
+    var wb = XLSX.utils.book_new();
+    var ws = XLSX.utils.aoa_to_sheet(wsData);
+    ws['!cols'] = [{wch:30},{wch:15},{wch:26}];
+    XLSX.utils.book_append_sheet(wb, ws, 'Data Siswa');
+
+    var daftarKelas = [['DAFTAR KELAS YANG SUDAH DIBUAT'], ['']];
+    if (kelasList.length > 0) {
+        daftarKelas.push(['Nama Kelas (salin persis ke kolom "Kelas")']);
+        kelasList.forEach(function(k){ daftarKelas.push([k.nama]); });
+    } else {
+        daftarKelas.push(['⚠️ Belum ada kelas dibuat!']);
+        daftarKelas.push(['Buat kelas dulu di menu "Kelas" sebelum import,']);
+        daftarKelas.push(['agar siswa bisa otomatis masuk ke kelasnya.']);
+    }
+    var wsKelas = XLSX.utils.aoa_to_sheet(daftarKelas);
+    wsKelas['!cols'] = [{wch:40}];
+    XLSX.utils.book_append_sheet(wb, wsKelas, 'Daftar Kelas');
+
+    var petunjuk = [
+        ['PETUNJUK PENGISIAN TEMPLATE IMPORT SISWA'], [''],
+        ['1. Isi data siswa mulai dari baris ke-3 (baris 2 adalah contoh, boleh dihapus)'],
+        ['2. Kolom "Nama Lengkap" wajib diisi'],
+        ['3. Kolom "Kelas" diisi sesuai nama kelas yang SUDAH DIBUAT'],
+        ['   di menu Kelas (lihat sheet "Daftar Kelas"). Tulis persis sama.'],
+        ['   Kalau dikosongkan/tidak ditemukan, siswa masuk tanpa kelas (assign manual nanti).'],
+        ['4. Kolom "Nominal SPP Khusus" opsional — isi angka saja (cth: 150000).'],
+        ['   Kosongkan jika SPP siswa ini ikut nominal kelas/default.'],
+        ['5. Jangan ubah nama kolom di baris pertama'],
+        ['6. Simpan dalam format .xlsx sebelum diupload']
+    ];
+    var wsPetunjuk = XLSX.utils.aoa_to_sheet(petunjuk);
+    wsPetunjuk['!cols'] = [{wch:60}];
+    XLSX.utils.book_append_sheet(wb, wsPetunjuk, 'Petunjuk');
+
+    XLSX.writeFile(wb, 'Template_Import_Siswa_BendaharaKu.xlsx');
+    showToast('✅ Template Excel diunduh');
+}
+
+function importSiswaFromExcel(input) {
+    var file = input.files[0];
+    if (!file) return;
+    if (!confirm('Import Excel akan MENAMBAH siswa baru (data yang sudah ada tidak dihapus). Lanjutkan?')) { input.value = ''; return; }
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            var data = new Uint8Array(e.target.result);
+            var workbook = XLSX.read(data, { type: 'array', cellDates: true });
+            var sheet = workbook.Sheets[workbook.SheetNames[0]];
+            var rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '', raw: false });
+            if (!rows || rows.length < 2) { showToast('File Excel kosong!'); input.value = ''; return; }
+
+            var headers = rows[0].map(function(h){ return h ? h.toString().trim().toLowerCase() : ''; });
+            var namaIndex = headers.findIndex(function(h){ return h.indexOf('nama') !== -1; });
+            if (namaIndex === -1) { showToast('❌ Kolom "Nama Lengkap" tidak ditemukan!'); input.value = ''; return; }
+            var kelasIndex = headers.findIndex(function(h){ return h.indexOf('kelas') !== -1; });
+            var sppIndex = headers.findIndex(function(h){ return h.indexOf('spp') !== -1; });
+
+            var jumlahImpor = 0, jumlahKelasOtomatis = 0;
+            var kelasTidakDitemukan = {};
+
+            for (var i = 1; i < rows.length; i++) {
+                var row = rows[i];
+                if (!row || row.length === 0) continue;
+                var nama = row[namaIndex] ? row[namaIndex].toString().trim() : '';
+                if (!nama) continue;
+
+                var kelasId = '';
+                if (kelasIndex !== -1) {
+                    var namaKelas = row[kelasIndex] ? row[kelasIndex].toString().trim() : '';
+                    if (namaKelas) {
+                        var kelasObj = kelasList.find(function(k){ return k.nama.toLowerCase() === namaKelas.toLowerCase(); });
+                        if (kelasObj) { kelasId = kelasObj.id; jumlahKelasOtomatis++; }
+                        else { kelasTidakDitemukan[namaKelas] = (kelasTidakDitemukan[namaKelas] || 0) + 1; }
+                    }
+                }
+                var sppNominal = null;
+                if (sppIndex !== -1 && row[sppIndex]) {
+                    sppNominal = parseNominal(row[sppIndex].toString());
+                    if (sppNominal <= 0) sppNominal = null;
+                }
+
+                siswaList.push({ id: Date.now() + i, nama: nama, kelasId: kelasId, sppNominal: sppNominal });
+                jumlahImpor++;
+            }
+
+            saveSiswaList();
+            renderListKelas();
+            renderListSiswa();
+
+            var msg = '✅ Import selesai: ' + jumlahImpor + ' siswa ditambahkan';
+            if (jumlahKelasOtomatis > 0) msg += ', ' + jumlahKelasOtomatis + ' masuk kelas otomatis';
+            showToast(msg);
+
+            var namaTidakDitemukan = Object.keys(kelasTidakDitemukan);
+            if (namaTidakDitemukan.length > 0) {
+                var detail = namaTidakDitemukan.map(function(n){ return '- "' + n + '" (' + kelasTidakDitemukan[n] + ' siswa)'; }).join('\n');
+                setTimeout(function(){
+                    alert('⚠️ Beberapa nama kelas di Excel tidak ditemukan, siswa tetap ditambahkan tanpa kelas:\n\n' + detail + '\n\nSilakan buat kelas tersebut di menu Kelas, lalu assign manual lewat Edit Siswa.');
+                }, 500);
+            }
+        } catch (err) {
+            showToast('❌ Gagal membaca file: ' + err.message);
+        }
+        input.value = '';
+    };
+    reader.readAsArrayBuffer(file);
 }
 
 /* ==============================================================

@@ -215,6 +215,21 @@
         }
         @keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.05);} }
 
+        /* ---------- LAYAR BESAR (KOMPUTER/DESKTOP) ---------- */
+        @media (min-width: 900px) {
+            body { background: var(--gray-light); padding-bottom: 90px; }
+            .container { max-width: 900px; }
+            .header-premium, .header-premium-small { max-width: 900px; margin: 0 auto; }
+            .bottom-nav-premium {
+                left: 50%; right: auto; transform: translateX(-50%);
+                width: 900px; max-width: calc(100vw - 24px);
+                border-radius: 20px 20px 0 0; box-shadow: 0 -4px 24px rgba(0,0,0,0.1);
+                bottom: 12px; border-top: none;
+            }
+            .menu-grid-home { grid-template-columns: repeat(4, 1fr) !important; }
+            .card, .setting-card { border: 1px solid var(--border); }
+        }
+
         /* ---------- PRINT ---------- */
         @media print {
             body { margin: 0; padding: 0; background: white; }
@@ -298,7 +313,7 @@
 
         <div class="card">
             <div style="font-weight:700;margin-bottom:10px;">Menu</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div class="menu-grid-home" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
                 <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('kas')">
                     <div style="font-size:26px;">💵</div>
                     <div style="font-size:12.5px;font-weight:600;margin-top:4px;">Kas Masuk/Keluar</div>

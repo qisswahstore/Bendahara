@@ -2109,6 +2109,9 @@
         <div style="display:flex;gap:8px;margin-bottom:10px;">
             <input type="text" id="searchSyahriahInput" placeholder="🔍 Cari nama siswa..." oninput="renderSyahriahMatrix()"
                 style="flex:1;padding:10px 14px;border:1.5px solid #ddd;border-radius:12px;font-size:14px;">
+            <select id="filterKelasSyahriah" onchange="renderSyahriahMatrix()" style="padding:10px 8px;border:1.5px solid #ddd;border-radius:12px;font-size:13px;max-width:130px;">
+                <option value="">Semua Kelas</option>
+            </select>
         </div>
         <div class="section-title"><span><i class="fas fa-table"></i> TRACKING PEMBAYARAN PER BULAN</span></div>
         <div class="syahriah-matrix-wrap">
@@ -2125,7 +2128,8 @@
         <div id="masterAdminPanel" style="display:none; background:var(--gray-light); padding:15px; border-radius:20px; margin-bottom:15px;">
             <div class="input-group"><label> Judul Halaman / Laporan</label><input type="text" id="masterJudul" placeholder="Contoh: Kelas 7A"></div>
             <div class="row"><button class="btn btn-blue btn-small" onclick="openMasterFieldModal()" style="flex:1"> Kelola Field Dinamis</button><button class="btn btn-teal btn-small" onclick="openMasterItemModal()" style="flex:1"> Kelola Item</button></div>
-            <div class="row mt-2"><button class="btn btn-purple btn-small" onclick="copyFromJamaah()" style="flex:1"> Copy dari database</button><button class="btn btn-orange btn-small" onclick="openModeManager()" style="flex:1"><i class="fas fa-sliders-h"></i>  Kelola Mode</button></div>
+            <div class="row mt-2"><button class="btn btn-orange btn-small" onclick="openModeManager()" style="flex:1"><i class="fas fa-sliders-h"></i>  Kelola Mode</button></div>
+            <p style="font-size:11px;color:#94a3b8;margin-top:8px;">💡 Siswa otomatis terhitung di sini berdasarkan field "Kelas" yang dipilih di Database Siswa — tidak perlu input ulang di sini.</p>
             <div class="row mt-2"><button class="btn btn-danger btn-small" onclick="confirmDeleteAllMasterData()" style="flex:1"><i class="fas fa-trash-alt"></i>  HAPUS SEMUA</button><button class="btn btn-orange btn-small" onclick="deleteSelectedMasterData()" style="flex:1"><i class="fas fa-trash-alt"></i>  HAPUS TERPILIH</button></div>
         </div>
         <div id="modeSwitcherContainer"></div>
@@ -2568,7 +2572,6 @@
 <div id="riwayatModal" class="modal"><div class="modal-content"><h3> Riwayat Pembayaran</h3><p id="riwayatNama" style="font-weight:bold;"></p><div id="riwayatListContainer" style="max-height:400px; overflow-y:auto;"></div><div class="row" style="margin-top:15px;"><button class="btn btn-danger" onclick="closeRiwayatModal()" style="flex:1">Tutup</button></div></div></div>
 <div id="masterFieldModal" class="modal"><div class="modal-content"><h3>Kelola Field Dinamis</h3><div class="dynamic-field"><label>Nama Field</label><input type="text" id="masterNewFieldName" placeholder="contoh: alamat, no_hp"></div><div class="dynamic-field"><label>Label Field</label><input type="text" id="masterNewFieldLabel" placeholder="Contoh: Alamat, No HP"></div><div class="dynamic-field"><label>Tipe</label><select id="masterNewFieldType"><option value="text">Text</option><option value="date">Tanggal</option><option value="tel">Telepon</option><option value="textarea">Text Area</option></select></div><button class="btn btn-primary" onclick="addMasterDynamicField()"> TAMBAH FIELD</button><div id="masterFieldsList" style="margin-top:15px;"></div><button class="btn btn-danger mt-2" onclick="closeMasterFieldModal()">TUTUP</button></div></div>
 <div id="masterItemModal" class="modal"><div class="modal-content"><h3>Kelola Daftar Item</h3><div class="row"><div class="input-group"><label>Nama Item</label><input type="text" id="masterNewItem" placeholder="Contoh: Kain Ihram"></div><button class="btn-small" onclick="addMasterItem()" style="background:var(--primary); color:white; padding:0 15px;">+ Tambah</button></div><div id="masterItemList" style="margin-top:15px;"></div><button class="btn btn-danger mt-2" onclick="closeMasterItemModal()">TUTUP</button></div></div>
-<div id="copyModal" class="modal"><div class="modal-content"><h3>📋 Copy dari Database</h3><p style="font-size:14px;color:#333;margin:10px 0;">Semua jamaah dari database akan disalin ke Multi Event.</p><p style="font-size:12px;color:#0D5C4A;background:#f0fdf4;padding:10px;border-radius:8px;margin:10px 0;">✅ Nama yang sudah ada tidak akan dobel — otomatis dilewati.</p><div class="row"><button class="btn btn-danger" onclick="closeCopyModal()" style="flex:1">BATAL</button><button class="btn btn-primary" onclick="executeCopyFromJamaah()" style="flex:1">COPY SEKARANG</button></div></div></div>
 <div id="modeManagerModal" class="modal"><div class="modal-content"><h3><i class="fas fa-sliders-h"></i> Kelola Mode Switcher</h3><p style="font-size:12px; color:#666; margin-bottom:15px;">Centang mode yang ingin ditampilkan.</p><div id="modeManagerList" style="margin-bottom:20px;"></div><div class="row"><div class="input-group" style="flex:3"><input type="text" id="newModeName" placeholder="Nama mode baru (contoh: Wisata)"></div><button class="btn-small" onclick="addNewMode()" style="background:var(--primary); color:white; padding:0 15px;">+ TAMBAH</button></div><div class="row" style="margin-top:15px;"><button class="btn btn-danger" onclick="closeModeManager()" style="flex:1">BATAL</button><button class="btn btn-primary" onclick="saveModes()" style="flex:1"> SIMPAN PERUBAHAN</button></div></div></div>
 <div id="entryModal" class="modal"><div class="modal-content">
     <h3 id="entryModalTitle">Tambah Catatan</h3>
@@ -3557,26 +3560,14 @@ async function loadDynamicFieldsJamaah() {
         dynamicFieldsJamaah = saved;
     } else {
         dynamicFieldsJamaah = [
-            { name: 'nama_paspor',   label: 'Nama Paspor',   type: 'text',     icon: '👤', isRequired: false },
-            { name: 'no_porsi',      label: 'No Porsi',       type: 'text',     icon: '🔢', isRequired: false },
-            { name: 'jenis_kelamin', label: 'Jenis Kelamin',  type: 'text',     icon: '👤', isRequired: false },
-            { name: 'tempat_lahir',  label: 'Tempat Lahir',   type: 'text',     icon: '📍', isRequired: false },
-            { name: 'tgl_lahir',     label: 'Tanggal Lahir',  type: 'date',     icon: '🗓️', isRequired: false },
-            { name: 'no_paspor',     label: 'No Paspor',      type: 'text',     icon: '📘', isRequired: false },
-            { name: 'nik',           label: 'NIK',             type: 'text',     icon: '🪪', isRequired: false },
-            { name: 'kk',            label: 'KK',              type: 'text',     icon: '📋', isRequired: false },
-            { name: 'alamat',        label: 'Alamat',          type: 'text',     icon: '🏠', isRequired: false },
-            { name: 'kec',           label: 'Kec',             type: 'text',     icon: '🏘️', isRequired: false },
-            { name: 'kab_kota',      label: 'Kab / Kota',     type: 'text',     icon: '🏙️', isRequired: false },
-            { name: 'whatsapp',      label: 'WhatsApp',        type: 'tel',      icon: '📞', isRequired: true  },
-            { name: 'rombongan',     label: 'Rombongan',       type: 'text',     icon: '👥', isRequired: false },
-            { name: 'regu',          label: 'Regu',            type: 'text',     icon: '👥', isRequired: false },
-            { name: 'visa',          label: 'Visa',            type: 'text',     icon: '📘', isRequired: false },
-            { name: 'kamar',         label: 'Kamar',           type: 'text',     icon: '🛏️', isRequired: false },
-            { name: 'bus',           label: 'Bus',             type: 'text',     icon: '🚌', isRequired: false },
-            { name: 'hotel_makkah',  label: 'Hotel Makkah',   type: 'text',     icon: '🏨', isRequired: false },
-            { name: 'hotel_madinah', label: 'Hotel Madinah',  type: 'text',     icon: '🏨', isRequired: false },
-            { name: 'warna',         label: 'Warna',           type: 'text',     icon: '🏷️', isRequired: false },
+            { name: 'nis',           label: 'NIS',              type: 'text',     icon: '🔢', isRequired: false },
+            { name: 'kelas',         label: 'Kelas',            type: 'kelas',    icon: '🏷️', isRequired: false },
+            { name: 'jenis_kelamin', label: 'Jenis Kelamin',   type: 'dropdown', icon: '👤', isRequired: false, options: ['Laki-laki','Perempuan'] },
+            { name: 'tempat_lahir',  label: 'Tempat Lahir',    type: 'text',     icon: '📍', isRequired: false },
+            { name: 'tgl_lahir',     label: 'Tanggal Lahir',   type: 'date',     icon: '🗓️', isRequired: false },
+            { name: 'alamat',        label: 'Alamat',           type: 'text',     icon: '🏠', isRequired: false },
+            { name: 'nama_wali',     label: 'Nama Orang Tua/Wali', type: 'text', icon: '👪', isRequired: false },
+            { name: 'whatsapp',      label: 'WhatsApp Wali',   type: 'tel',      icon: '📞', isRequired: true  },
             { name: 'keterangan',    label: 'Keterangan',      type: 'textarea', icon: '📝', isRequired: false }
         ];
         await idbSet(STORE_JAMAAH, 'jamaah_fields', dynamicFieldsJamaah);
@@ -4854,6 +4845,10 @@ function renderJamaahForm(){
         let inputHtml;
         if(field.type === 'textarea') {
             inputHtml = `<textarea id="jamaahField_${field.name}" rows="3"></textarea>`;
+        } else if(field.type === 'kelas') {
+            const opts = masterDataList.map(m => `<option value="${escapeHtml(m.nama)}">${escapeHtml(m.nama)}</option>`).join('');
+            inputHtml = `<select id="jamaahField_${field.name}"><option value="">-- Pilih Kelas --</option>${opts}</select>`;
+            if (masterDataList.length === 0) inputHtml += `<div style="font-size:11px;color:#f59e0b;margin-top:4px;">⚠️ Belum ada Kelas. Tambahkan dulu di menu Kelas.</div>`;
         } else if(field.type === 'dropdown') {
             const opts = (field.options || []).map(o => `<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join('');
             inputHtml = `<select id="jamaahField_${field.name}"><option value="">-- Pilih --</option>${opts}</select>`;
@@ -5673,9 +5668,21 @@ function renderSyahriahDashboard() {
 function renderSyahriahMatrix() {
     const table = document.getElementById('syahriahMatrixTable');
     if (!table) return;
+
+    // isi ulang dropdown filter kelas dari modul Kelas
+    const kelasSelect = document.getElementById('filterKelasSyahriah');
+    if (kelasSelect) {
+        const currentVal = kelasSelect.value;
+        const opts = masterDataList.map(m => `<option value="${escapeHtml(m.nama)}">${escapeHtml(m.nama)}</option>`).join('');
+        kelasSelect.innerHTML = `<option value="">Semua Kelas</option>${opts}`;
+        kelasSelect.value = currentVal;
+    }
+    const kelasFilter = kelasSelect?.value || '';
+
     const q = (document.getElementById('searchSyahriahInput')?.value || '').toLowerCase();
     let siswa = [...jamaahList];
     if (q) siswa = siswa.filter(j => (j.nama_lengkap || '').toLowerCase().includes(q));
+    if (kelasFilter) siswa = siswa.filter(j => (j.additional_fields?.kelas || '') === kelasFilter);
     if (siswa.length === 0) { table.innerHTML = '<tr><td style="padding:20px;text-align:center;color:#94a3b8;">Belum ada data siswa / tidak ditemukan</td></tr>'; return; }
     let thead = '<tr><th>Nama Siswa</th>' + BULAN_LABEL.map(b => `<th>${b}</th>`).join('') + '</tr>';
     let rows = siswa.map(j => {
@@ -8416,7 +8423,7 @@ function renderMasterForm() {
     const modeOptions = activeModes.filter(m => m !== 'Semua').map(m =>
         `<option value="${m}" ${currentDisplayMode === m ? 'selected' : ''}>${m}</option>`
     ).join('');
-    let html = `<div class="dynamic-field"><label>Nama Lengkap / Judul Item <span style="color:red;">*</span></label><input type="text" id="masterNama" placeholder="Contoh: Ahmad bin Abdullah"></div>`;
+    let html = `<div class="dynamic-field"><label>Nama Kelas <span style="color:red;">*</span></label><input type="text" id="masterNama" placeholder="Contoh: Kelas 7A"></div>`;
     if(activeModes.filter(m => m !== 'Semua').length > 0) {
         html += `<div class="dynamic-field"><label>🏷️ Mode / Kategori</label><select id="masterModeSelect" style="padding:10px;border:1.5px solid #ddd;border-radius:10px;width:100%;font-size:14px;"><option value="">-- Pilih Mode --</option>${modeOptions}</select></div>`;
     }
@@ -8515,9 +8522,9 @@ function renderMasterTable() {
     const thead = document.getElementById('masterTableHead');
     const tbody = document.getElementById('masterTableBody');
     if(!thead || !tbody) return;
-    let headerHtml = '<tr><th class="checkbox-col"><input type="checkbox" id="selectAllMaster" onchange="toggleAllMasterCheckboxes(this)"></th><th>No</th><th>Nama Lengkap</th>';
+    let headerHtml = '<tr><th class="checkbox-col"><input type="checkbox" id="selectAllMaster" onchange="toggleAllMasterCheckboxes(this)"></th><th>No</th><th>Nama Kelas</th>';
     for(const field of masterDynamicFields) headerHtml += `<th>${escapeHtml(field.label)}</th>`;
-    headerHtml += '<th>Item</th><th>Aksi</th><tr>';
+    headerHtml += '<th>👥 Siswa</th><th>Aksi</th><tr>';
     thead.innerHTML = headerHtml;
     if(masterDataList.length === 0) { tbody.innerHTML = '<tr><td colspan="100%" style="text-align:center; padding:30px;">Belum ada Data</td></tr>'; return; }
     const filtered = getFilteredMasterList();
@@ -8528,12 +8535,13 @@ function renderMasterTable() {
         let whatsappValue = '';
         const whatsappField = masterDynamicFields.find(f => f.name.toLowerCase() === 'whatsapp' || f.label.toLowerCase() === 'whatsapp');
         if(whatsappField) whatsappValue = item.additional_fields?.[whatsappField.name] || '';
+        const jumlahSiswa = jamaahList.filter(j => (j.additional_fields?.kelas || '') === item.nama).length;
         bodyHtml += `<tr><td class="checkbox-col"><input type="checkbox" class="master-checkbox" data-id="${item.id}" data-nama="${escapeHtml(item.nama)}" data-wa="${escapeHtml(whatsappValue)}" onchange="updateBatchBar()"></td><td style="text-align:center;">${displayNum}</td><td><strong>${escapeHtml(item.nama)}</strong></td>`;
         for(const field of masterDynamicFields) {
             const val = item.additional_fields?.[field.name] || '-';
             bodyHtml += `<td>${escapeHtml(val)}</td>`;
         }
-        bodyHtml += `<td>${item.items?.map(p => `<span class="master-badge">${escapeHtml(p)}</span>`).join('') || '-'}</td><td style="white-space:nowrap;"><button onclick="editMasterData('${item.id}')" style="background:none; border:none; color:var(--blue); font-size:1.1rem; cursor:pointer;"><i class="fas fa-edit"></i></button><button onclick="shareSingleMasterToWA('${item.id}')" style="background:none; border:none; color:var(--wa); font-size:1.1rem; cursor:pointer;"><i class="fab fa-whatsapp"></i></button><button onclick="confirmDeleteMasterData('${item.id}')" style="background:none; border:none; color:var(--red); font-size:1.1rem; cursor:pointer;"><i class="fas fa-trash"></i></button></td></tr>`;
+        bodyHtml += `<td style="text-align:center;"><span class="master-badge" onclick="showPage('jamaah')" style="cursor:pointer;" title="Lihat siswa kelas ini di Database Siswa">${jumlahSiswa} siswa</span></td><td style="white-space:nowrap;"><button onclick="editMasterData('${item.id}')" style="background:none; border:none; color:var(--blue); font-size:1.1rem; cursor:pointer;"><i class="fas fa-edit"></i></button><button onclick="shareSingleMasterToWA('${item.id}')" style="background:none; border:none; color:var(--wa); font-size:1.1rem; cursor:pointer;"><i class="fab fa-whatsapp"></i></button><button onclick="confirmDeleteMasterData('${item.id}')" style="background:none; border:none; color:var(--red); font-size:1.1rem; cursor:pointer;"><i class="fas fa-trash"></i></button></td></tr>`;
     });
     tbody.innerHTML = bodyHtml;
 }
@@ -8870,35 +8878,6 @@ function confirmDeleteMasterItem(idx) {
         renderMasterForm();
         showToast('Dihapus');
     }
-}
-
-function copyFromJamaah() {
-    if(!isAdminModePremium) { showToast('Aktifkan Mode Admin dulu!'); return; }
-    document.getElementById('copyModal').classList.add('show');
-}
-
-function closeCopyModal() { document.getElementById('copyModal').classList.remove('show'); }
-
-function executeCopyFromJamaah() {
-    if(jamaahList.length === 0) { showToast('Tidak ada data di database!'); closeCopyModal(); return; }
-    let ditambah = 0, dilewati = 0;
-    const now = new Date().toLocaleDateString('id-ID') + ' ' + new Date().toLocaleTimeString('id-ID');
-    // Cek duplikat: nama + mode (mode kosong = tanpa mode)
-    const existing = new Set(masterDataList.map(m => `${m.nama.toLowerCase().trim()}__${m.mode||''}`));
-    for(const j of jamaahList) {
-        const key = `${j.nama_lengkap.toLowerCase().trim()}__`;
-        if(existing.has(key)) { dilewati++; continue; }
-        masterDataList.push({ id: Date.now() + ditambah, nama: j.nama_lengkap, additional_fields: {}, items: [], mode: '', created_at: now });
-        existing.add(key);
-        ditambah++;
-    }
-    saveMasterDataToLocal();
-    renderMasterTable();
-    renderMasterForm();
-    closeCopyModal();
-    if(ditambah > 0 && dilewati > 0) showToast(`✅ ${ditambah} ditambahkan, ${dilewati} sudah ada (dilewati)`);
-    else if(ditambah > 0) showToast(`✅ ${ditambah} jamaah berhasil disalin!`);
-    else showToast(`ℹ️ Semua jamaah sudah ada (${dilewati} dilewati)`);
 }
 
 function loadModesFromStorage() {

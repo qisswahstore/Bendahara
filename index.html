@@ -351,6 +351,14 @@
                     <div style="font-size:26px;">🎒</div>
                     <div style="font-size:12.5px;font-weight:600;margin-top:4px;">Tagihan Lain-lain</div>
                 </div>
+                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('template-paket')">
+                    <div style="font-size:26px;">📦</div>
+                    <div style="font-size:12.5px;font-weight:600;margin-top:4px;">Template Paket Biaya</div>
+                </div>
+                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('kartu-siswa')">
+                    <div style="font-size:26px;">🪪</div>
+                    <div style="font-size:12.5px;font-weight:600;margin-top:4px;">Kartu Tagihan Siswa</div>
+                </div>
             </div>
         </div>
     </div>
@@ -545,19 +553,79 @@
         </div>
     </div>
     <div class="container" style="padding-top:18px;">
+
         <div class="card">
-            <label>Nama Sekolah</label>
+            <div style="font-weight:700;color:var(--primary);margin-bottom:12px;"><i class="fas fa-building"></i> Data Instansi</div>
+
+            <label>Logo Instansi</label>
+            <input type="file" id="cfgLogoFile" accept="image/*" onchange="previewLogoInstansi(this)">
+            <img id="previewLogoInstansi" style="max-width:80px;max-height:80px;margin-top:8px;border-radius:8px;display:none;object-fit:contain;background:var(--gray-light);padding:4px;">
+            <div class="txt-muted mt-8">Logo akan tampil di kop surat & kuitansi cetak</div>
+
+            <label class="mt-16">Nama Sekolah / Instansi</label>
             <input type="text" id="cfgNamaSekolah" placeholder="cth: SDN 1 Contoh">
-            <label class="mt-16">Alamat</label>
-            <input type="text" id="cfgAlamat" placeholder="Alamat lengkap sekolah">
-            <label class="mt-16">Telepon</label>
-            <input type="text" id="cfgTelp" placeholder="08xxxxxxxxxx">
-            <label class="mt-16">Nama Kepala Sekolah</label>
-            <input type="text" id="cfgPimpinan" placeholder="Nama kepala sekolah">
+
+            <label class="mt-16">Alamat Lengkap</label>
+            <textarea id="cfgAlamat" rows="2" placeholder="Jl. Contoh No. 1, Kecamatan, Kota"></textarea>
+
+            <div class="row mt-16">
+                <div style="flex:1;"><label>Telepon</label><input type="text" id="cfgTelp" placeholder="08xxxxxxxxxx"></div>
+                <div style="flex:1;"><label>Email</label><input type="email" id="cfgEmail" placeholder="sekolah@email.com"></div>
+            </div>
+            <div class="row mt-16">
+                <div style="flex:1;"><label>NPWP</label><input type="text" id="cfgNpwp" placeholder="Opsional"></div>
+                <div style="flex:1;"><label>Website</label><input type="text" id="cfgWebsite" placeholder="Opsional"></div>
+            </div>
+            <div class="row mt-16">
+                <div style="flex:1;"><label>Kepala Sekolah</label><input type="text" id="cfgPimpinan" placeholder="Nama kepala sekolah"></div>
+                <div style="flex:1;"><label>Jabatan</label><input type="text" id="cfgJabatanPimpinan" placeholder="cth: Kepala Sekolah"></div>
+            </div>
             <label class="mt-16">Nama Bendahara</label>
             <input type="text" id="cfgBendahara" placeholder="Nama bendahara">
-            <button class="btn btn-primary w-full mt-16" onclick="simpanKonfigurasiInstansi()">💾 Simpan</button>
+            <label class="mt-16">Kota (untuk tanda tangan)</label>
+            <input type="text" id="cfgKota" placeholder="cth: Surabaya">
         </div>
+
+        <div class="card">
+            <div style="font-weight:700;color:var(--primary);margin-bottom:12px;"><i class="fas fa-stamp"></i> Watermark Dokumen</div>
+            <div class="flex items-center justify-between">
+                <label style="margin:0;">Aktifkan Watermark</label>
+                <label class="switch"><input type="checkbox" id="cfgWatermarkEnabled"></label>
+            </div>
+            <label class="mt-16">Teks Watermark</label>
+            <input type="text" id="cfgWatermarkText" placeholder="cth: DOKUMEN RESMI">
+            <label class="mt-16">Opacity (<span id="cfgOpacityValue">0.15</span>)</label>
+            <input type="range" id="cfgWatermarkOpacity" min="0.05" max="0.4" step="0.05" oninput="document.getElementById('cfgOpacityValue').textContent=this.value" style="width:100%;">
+            <div class="row mt-16">
+                <div style="flex:1;"><label>Ukuran Font</label>
+                    <select id="cfgWatermarkFontsize">
+                        <option value="30">Sangat Kecil</option><option value="40">Kecil</option>
+                        <option value="60">Sedang</option><option value="80">Besar</option>
+                    </select>
+                </div>
+                <div style="flex:1;"><label>Posisi</label>
+                    <select id="cfgWatermarkPosition"><option value="diagonal">Diagonal</option></select>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div style="font-weight:700;color:var(--primary);margin-bottom:10px;"><i class="fas fa-print"></i> Tampilkan di Header Cetak</div>
+            <div class="flex items-center justify-between mb-8"><span>Logo Instansi</span><label class="switch"><input type="checkbox" id="cfgShowLogo"></label></div>
+            <div class="flex items-center justify-between mb-8"><span>Alamat</span><label class="switch"><input type="checkbox" id="cfgShowAlamat"></label></div>
+            <div class="flex items-center justify-between mb-8"><span>Telepon</span><label class="switch"><input type="checkbox" id="cfgShowTelp"></label></div>
+            <div class="flex items-center justify-between mb-8"><span>Email</span><label class="switch"><input type="checkbox" id="cfgShowEmail"></label></div>
+            <div class="flex items-center justify-between mb-8"><span>Website</span><label class="switch"><input type="checkbox" id="cfgShowWeb"></label></div>
+            <div class="flex items-center justify-between mb-8"><span>NPWP</span><label class="switch"><input type="checkbox" id="cfgShowNpwp"></label></div>
+            <div class="flex items-center justify-between"><span>Pimpinan &amp; Jabatan (di tanda tangan)</span><label class="switch"><input type="checkbox" id="cfgShowPimpinan"></label></div>
+        </div>
+
+        <div class="card">
+            <div style="font-weight:700;color:var(--primary);margin-bottom:10px;"><i class="fas fa-file-invoice"></i> Prefix Nomor Kuitansi</div>
+            <input type="text" id="cfgInvoicePrefix" placeholder="cth: KWT">
+        </div>
+
+        <button class="btn btn-primary w-full mt-8" onclick="simpanKonfigurasiInstansi()" style="margin-bottom:24px;">💾 SIMPAN KONFIGURASI</button>
     </div>
 </div>
 
@@ -1103,6 +1171,132 @@
 </div>
 
 <!-- ==========================================================
+     TEMPLATE PAKET BIAYA PAGE
+     ========================================================== -->
+<div id="page-template-paket" class="page">
+    <div class="header-premium header-premium-small">
+        <div class="back-header">
+            <i class="fas fa-arrow-left" onclick="showPage('home')"></i>
+            <h2>📦 Template Paket Biaya</h2>
+            <div style="width:18px;" onclick="tambahTemplateBaru()"><i class="fas fa-plus"></i></div>
+        </div>
+    </div>
+    <div class="container" style="padding-top:16px;">
+        <div class="card" style="background:var(--primary-light);border:1px solid var(--border);">
+            <div style="font-size:12.5px;color:var(--gray-700);line-height:1.6;">
+                Gabungkan SPP + beberapa Tagihan Lain jadi satu paket (cth: "Paket Kelas 7"), lalu terapkan sekaligus ke kelas/siswa — tidak perlu assign satu-satu.
+            </div>
+        </div>
+        <div id="templatePaketListWrap"></div>
+        <div id="templatePaketEmptyState" class="text-center txt-muted card" style="display:none;">Belum ada template. Tap ikon + di pojok kanan atas untuk membuat.</div>
+    </div>
+</div>
+
+<!-- Modal Form Template -->
+<div id="modalFormTemplate" class="modal">
+    <div class="modal-content" style="max-width:420px;">
+        <h3 style="color:var(--primary);margin-bottom:14px;">📦 Template Paket Biaya Baru</h3>
+        <label>Nama Template</label>
+        <input type="text" id="inputNamaTemplate" placeholder="cth: Paket Kelas 7">
+
+        <div class="setting-card mt-16">
+            <div class="flex items-center justify-between">
+                <label style="margin:0;">Sertakan SPP</label>
+                <label class="switch"><input type="checkbox" id="templateSertakanSpp" onchange="document.getElementById('templateSppNominalWrap').classList.toggle('hidden', !this.checked)"></label>
+            </div>
+            <div id="templateSppNominalWrap" class="hidden mt-8">
+                <label>Nominal SPP (Rp)</label>
+                <input type="text" id="templateSppNominal" placeholder="0" inputmode="numeric" oninput="formatNominalInput(this)">
+            </div>
+        </div>
+
+        <label class="mt-16">Sertakan Tagihan Lain</label>
+        <div id="templateTagihanLainChecklist" style="max-height:220px;overflow-y:auto;border:1px solid var(--border);border-radius:10px;padding:8px;"></div>
+        <div id="templateTagihanLainKosong" class="txt-muted mt-8" style="display:none;">Belum ada jenis Tagihan Lain. Buat dulu di menu Tagihan Lain-lain kalau mau disertakan.</div>
+
+        <div class="row mt-16">
+            <button class="btn btn-primary" style="flex:1" onclick="simpanFormTemplate()">Simpan</button>
+            <button class="btn btn-gray" style="flex:1" onclick="document.getElementById('modalFormTemplate').style.display='none'">Batal</button>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================================
+     DETAIL TEMPLATE PAGE
+     ========================================================== -->
+<div id="page-template-detail" class="page">
+    <div class="header-premium header-premium-small">
+        <div class="back-header">
+            <i class="fas fa-arrow-left" onclick="showPage('template-paket')"></i>
+            <h2 id="templateDetailTitle">Detail Template</h2>
+            <div style="width:18px;" onclick="hapusTemplateAktif()"><i class="fas fa-trash"></i></div>
+        </div>
+    </div>
+    <div class="container" style="padding-top:16px;">
+        <div class="card">
+            <div style="font-weight:700;margin-bottom:10px;">Komponen Paket</div>
+            <div id="templateDetailKomponenWrap"></div>
+            <div class="flex items-center justify-between mt-16" style="font-weight:700;border-top:1px solid var(--border);padding-top:10px;">
+                <span>Total Paket</span><span id="templateDetailTotal">Rp 0</span>
+            </div>
+        </div>
+        <div class="card">
+            <button class="btn btn-primary w-full" onclick="showTerapkanTemplateModal()"><i class="fas fa-check-circle"></i> Terapkan ke Siswa/Kelas</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Terapkan Template -->
+<div id="modalTerapkanTemplate" class="modal">
+    <div class="modal-content" style="max-width:420px;">
+        <h3 style="color:var(--primary);margin-bottom:10px;">✅ Terapkan Template</h3>
+        <div class="row mb-8">
+            <button class="btn btn-small" id="btnTplModeKelas" style="flex:1;background:var(--primary);color:white;" onclick="pilihModeTerapkanTemplate('kelas')">🏷️ Per Kelas</button>
+            <button class="btn btn-small btn-gray" id="btnTplModeManual" style="flex:1;" onclick="pilihModeTerapkanTemplate('manual')">☑️ Pilih Manual</button>
+        </div>
+
+        <div id="tplModeKelasWrap">
+            <label>Pilih Kelas</label>
+            <select id="tplKelasSelect"></select>
+        </div>
+
+        <div id="tplModeManualWrap" class="hidden">
+            <label>Filter Kelas (opsional)</label>
+            <select id="tplManualFilterKelas" onchange="renderTerapkanManualList()" class="mb-8"></select>
+            <div id="tplManualListWrap" style="max-height:220px;overflow-y:auto;border:1px solid var(--border);border-radius:10px;padding:8px;"></div>
+        </div>
+
+        <div class="txt-muted mt-16">Siswa yang sudah punya SPP nominal khusus akan ditimpa. Tagihan Lain yang sudah pernah di-assign akan dilewati (tidak dobel).</div>
+        <div class="row mt-16">
+            <button class="btn btn-primary" style="flex:1" onclick="prosesTerapkanTemplate()">✅ Terapkan</button>
+            <button class="btn btn-gray" style="flex:1" onclick="document.getElementById('modalTerapkanTemplate').style.display='none'">Batal</button>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================================
+     KARTU TAGIHAN SISWA PAGE
+     ========================================================== -->
+<div id="page-kartu-siswa" class="page">
+    <div class="header-premium header-premium-small">
+        <div class="back-header">
+            <i class="fas fa-arrow-left" onclick="showPage('home')"></i>
+            <h2>🪪 Kartu Tagihan Siswa</h2>
+            <div style="width:18px;"></div>
+        </div>
+    </div>
+    <div class="container" style="padding-top:16px;">
+        <div class="card">
+            <label>Pilih Siswa</label>
+            <select id="kartuSiswaSelect" onchange="renderKartuTagihanSiswa()"></select>
+        </div>
+
+        <div id="kartuTagihanWrap"></div>
+        <div id="kartuTagihanEmptyState" class="text-center txt-muted card" style="display:none;">Pilih siswa terlebih dahulu</div>
+    </div>
+</div>
+
+<!-- ==========================================================
      BOTTOM NAVIGATION
      ========================================================== -->
 <div class="bottom-nav-premium" id="bottomNav">
@@ -1137,6 +1331,9 @@ function showPage(pageId) {
     if (pageId === 'jurnal') renderJurnal();
     if (pageId === 'tagihan-lain') renderJenisTagihanList();
     if (pageId === 'tagihan-detail') renderTagihanDetail();
+    if (pageId === 'template-paket') renderTemplatePaketList();
+    if (pageId === 'template-detail') renderTemplateDetail();
+    if (pageId === 'kartu-siswa') { isiDropdownKartuSiswa(); renderKartuTagihanSiswa(); }
     if (pageId === 'pengaturan') loadTahunAjaranForm();
     window.scrollTo(0, 0);
 }
@@ -1311,13 +1508,55 @@ function getKonfigurasiInstansiData() {
     var data = null;
     if (saved) { try { data = JSON.parse(saved); } catch(e) {} }
     if (!data) data = {
-        nama: 'BendaharaKu', alamat: '', telp: '', email: '', npwp: '',
+        nama: 'BendaharaKu', alamat: '', telp: '', email: '', npwp: '', website: '', kota: '',
         pimpinan: '', jabatan_pimpinan: 'Kepala Sekolah',
         bendahara: '', logo: '',
         watermark: { enabled: true, text: 'DOKUMEN RESMI', opacity: 0.15, fontsize: 60, position: 'diagonal' },
-        settings: { show_logo: true, show_pimpinan: true, invoice_prefix: 'KWT' }
+        settings: { show_logo: true, show_pimpinan: true, show_alamat: true, show_telp: true,
+            show_email: false, show_web: false, show_npwp: false, invoice_prefix: 'KWT' }
     };
+    // Jaga kompatibilitas kalau ada data lama sebelum field ini ditambahkan
+    if (data.website === undefined) data.website = '';
+    if (data.kota === undefined) data.kota = '';
+    if (!data.settings) data.settings = {};
+    if (data.settings.show_alamat === undefined) data.settings.show_alamat = true;
+    if (data.settings.show_telp === undefined) data.settings.show_telp = true;
+    if (data.settings.show_email === undefined) data.settings.show_email = false;
+    if (data.settings.show_web === undefined) data.settings.show_web = false;
+    if (data.settings.show_npwp === undefined) data.settings.show_npwp = false;
     return data;
+}
+
+async function kompresLogo(base64Data, maxWidth) {
+    maxWidth = maxWidth || 200;
+    return new Promise(function(resolve) {
+        if (!base64Data || !base64Data.startsWith('data:image')) { resolve(null); return; }
+        var img = new Image();
+        img.onload = function() {
+            var canvas = document.createElement('canvas');
+            var width = img.width, height = img.height;
+            if (width > maxWidth) { height = (height * maxWidth) / width; width = maxWidth; }
+            canvas.width = width; canvas.height = height;
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', 0.75));
+        };
+        img.onerror = function() { resolve(null); };
+        img.src = base64Data;
+    });
+}
+
+function previewLogoInstansi(input) {
+    if (!input.files || !input.files[0]) return;
+    var reader = new FileReader();
+    reader.onload = async function(e) {
+        var kompres = await kompresLogo(e.target.result, 200);
+        var img = document.getElementById('previewLogoInstansi');
+        img.src = kompres || e.target.result;
+        img.style.display = 'block';
+        img.dataset.pending = kompres || e.target.result;
+    };
+    reader.readAsDataURL(input.files[0]);
 }
 
 function loadKonfigurasiInstansiForm() {
@@ -1325,8 +1564,32 @@ function loadKonfigurasiInstansiForm() {
     document.getElementById('cfgNamaSekolah').value = cfg.nama || '';
     document.getElementById('cfgAlamat').value = cfg.alamat || '';
     document.getElementById('cfgTelp').value = cfg.telp || '';
+    document.getElementById('cfgEmail').value = cfg.email || '';
+    document.getElementById('cfgNpwp').value = cfg.npwp || '';
+    document.getElementById('cfgWebsite').value = cfg.website || '';
     document.getElementById('cfgPimpinan').value = cfg.pimpinan || '';
+    document.getElementById('cfgJabatanPimpinan').value = cfg.jabatan_pimpinan || '';
     document.getElementById('cfgBendahara').value = cfg.bendahara || '';
+    document.getElementById('cfgKota').value = cfg.kota || '';
+
+    var logoImg = document.getElementById('previewLogoInstansi');
+    if (cfg.logo) { logoImg.src = cfg.logo; logoImg.style.display = 'block'; logoImg.dataset.pending = ''; }
+    else { logoImg.style.display = 'none'; }
+
+    document.getElementById('cfgWatermarkEnabled').checked = !!cfg.watermark.enabled;
+    document.getElementById('cfgWatermarkText').value = cfg.watermark.text || '';
+    document.getElementById('cfgWatermarkOpacity').value = cfg.watermark.opacity || 0.15;
+    document.getElementById('cfgOpacityValue').textContent = cfg.watermark.opacity || 0.15;
+    document.getElementById('cfgWatermarkFontsize').value = cfg.watermark.fontsize || 60;
+
+    document.getElementById('cfgShowLogo').checked = cfg.settings.show_logo !== false;
+    document.getElementById('cfgShowAlamat').checked = cfg.settings.show_alamat !== false;
+    document.getElementById('cfgShowTelp').checked = cfg.settings.show_telp !== false;
+    document.getElementById('cfgShowEmail').checked = !!cfg.settings.show_email;
+    document.getElementById('cfgShowWeb').checked = !!cfg.settings.show_web;
+    document.getElementById('cfgShowNpwp').checked = !!cfg.settings.show_npwp;
+    document.getElementById('cfgShowPimpinan').checked = cfg.settings.show_pimpinan !== false;
+    document.getElementById('cfgInvoicePrefix').value = cfg.settings.invoice_prefix || 'KWT';
 }
 
 function simpanKonfigurasiInstansi() {
@@ -1334,8 +1597,35 @@ function simpanKonfigurasiInstansi() {
     cfg.nama = document.getElementById('cfgNamaSekolah').value.trim();
     cfg.alamat = document.getElementById('cfgAlamat').value.trim();
     cfg.telp = document.getElementById('cfgTelp').value.trim();
+    cfg.email = document.getElementById('cfgEmail').value.trim();
+    cfg.npwp = document.getElementById('cfgNpwp').value.trim();
+    cfg.website = document.getElementById('cfgWebsite').value.trim();
     cfg.pimpinan = document.getElementById('cfgPimpinan').value.trim();
+    cfg.jabatan_pimpinan = document.getElementById('cfgJabatanPimpinan').value.trim();
     cfg.bendahara = document.getElementById('cfgBendahara').value.trim();
+    cfg.kota = document.getElementById('cfgKota').value.trim();
+
+    var logoImg = document.getElementById('previewLogoInstansi');
+    if (logoImg.dataset.pending) cfg.logo = logoImg.dataset.pending;
+
+    cfg.watermark = {
+        enabled: document.getElementById('cfgWatermarkEnabled').checked,
+        text: document.getElementById('cfgWatermarkText').value.trim() || 'DOKUMEN RESMI',
+        opacity: parseFloat(document.getElementById('cfgWatermarkOpacity').value),
+        fontsize: parseInt(document.getElementById('cfgWatermarkFontsize').value),
+        position: 'diagonal'
+    };
+    cfg.settings = {
+        show_logo: document.getElementById('cfgShowLogo').checked,
+        show_alamat: document.getElementById('cfgShowAlamat').checked,
+        show_telp: document.getElementById('cfgShowTelp').checked,
+        show_email: document.getElementById('cfgShowEmail').checked,
+        show_web: document.getElementById('cfgShowWeb').checked,
+        show_npwp: document.getElementById('cfgShowNpwp').checked,
+        show_pimpinan: document.getElementById('cfgShowPimpinan').checked,
+        invoice_prefix: document.getElementById('cfgInvoicePrefix').value.trim() || 'KWT'
+    };
+
     localStorage.setItem('bendaharaku_konfigurasi_instansi', JSON.stringify(cfg));
     showToast('✅ Konfigurasi tersimpan');
 }
@@ -2176,19 +2466,24 @@ function angkaTerbilang(num) {
 function buatKuitansiPdf(opts) {
     // opts: { noKuitansi, namaSiswa, namaKelas, uraian, keterangan, nominal, tgl, namaFile }
     var cfg = getKonfigurasiInstansiData();
+    var s = cfg.settings || {};
     var { jsPDF } = window.jspdf;
     var doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: [148, 105] }); // ukuran A6 landscape
 
     doc.setFillColor(13, 92, 74);
     doc.rect(0, 0, 148, 22, 'F');
+    var textX = 8;
+    if (cfg.logo && s.show_logo !== false) {
+        try { doc.addImage(cfg.logo, 'JPEG', 8, 3, 16, 16); textX = 28; } catch(e) {}
+    }
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(13);
     doc.setFont(undefined, 'bold');
-    doc.text(cfg.nama || 'BendaharaKu', 8, 10);
+    doc.text(cfg.nama || 'BendaharaKu', textX, 10);
     doc.setFontSize(8);
     doc.setFont(undefined, 'normal');
-    if (cfg.alamat) doc.text(cfg.alamat, 8, 15);
-    if (cfg.telp) doc.text('Telp: ' + cfg.telp, 8, 19);
+    if (cfg.alamat && s.show_alamat !== false) doc.text(cfg.alamat, textX, 15);
+    if (cfg.telp && s.show_telp !== false) doc.text('Telp: ' + cfg.telp, textX, 19);
 
     doc.setTextColor(30, 41, 59);
     doc.setFontSize(14);
@@ -2230,7 +2525,7 @@ function buatKuitansiPdf(opts) {
     var yTtd = y + 24;
     doc.setFont(undefined, 'normal');
     doc.setFontSize(9);
-    doc.text((cfg.alamat ? cfg.alamat.split(',')[cfg.alamat.split(',').length-1].trim() : '') + ', ' + opts.tgl, 90, yTtd);
+    doc.text((cfg.kota ? cfg.kota + ', ' : '') + opts.tgl, 90, yTtd);
     doc.text('Bendahara,', 100, yTtd + 6);
     doc.text(cfg.bendahara || '( ___________________ )', 90, yTtd + 22);
 
@@ -3291,6 +3586,327 @@ async function cetakRekapTagihanLain() {
 }
 
 /* ==============================================================
+   SECTION: TEMPLATE PAKET BIAYA (bundling SPP + Tagihan Lain)
+   ============================================================== */
+var templatePaketList = [];
+var templateDetailAktifId = null;
+var tplTerapkanMode = 'kelas';
+var tplManualChecked = {};
+
+async function loadTemplatePaketData() {
+    var saved = await idbGet(STORE_TAGIHAN_LAIN, 'template_paket_list');
+    templatePaketList = saved || [];
+}
+async function saveTemplatePaketList() { await idbSet(STORE_TAGIHAN_LAIN, 'template_paket_list', templatePaketList); }
+
+function hitungTotalTemplate(tpl) {
+    var total = tpl.sertakanSpp ? (tpl.sppNominal || 0) : 0;
+    tpl.items.forEach(function(it){ total += it.nominal; });
+    return total;
+}
+
+function tambahTemplateBaru() {
+    document.getElementById('inputNamaTemplate').value = '';
+    document.getElementById('templateSertakanSpp').checked = false;
+    document.getElementById('templateSppNominalWrap').classList.add('hidden');
+    document.getElementById('templateSppNominal').value = '';
+
+    var wrap = document.getElementById('templateTagihanLainChecklist');
+    wrap.innerHTML = '';
+    jenisTagihanList.forEach(function(jt) {
+        wrap.innerHTML += '<div class="flex items-center justify-between" style="padding:6px 0;border-bottom:1px solid var(--border);">' +
+            '<label class="flex items-center gap-8" style="font-size:13px;flex:1;">' +
+                '<input type="checkbox" class="tpl-jt-check" data-id="' + jt.id + '" style="width:auto;">' +
+                '<span>' + escapeHtmlKas(jt.nama) + '</span></label>' +
+            '<input type="text" class="tpl-jt-nominal" data-id="' + jt.id + '" value="' + (jt.nominalDefault||0).toLocaleString('id-ID') + '" inputmode="numeric" oninput="formatNominalInput(this)" style="width:110px;font-size:12px;padding:6px;">' +
+        '</div>';
+    });
+    document.getElementById('templateTagihanLainKosong').style.display = jenisTagihanList.length === 0 ? 'block' : 'none';
+    document.getElementById('modalFormTemplate').style.display = 'flex';
+}
+
+function simpanFormTemplate() {
+    var nama = document.getElementById('inputNamaTemplate').value.trim();
+    if (!nama) return showToast('Nama template tidak boleh kosong!');
+    var sertakanSpp = document.getElementById('templateSertakanSpp').checked;
+    var sppNominal = parseNominal(document.getElementById('templateSppNominal').value);
+    if (sertakanSpp && sppNominal <= 0) return showToast('Isi nominal SPP yang benar!');
+
+    var items = [];
+    document.querySelectorAll('.tpl-jt-check').forEach(function(chk) {
+        if (!chk.checked) return;
+        var jtId = chk.dataset.id;
+        var nomInput = document.querySelector('.tpl-jt-nominal[data-id="' + jtId + '"]');
+        items.push({ jenisTagihanId: jtId, nominal: parseNominal(nomInput.value) });
+    });
+
+    if (!sertakanSpp && items.length === 0) return showToast('Sertakan minimal SPP atau 1 Tagihan Lain!');
+
+    templatePaketList.push({ id: Date.now(), nama: nama, sertakanSpp: sertakanSpp, sppNominal: sppNominal, items: items });
+    saveTemplatePaketList();
+    renderTemplatePaketList();
+    document.getElementById('modalFormTemplate').style.display = 'none';
+    showToast('✅ Template tersimpan');
+}
+
+function hapusTemplateAktif() {
+    if (!templateDetailAktifId) return;
+    if (!confirm('Hapus template ini? (Data siswa yang sudah pernah menerapkannya tidak terpengaruh)')) return;
+    templatePaketList = templatePaketList.filter(function(t){ return String(t.id) !== String(templateDetailAktifId); });
+    saveTemplatePaketList();
+    showToast('🗑️ Template dihapus');
+    showPage('template-paket');
+}
+
+function renderTemplatePaketList() {
+    var wrap = document.getElementById('templatePaketListWrap');
+    if (!wrap) return;
+    wrap.innerHTML = '';
+    templatePaketList.forEach(function(tpl) {
+        var jumlahKomponen = (tpl.sertakanSpp ? 1 : 0) + tpl.items.length;
+        wrap.innerHTML += '<div class="card" style="cursor:pointer;" onclick="openTemplateDetail(' + tpl.id + ')">' +
+            '<div style="font-weight:700;font-size:14px;">' + escapeHtmlKas(tpl.nama) + '</div>' +
+            '<div class="txt-muted">' + jumlahKomponen + ' komponen · Total Rp ' + hitungTotalTemplate(tpl).toLocaleString('id-ID') + '</div>' +
+        '</div>';
+    });
+    document.getElementById('templatePaketEmptyState').style.display = templatePaketList.length === 0 ? 'block' : 'none';
+}
+
+function openTemplateDetail(id) {
+    templateDetailAktifId = id;
+    showPage('template-detail');
+}
+
+function renderTemplateDetail() {
+    var tpl = templatePaketList.find(function(t){ return String(t.id) === String(templateDetailAktifId); });
+    if (!tpl) { showPage('template-paket'); return; }
+    document.getElementById('templateDetailTitle').textContent = tpl.nama;
+    var wrap = document.getElementById('templateDetailKomponenWrap');
+    wrap.innerHTML = '';
+    if (tpl.sertakanSpp) {
+        wrap.innerHTML += '<div class="flex items-center justify-between" style="padding:6px 0;border-bottom:1px solid var(--border);">' +
+            '<span>🎓 SPP <span class="txt-muted">(per bulan)</span></span><span style="font-weight:700;">Rp ' + tpl.sppNominal.toLocaleString('id-ID') + '</span></div>';
+    }
+    tpl.items.forEach(function(it) {
+        var jt = jenisTagihanList.find(function(x){ return String(x.id) === String(it.jenisTagihanId); });
+        wrap.innerHTML += '<div class="flex items-center justify-between" style="padding:6px 0;border-bottom:1px solid var(--border);">' +
+            '<span>🎒 ' + escapeHtmlKas(jt ? jt.nama : '(dihapus)') + ' <span class="txt-muted">(sekali)</span></span><span style="font-weight:700;">Rp ' + it.nominal.toLocaleString('id-ID') + '</span></div>';
+    });
+    document.getElementById('templateDetailTotal').textContent = 'Rp ' + hitungTotalTemplate(tpl).toLocaleString('id-ID');
+}
+
+function showTerapkanTemplateModal() {
+    tplTerapkanMode = 'kelas';
+    tplManualChecked = {};
+    var selKelas = document.getElementById('tplKelasSelect');
+    selKelas.innerHTML = kelasList.map(function(k){ return '<option value="' + k.id + '">' + escapeHtmlKas(k.nama) + '</option>'; }).join('');
+    var selFilter = document.getElementById('tplManualFilterKelas');
+    selFilter.innerHTML = '<option value="">Semua Kelas</option>' + kelasList.map(function(k){ return '<option value="' + k.id + '">' + escapeHtmlKas(k.nama) + '</option>'; }).join('');
+    pilihModeTerapkanTemplate('kelas');
+    document.getElementById('modalTerapkanTemplate').style.display = 'flex';
+}
+
+function pilihModeTerapkanTemplate(mode) {
+    tplTerapkanMode = mode;
+    var btnKelas = document.getElementById('btnTplModeKelas');
+    var btnManual = document.getElementById('btnTplModeManual');
+    if (mode === 'kelas') {
+        btnKelas.style.background = 'var(--primary)'; btnKelas.style.color = 'white'; btnKelas.className = 'btn btn-small';
+        btnManual.className = 'btn btn-small btn-gray'; btnManual.style.background = ''; btnManual.style.color = '';
+        document.getElementById('tplModeKelasWrap').classList.remove('hidden');
+        document.getElementById('tplModeManualWrap').classList.add('hidden');
+    } else {
+        btnManual.style.background = 'var(--primary)'; btnManual.style.color = 'white'; btnManual.className = 'btn btn-small';
+        btnKelas.className = 'btn btn-small btn-gray'; btnKelas.style.background = ''; btnKelas.style.color = '';
+        document.getElementById('tplModeManualWrap').classList.remove('hidden');
+        document.getElementById('tplModeKelasWrap').classList.add('hidden');
+        renderTerapkanManualList();
+    }
+}
+
+function renderTerapkanManualList() {
+    var wrap = document.getElementById('tplManualListWrap');
+    var filterKelas = (document.getElementById('tplManualFilterKelas') || {}).value || '';
+    var list = filterKelas ? siswaList.filter(function(s){ return String(s.kelasId) === String(filterKelas); }) : siswaList;
+    wrap.innerHTML = '';
+    list.forEach(function(s) {
+        wrap.innerHTML += '<label class="flex items-center gap-8" style="padding:6px 0;font-size:13px;cursor:pointer;">' +
+            '<input type="checkbox" onchange="tplManualChecked[\'' + s.id + '\']=this.checked" style="width:auto;">' +
+            '<span>' + escapeHtmlKas(s.nama) + ' <span class="txt-muted">(' + escapeHtmlKas(getNamaKelas(s.kelasId)) + ')</span></span></label>';
+    });
+}
+
+function prosesTerapkanTemplate() {
+    var tpl = templatePaketList.find(function(t){ return String(t.id) === String(templateDetailAktifId); });
+    if (!tpl) return;
+
+    var targetSiswa = [];
+    if (tplTerapkanMode === 'kelas') {
+        var kelasId = document.getElementById('tplKelasSelect').value;
+        if (!kelasId) return showToast('Pilih kelas dulu!');
+        targetSiswa = siswaList.filter(function(s){ return String(s.kelasId) === String(kelasId); });
+    } else {
+        targetSiswa = siswaList.filter(function(s){ return tplManualChecked[String(s.id)]; });
+    }
+    if (targetSiswa.length === 0) return showToast('Tidak ada siswa dipilih!');
+
+    var jumlahSppDiset = 0, jumlahTagihanBaru = 0;
+    targetSiswa.forEach(function(s) {
+        if (tpl.sertakanSpp) { s.sppNominal = tpl.sppNominal; jumlahSppDiset++; }
+        tpl.items.forEach(function(it) {
+            var sudahAda = tagihanAssignList.some(function(a){ return String(a.jenisTagihanId) === String(it.jenisTagihanId) && String(a.siswaId) === String(s.id); });
+            if (sudahAda) return;
+            tagihanAssignList.push({ id: Date.now() + Math.floor(Math.random()*10000), jenisTagihanId: it.jenisTagihanId, siswaId: s.id, nominal: it.nominal });
+            jumlahTagihanBaru++;
+        });
+    });
+
+    if (tpl.sertakanSpp) saveSiswaList();
+    if (jumlahTagihanBaru > 0) saveTagihanAssignList();
+
+    document.getElementById('modalTerapkanTemplate').style.display = 'none';
+    showToast('✅ Diterapkan ke ' + targetSiswa.length + ' siswa (' + jumlahTagihanBaru + ' tagihan baru dibuat)');
+}
+
+/* ==============================================================
+   SECTION: KARTU TAGIHAN SISWA (rekap semua tagihan 1 siswa + share WA)
+   ============================================================== */
+function isiDropdownKartuSiswa() {
+    var sel = document.getElementById('kartuSiswaSelect');
+    if (!sel) return;
+    var current = sel.value;
+    sel.innerHTML = '<option value="">- Pilih Siswa -</option>' + siswaList.map(function(s) {
+        return '<option value="' + s.id + '">' + escapeHtmlKas(s.nama) + ' (' + escapeHtmlKas(getNamaKelas(s.kelasId)) + ')</option>';
+    }).join('');
+    if (current) sel.value = current;
+}
+
+function getRincianTagihanSiswa(siswaId) {
+    var s = siswaList.find(function(x){ return String(x.id) === String(siswaId); });
+    if (!s) return null;
+    var bulanIni = new Date().toISOString().slice(0,7);
+    var stSpp = getStatusSppSiswa(s, bulanIni);
+    var rows = [{
+        tipe: 'spp', nama: 'SPP Bulan ' + new Date(bulanIni + '-01').toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }),
+        nominal: stSpp.nominal, terbayar: stSpp.terbayar, sisa: stSpp.sisa, status: stSpp.status
+    }];
+    var assigns = tagihanAssignList.filter(function(a){ return String(a.siswaId) === String(siswaId); });
+    assigns.forEach(function(a) {
+        var jt = jenisTagihanList.find(function(x){ return String(x.id) === String(a.jenisTagihanId); });
+        var st = getStatusTagihanLain(a);
+        rows.push({ tipe: 'tagihan_lain', nama: jt ? jt.nama : 'Tagihan Lain', nominal: a.nominal, terbayar: st.terbayar, sisa: st.sisa, status: st.status });
+    });
+    var totalTagihan = rows.reduce(function(sum,r){ return sum + r.nominal; }, 0);
+    var totalBayar = rows.reduce(function(sum,r){ return sum + r.terbayar; }, 0);
+    var totalSisa = rows.reduce(function(sum,r){ return sum + r.sisa; }, 0);
+    return { siswa: s, rows: rows, totalTagihan: totalTagihan, totalBayar: totalBayar, totalSisa: totalSisa };
+}
+
+function renderKartuTagihanSiswa() {
+    var siswaId = document.getElementById('kartuSiswaSelect').value;
+    var wrap = document.getElementById('kartuTagihanWrap');
+    if (!siswaId) { wrap.innerHTML = ''; document.getElementById('kartuTagihanEmptyState').style.display = 'block'; return; }
+    document.getElementById('kartuTagihanEmptyState').style.display = 'none';
+    var data = getRincianTagihanSiswa(siswaId);
+    if (!data) return;
+
+    var rowsHtml = data.rows.map(function(r) {
+        var warna = r.status === 'LUNAS' ? 'var(--green)' : (r.status === 'CICIL' ? 'var(--orange)' : 'var(--red)');
+        return '<div class="flex items-center justify-between" style="padding:8px 0;border-bottom:1px solid var(--border);">' +
+            '<div><div style="font-weight:600;font-size:13px;">' + escapeHtmlKas(r.nama) + '</div>' +
+            '<div class="txt-muted">Rp ' + r.nominal.toLocaleString('id-ID') + '</div></div>' +
+            '<span style="background:' + warna + ';color:white;padding:3px 10px;border-radius:12px;font-size:10.5px;font-weight:700;">' + r.status + '</span></div>';
+    }).join('');
+
+    wrap.innerHTML =
+        '<div class="card">' +
+            '<div style="font-weight:700;font-size:15px;">' + escapeHtmlKas(data.siswa.nama) + '</div>' +
+            '<div class="txt-muted">' + escapeHtmlKas(getNamaKelas(data.siswa.kelasId)) + '</div>' +
+        '</div>' +
+        '<div class="card">' + rowsHtml + '</div>' +
+        '<div class="card">' +
+            '<div class="row">' +
+                '<div style="flex:1;text-align:center;"><div class="txt-muted" style="font-size:11px;">Total Tagihan</div><div style="font-weight:800;font-size:14px;">Rp ' + data.totalTagihan.toLocaleString('id-ID') + '</div></div>' +
+                '<div style="flex:1;text-align:center;border-left:1px solid var(--border);border-right:1px solid var(--border);"><div class="txt-muted" style="font-size:11px;">Sudah Bayar</div><div class="txt-in" style="font-weight:800;font-size:14px;">Rp ' + data.totalBayar.toLocaleString('id-ID') + '</div></div>' +
+                '<div style="flex:1;text-align:center;"><div class="txt-muted" style="font-size:11px;">Sisa</div><div class="txt-out" style="font-weight:800;font-size:14px;">Rp ' + data.totalSisa.toLocaleString('id-ID') + '</div></div>' +
+            '</div>' +
+        '</div>' +
+        '<div class="row mb-16">' +
+            '<button class="btn btn-blue" style="flex:1" onclick="cetakKartuTagihanSiswa()"><i class="fas fa-print"></i> Cetak</button>' +
+            '<button class="btn" style="flex:1;background:var(--wa);color:white;" onclick="shareWaKartuTagihan()"><i class="fab fa-whatsapp"></i> Share WA</button>' +
+        '</div>';
+}
+
+function buildTeksKartuTagihan(data) {
+    var cfg = getKonfigurasiInstansiData();
+    var lines = [
+        '*TAGIHAN SISWA*',
+        cfg.nama || 'BendaharaKu',
+        '',
+        'Nama: ' + data.siswa.nama,
+        'Kelas: ' + getNamaKelas(data.siswa.kelasId),
+        ''
+    ];
+    data.rows.forEach(function(r) {
+        lines.push('• ' + r.nama + ': Rp ' + r.nominal.toLocaleString('id-ID') + ' (' + r.status + ')');
+    });
+    lines.push('');
+    lines.push('Total Tagihan: Rp ' + data.totalTagihan.toLocaleString('id-ID'));
+    lines.push('Sudah Bayar: Rp ' + data.totalBayar.toLocaleString('id-ID'));
+    lines.push('Sisa: Rp ' + data.totalSisa.toLocaleString('id-ID'));
+    return lines.join('\n');
+}
+
+function shareWaKartuTagihan() {
+    var siswaId = document.getElementById('kartuSiswaSelect').value;
+    if (!siswaId) return;
+    var data = getRincianTagihanSiswa(siswaId);
+    var teks = buildTeksKartuTagihan(data);
+    window.open('https://wa.me/?text=' + encodeURIComponent(teks), '_blank');
+}
+
+async function cetakKartuTagihanSiswa() {
+    var siswaId = document.getElementById('kartuSiswaSelect').value;
+    if (!siswaId) return;
+    var data = getRincianTagihanSiswa(siswaId);
+    var cfg = getKonfigurasiInstansiData();
+    var tglCetak = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+    var headerHtml = buildPrintHeader(cfg, tglCetak);
+    var watermarkHtml = buildPrintWatermark(cfg);
+    var ttdHtml = buildPrintTandaTangan(cfg, tglCetak);
+    var rowsHtml = data.rows.map(function(r, idx) {
+        var warna = r.status === 'LUNAS' ? '#10B981' : (r.status === 'CICIL' ? '#F59E0B' : '#EF4444');
+        return '<tr><td style="padding:6px 8px;border-bottom:1px solid #eee;">' + (idx+1) + '</td>' +
+            '<td style="padding:6px 8px;border-bottom:1px solid #eee;">' + r.nama + '</td>' +
+            '<td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;">Rp ' + r.nominal.toLocaleString('id-ID') + '</td>' +
+            '<td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:center;color:' + warna + ';font-weight:bold;">' + r.status + '</td></tr>';
+    }).join('');
+    var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Kartu Tagihan Siswa</title><style>' +
+        '*{margin:0;padding:0;box-sizing:border-box;}body{font-family:Arial,sans-serif;background:#f0f0f0;padding:20px;}' +
+        '.box{background:white;max-width:800px;margin:0 auto;border-radius:16px;padding:30px;box-shadow:0 2px 16px rgba(0,0,0,0.1);}' +
+        'h2{color:#0D5C4A;font-size:19px;margin-bottom:2px;}.tgl{color:#aaa;font-size:11px;margin-bottom:16px;}' +
+        'table{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:16px;}' +
+        'th{background:#0D5C4A;color:white;padding:8px;text-align:left;-webkit-print-color-adjust:exact;print-color-adjust:exact;}' +
+        '.summary{background:#f8f8f8;border-radius:10px;padding:14px;font-size:13px;line-height:1.9;}' +
+        '.no-print{text-align:center;margin-top:24px;}.no-print button{padding:12px 32px;margin:0 8px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;}' +
+        '@page{size:A4 portrait;margin:10mm 12mm;}@media print{*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}html{width:210mm;}body{background:white;padding:0;margin:0;width:210mm;}.box{box-shadow:none;border-radius:0;max-width:none;width:100%;}.no-print{display:none!important;}}' +
+        '</style></head><body><div class="box">' + headerHtml +
+        '<h2>KARTU TAGIHAN SISWA</h2><div class="tgl">' + data.siswa.nama + ' · ' + getNamaKelas(data.siswa.kelasId) + ' · Tanggal Cetak: ' + tglCetak + '</div>' +
+        '<table><thead><tr><th>No</th><th>Uraian</th><th style="text-align:right;">Nominal</th><th style="text-align:center;">Status</th></tr></thead><tbody>' + rowsHtml + '</tbody></table>' +
+        '<div class="summary">' +
+            '<div>Total Tagihan &nbsp;: <strong>Rp ' + data.totalTagihan.toLocaleString('id-ID') + '</strong></div>' +
+            '<div>Sudah Bayar &nbsp;&nbsp;: <strong style="color:#10B981;">Rp ' + data.totalBayar.toLocaleString('id-ID') + '</strong></div>' +
+            '<div style="font-size:15px;font-weight:bold;color:#EF4444;margin-top:6px;">SISA: Rp ' + data.totalSisa.toLocaleString('id-ID') + '</div>' +
+        '</div>' +
+        ttdHtml + '</div><div class="no-print"><button onclick="window.print()" style="background:#0D5C4A;color:white;">🖨️ CETAK</button>' +
+        '<button onclick="window.close()" style="background:#E2E8F0;color:#1E293B;">✕ TUTUP</button></div>' +
+        watermarkHtml + '</body></html>';
+    var win = window.open('', '_blank');
+    if (!win) return showToast('Izinkan popup untuk cetak!');
+    win.document.write(html); injectWatermarkToPrintWin(win); win.document.close();
+}
+
+/* ==============================================================
    SECTION: HELPER CETAK (Header, Watermark, Tanda Tangan, QR)
    Dipakai oleh modul Kas/SPP/Invoice/Laporan di fase berikutnya
    ============================================================== */
@@ -3301,10 +3917,16 @@ function buildPrintHeader(cfg, tanggal) {
             ? '<img src="' + cfg.logo + '" style="width:72px;height:72px;object-fit:contain;border-radius:8px;background:white;padding:4px;">'
             : '<div style="width:72px;height:72px;background:rgba(255,255,255,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:28px;">🏫</div>')
         : '';
+    var s = cfg.settings || {};
     var infoHtml = '';
     if (cfg.nama) infoHtml += '<div style="font-size:17px;font-weight:bold;">' + cfg.nama + '</div>';
-    if (cfg.alamat) infoHtml += '<div style="font-size:11px;opacity:0.8;margin-top:3px;">' + cfg.alamat + '</div>';
-    if (cfg.telp) infoHtml += '<div style="font-size:11px;opacity:0.8;">Telp: ' + cfg.telp + '</div>';
+    if (cfg.alamat && s.show_alamat !== false) infoHtml += '<div style="font-size:11px;opacity:0.8;margin-top:3px;">' + cfg.alamat + '</div>';
+    var kontakBaris = [];
+    if (cfg.telp && s.show_telp !== false) kontakBaris.push('Telp: ' + cfg.telp);
+    if (cfg.email && s.show_email) kontakBaris.push('Email: ' + cfg.email);
+    if (cfg.website && s.show_web) kontakBaris.push('Web: ' + cfg.website);
+    if (kontakBaris.length) infoHtml += '<div style="font-size:11px;opacity:0.8;">' + kontakBaris.join(' · ') + '</div>';
+    if (cfg.npwp && s.show_npwp) infoHtml += '<div style="font-size:11px;opacity:0.8;">NPWP: ' + cfg.npwp + '</div>';
     return '<div style="background:var(--primary);color:white;padding:18px 22px;display:flex;align-items:center;gap:18px;margin-bottom:24px;border-radius:12px;-webkit-print-color-adjust:exact;print-color-adjust:exact;">' +
         logoHtml + '<div style="flex:1;">' + infoHtml + '</div></div>';
 }
@@ -3322,7 +3944,7 @@ function buildPrintWatermark(cfg) {
 
 function buildPrintTandaTangan(cfg, tglCetak) {
     if (!cfg.settings || cfg.settings.show_pimpinan === false) return '';
-    var lokasiTgl = tglCetak;
+    var lokasiTgl = (cfg.kota ? cfg.kota + ', ' : '') + tglCetak;
     return '<div style="display:flex;justify-content:space-around;margin-top:40px;padding-top:20px;border-top:1px dashed var(--gray-300);">' +
         '<div style="text-align:center;flex:1;">' +
             '<div style="font-size:12px;color:#555;">' + lokasiTgl + '</div>' +
@@ -3377,7 +3999,8 @@ async function buildBackupJsonData() {
         rkas: rkasList,
         guru: guruList,
         gaji_pembayaran: gajiPembayaranList,
-        tagihan_lain: { jenis: jenisTagihanList, assign: tagihanAssignList, pembayaran: pembayaranTagihanLainList }
+        tagihan_lain: { jenis: jenisTagihanList, assign: tagihanAssignList, pembayaran: pembayaranTagihanLainList },
+        template_paket: templatePaketList
     };
 }
 
@@ -3502,6 +4125,10 @@ async function applyRestoreBackupData(backup) {
         await idbSet(STORE_TAGIHAN_LAIN, 'tagihan_assign_list', tagihanAssignList);
         await idbSet(STORE_TAGIHAN_LAIN, 'pembayaran_tagihan_lain_list', pembayaranTagihanLainList);
     }
+    if (backup.template_paket) {
+        templatePaketList = backup.template_paket;
+        await idbSet(STORE_TAGIHAN_LAIN, 'template_paket_list', templatePaketList);
+    }
 }
 
 /* ==============================================================
@@ -3569,6 +4196,7 @@ window.addEventListener('DOMContentLoaded', function() {
         loadRkasData();
         loadGajiData();
         loadTagihanLainData();
+        loadTemplatePaketData();
     }).catch(function(e){ console.error('Gagal buka IndexedDB:', e); });
     cekSessionAwal();
     pilihTipeKas('masuk');

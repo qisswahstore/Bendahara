@@ -43,6 +43,19 @@
             --gray-light: #F1F5F9;
         }
         
+        /* Syahriah Matrix */
+        .syahriah-matrix-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 12px; }
+        .syahriah-table { border-collapse: collapse; width: 100%; }
+        .syahriah-table th, .syahriah-table td { padding: 6px 8px; text-align: center; font-size: 12px; border: 1px solid #E2E8F0; white-space: nowrap; }
+        .syahriah-table th { background: var(--primary); color: white; position: sticky; top: 0; }
+        .syahriah-table td:first-child, .syahriah-table th:first-child { position: sticky; left: 0; background: var(--white); text-align: left; font-weight: 600; z-index: 1; min-width: 120px; }
+        .syahriah-table th:first-child { background: var(--primary-dark); color: white; z-index: 2; }
+        .syahriah-cell { display: inline-block; width: 26px; height: 26px; line-height: 26px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .syahriah-cell-lunas { background: var(--green); color: white; }
+        .syahriah-cell-belum { background: #FEF3C7; color: #B45309; }
+        .syahriah-cell-none { background: #F1F5F9; color: #cbd5e1; }
+        body.dark-mode .syahriah-table td:first-child, body.dark-mode .syahriah-table th:first-child { background: #2A2A3A; }
+
         /* Print Media Query - Optimasi untuk cetak */
         @media print {
             body {
@@ -2071,12 +2084,46 @@
     </div>
 </div>
 
+<!-- SYAHRIAH / SPP PAGE -->
+<div id="page-syahriah" class="page">
+    <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2>Syahriah / SPP</h2><i class="fas fa-cog" onclick="openSyahriahSetting()" style="color:white; font-size:18px; cursor:pointer;"></i></div></div>
+    <div class="card-premium">
+        <div class="payment-dashboard-card"><div style="font-weight:700; margin-bottom:8px;"><i class="fas fa-calendar-check"></i> Rekap Syahriah</div>
+            <div class="payment-stats-row">
+                <div class="payment-stat-item"><h4>Terkumpul Bulan Ini</h4><div class="payment-value" id="syahriahTerkumpulBulanIni">Rp 0</div></div>
+                <div class="payment-stat-item"><h4>Total Tunggakan</h4><div class="payment-value" id="syahriahTotalTunggakan">Rp 0</div></div>
+            </div>
+        </div>
+        <div class="rekap-card"><div class="rekap-title"><i class="fas fa-chart-pie"></i> STATUS BULAN INI</div>
+            <div class="rekap-dua-kolom">
+                <div class="rekap-lunas"><h4><i class="fas fa-check-circle"></i> LUNAS</h4><div class="rekap-number" id="syahriahLunasCount">0 siswa</div></div>
+                <div class="rekap-belum-lunas"><h4><i class="fas fa-clock"></i> BELUM</h4><div class="rekap-number" id="syahriahBelumCount">0 siswa</div></div>
+            </div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin:14px 0;">
+            <button onclick="gantiTahunSyahriah(-1)" style="padding:8px 14px;border:none;border-radius:10px;background:#e2e8f0;cursor:pointer;">◀</button>
+            <div style="font-weight:700;font-size:16px;" id="syahriahTahunLabel">Tahun 2026</div>
+            <button onclick="gantiTahunSyahriah(1)" style="padding:8px 14px;border:none;border-radius:10px;background:#e2e8f0;cursor:pointer;">▶</button>
+        </div>
+        <button class="btn btn-accent" style="width:100%;margin-bottom:14px;" onclick="generateTagihanBulanIni()"><i class="fas fa-plus-circle"></i> Generate Tagihan Bulan Ini</button>
+        <div style="display:flex;gap:8px;margin-bottom:10px;">
+            <input type="text" id="searchSyahriahInput" placeholder="🔍 Cari nama siswa..." oninput="renderSyahriahMatrix()"
+                style="flex:1;padding:10px 14px;border:1.5px solid #ddd;border-radius:12px;font-size:14px;">
+        </div>
+        <div class="section-title"><span><i class="fas fa-table"></i> TRACKING PEMBAYARAN PER BULAN</span></div>
+        <div class="syahriah-matrix-wrap">
+            <table class="syahriah-table" id="syahriahMatrixTable"></table>
+        </div>
+        <p style="font-size:11px;color:#94a3b8;margin-top:8px;">Tap kotak bulan untuk tandai lunas/belum. Kotak abu = belum ada tagihan (klik "Generate Tagihan" dulu).</p>
+    </div>
+</div>
+
 <!-- MULTI EVENT PAGE -->
 <div id="page-datamaster" class="page">
-    <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2 id="masterJudulHeader">Multi Event</h2><i class="fas fa-cog" onclick="openMasterSetting()" style="color:white; font-size:18px; cursor:pointer;"></i></div></div>
+    <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2 id="masterJudulHeader">Kelas</h2><i class="fas fa-cog" onclick="openMasterSetting()" style="color:white; font-size:18px; cursor:pointer;"></i></div></div>
     <div class="card-premium">
         <div id="masterAdminPanel" style="display:none; background:var(--gray-light); padding:15px; border-radius:20px; margin-bottom:15px;">
-            <div class="input-group"><label> Judul Halaman / Laporan</label><input type="text" id="masterJudul" placeholder="Contoh: BADAL HAJI 2026"></div>
+            <div class="input-group"><label> Judul Halaman / Laporan</label><input type="text" id="masterJudul" placeholder="Contoh: Kelas 7A"></div>
             <div class="row"><button class="btn btn-blue btn-small" onclick="openMasterFieldModal()" style="flex:1"> Kelola Field Dinamis</button><button class="btn btn-teal btn-small" onclick="openMasterItemModal()" style="flex:1"> Kelola Item</button></div>
             <div class="row mt-2"><button class="btn btn-purple btn-small" onclick="copyFromJamaah()" style="flex:1"> Copy dari database</button><button class="btn btn-orange btn-small" onclick="openModeManager()" style="flex:1"><i class="fas fa-sliders-h"></i>  Kelola Mode</button></div>
             <div class="row mt-2"><button class="btn btn-danger btn-small" onclick="confirmDeleteAllMasterData()" style="flex:1"><i class="fas fa-trash-alt"></i>  HAPUS SEMUA</button><button class="btn btn-orange btn-small" onclick="deleteSelectedMasterData()" style="flex:1"><i class="fas fa-trash-alt"></i>  HAPUS TERPILIH</button></div>
@@ -2100,7 +2147,7 @@
                 </div>
                 <div class="export-menu-item" onclick="exportMasterExcel(); toggleExportDropdown('exportMenuMaster')">
                     <div class="export-icon export-icon-excel">📊</div>
-                    <div><div class="export-label">Excel</div><div class="export-desc">Data multi event format Excel</div></div>
+                    <div><div class="export-label">Excel</div><div class="export-desc">Data kelas format Excel</div></div>
                 </div>
                 <div class="export-menu-item" onclick="shareAllMasterToWA(); toggleExportDropdown('exportMenuMaster')">
                     <div class="export-icon export-icon-wa">💬</div>
@@ -2329,7 +2376,6 @@
            <div class="fitur-card" onclick="showPage('uploaddokumen')"><div class="fitur-icon">📁</div><div class="fitur-title">Upload Dokumen</div><div class="fitur-desc">Simpan KTP, Paspor, Foto</div></div>
             <div class="fitur-card" onclick="showPage('foldervirtual')"><div class="fitur-icon">📂</div><div class="fitur-title">Folder Virtual</div><div class="fitur-desc">Pisah per rombongan</div></div>
             <div class="fitur-card" onclick="showPage('pengingatwa')"><div class="fitur-icon">📲</div><div class="fitur-title">Pengingat WA</div><div class="fitur-desc">Kirim pengingat otomatis</div></div>
-            <div class="fitur-card" onclick="showPage('scanqr')"><div class="fitur-icon" style="font-size:40px;">📷</div><div class="fitur-title">Scan QR</div><div class="fitur-desc">Absensi & cek data jamaah</div></div>
             <div class="fitur-card" onclick="showPage('suratresmi')"><div class="fitur-icon" style="font-size:40px;">📄</div><div class="fitur-title">Surat Resmi</div><div class="fitur-desc">Buat surat otomatis dari data jamaah</div></div>
             <div class="fitur-card" onclick="showPage('cloudstorage')"><div class="fitur-icon">☁️</div><div class="fitur-title">Cloud Storage</div><div class="fitur-desc">Backup & Restore data</div></div>
             <div class="fitur-card" onclick="showPage('dashboard')"><div class="fitur-icon">📈</div><div class="fitur-title">Dashboard</div><div class="fitur-desc">Grafik statistik data</div></div>
@@ -2449,79 +2495,6 @@
             </div>
             <textarea id="suratKustomTemplate" rows="6" placeholder="Tulis template surat Anda di sini menggunakan variabel di atas..." style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;background:var(--input-bg);color:var(--text);font-size:12px;resize:vertical;"></textarea>
             <button onclick="simpanTemplateSuratKustom()" style="width:100%;padding:10px;background:#10B981;color:white;border:none;border-radius:8px;margin-top:8px;cursor:pointer;font-weight:bold;">💾 Simpan Template Kustom</button>
-        </div>
-    </div>
-</div>
-
-<div id="page-scanqr" class="page">
-    <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('fitur');stopScanner();"></i><h2>📷 Scan QR Absensi</h2><div style="width:30px;"></div></div></div>
-    <div class="container">
-
-        <!-- Kelola Sesi -->
-        <div class="card-premium">
-            <div style="font-weight:bold;color:var(--primary);margin-bottom:10px;">📅 Sesi Absensi</div>
-            <div id="sesiAktifInfo" style="background:var(--bg);border-radius:10px;padding:12px;margin-bottom:10px;font-size:13px;">
-                <span style="color:#888;">Belum ada sesi aktif</span>
-            </div>
-            <div style="display:flex;gap:8px;">
-                <button onclick="showBuatSesiModal()" style="flex:1;padding:10px;background:#0D5C4A;color:white;border:none;border-radius:8px;font-size:13px;cursor:pointer;">➕ Buat Sesi Baru</button>
-                <button onclick="showPilihSesiModal()" style="flex:1;padding:10px;background:#3B82F6;color:white;border:none;border-radius:8px;font-size:13px;cursor:pointer;">📋 Pilih Sesi</button>
-            </div>
-        </div>
-
-        <!-- Scanner -->
-        <div class="card-premium" style="text-align:center;">
-            <div id="scannerArea" style="position:relative;width:100%;max-width:340px;margin:0 auto;border-radius:16px;overflow:hidden;background:#000;">
-                <video id="scannerVideo" style="width:100%;display:block;" playsinline></video>
-                <canvas id="scannerCanvas" style="display:none;"></canvas>
-                <div style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;">
-                    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:200px;height:200px;border:3px solid #0D5C4A;border-radius:12px;box-shadow:0 0 0 9999px rgba(0,0,0,0.4);"></div>
-                    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:200px;height:200px;">
-                        <div style="position:absolute;top:0;left:0;width:30px;height:30px;border-top:4px solid #FFD700;border-left:4px solid #FFD700;border-radius:4px 0 0 0;"></div>
-                        <div style="position:absolute;top:0;right:0;width:30px;height:30px;border-top:4px solid #FFD700;border-right:4px solid #FFD700;border-radius:0 4px 0 0;"></div>
-                        <div style="position:absolute;bottom:0;left:0;width:30px;height:30px;border-bottom:4px solid #FFD700;border-left:4px solid #FFD700;border-radius:0 0 0 4px;"></div>
-                        <div style="position:absolute;bottom:0;right:0;width:30px;height:30px;border-bottom:4px solid #FFD700;border-right:4px solid #FFD700;border-radius:0 0 4px 0;"></div>
-                    </div>
-                </div>
-            </div>
-            <div id="scannerStatus" style="margin:12px 0;font-size:13px;color:#888;">Pilih atau buat sesi dulu</div>
-            <div style="display:flex;gap:8px;justify-content:center;margin-top:8px;">
-                <button id="btnStartScan" onclick="startScanner()" class="btn btn-primary" style="flex:1;">📷 Mulai Scan</button>
-                <button id="btnStopScan" onclick="stopScanner()" class="btn" style="flex:1;display:none;background:#EF4444;color:white;">⏹ Stop</button>
-            </div>
-        </div>
-
-        <!-- Hasil Scan -->
-        <div id="hasilScanCard" style="display:none;" class="card-premium">
-            <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
-                <div id="hasilFotoProfil" style="width:70px;height:70px;border-radius:50%;background:#f0f0f0;border:3px solid #0D5C4A;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                    <span style="font-size:32px;">👤</span>
-                </div>
-                <div>
-                    <div id="hasilNama" style="font-size:18px;font-weight:bold;color:var(--primary);"></div>
-                    <div id="hasilNoPorsi" style="font-size:13px;color:#888;"></div>
-                    <div id="hasilStatusAbsen" style="font-size:13px;font-weight:bold;margin-top:4px;"></div>
-                </div>
-            </div>
-            <div id="hasilDataJamaah" style="background:var(--bg);border-radius:10px;padding:12px;margin-bottom:14px;font-size:13px;line-height:2;"></div>
-            <div style="display:flex;gap:8px;">
-                <button id="btnTandaiHadir" onclick="tandaiHadir()" style="flex:1;padding:12px;background:#10B981;color:white;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;">✅ Tandai Hadir</button>
-                <button onclick="resetScanResult()" style="flex:1;padding:12px;background:#e2e8f0;color:#333;border:none;border-radius:10px;cursor:pointer;">🔄 Scan Lagi</button>
-            </div>
-        </div>
-
-        <!-- Rekap Absensi -->
-        <div class="card-premium">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-                <div style="font-weight:bold;color:var(--primary);">📋 Rekap Sesi Aktif</div>
-                <div style="display:flex;gap:6px;">
-                    <button onclick="openCustomizeAbsensiModal()" style="padding:6px 10px;background:#64748B;color:white;border:none;border-radius:8px;font-size:11px;cursor:pointer;">⚙️</button>
-                    <button onclick="eksporAbsensi()" style="padding:6px 10px;background:#0D5C4A;color:white;border:none;border-radius:8px;font-size:11px;cursor:pointer;">🖨️ PDF</button>
-                    <button onclick="eksporAbsensiExcel()" style="padding:6px 10px;background:#1D6F42;color:white;border:none;border-radius:8px;font-size:11px;cursor:pointer;">📊 Excel</button>
-                    <button onclick="eksporAbsensiCSV()" style="padding:6px 10px;background:#3B82F6;color:white;border:none;border-radius:8px;font-size:11px;cursor:pointer;">📄 CSV</button>
-                </div>
-            </div>
-            <div id="rekapAbsensi" style="font-size:13px;"></div>
         </div>
     </div>
 </div>
@@ -2819,6 +2792,7 @@ function internalShowPage(pageId) {
         if(cp) cp.innerHTML = '<div style="text-align:center;padding:30px;color:#aaa;"><div style="font-size:30px;">⏳</div>Memuat data...</div>';
         setTimeout(() => { if(window.renderPaymentDashboard) window.renderPaymentDashboard(); if(window.renderPaymentJamaahList) window.renderPaymentJamaahList(); if(window.populatePaymentJamaahDropdown) window.populatePaymentJamaahDropdown(); }, 50);
     }
+    if (pageId === 'syahriah') { renderSyahriahDashboard(); renderSyahriahMatrix(); }
     if (pageId === 'datamaster') { if(window.loadMasterData) window.loadMasterData(); if(window.renderDynamicModeSwitcher) window.renderDynamicModeSwitcher(); }
     if (pageId === 'home') { updateLicenseBanner(); updateLicenseSummary(); }
     if (pageId === 'lisensi') { renderLicenseStatus(); }
@@ -2845,7 +2819,6 @@ function internalShowPage(pageId) {
     if (pageId === 'foldervirtual') { if(window.renderFolderList) window.renderFolderList(); }
     if (pageId === 'pengingatwa') { if(window.loadPengingatData) window.loadPengingatData(); }
     if (pageId === 'suratresmi') { initSuratPage(); }
-    if (pageId === 'scanqr') { renderSesiAktifInfo(); renderRekapAbsensi(); }
     if (pageId === 'pengingatwa') { loadPengingatData(); }
     if (pageId === 'cloudstorage') { if(window.updateStorageInfo) window.updateStorageInfo(); }
     if (pageId === 'dashboard') { if(window.renderDashboard) window.renderDashboard(); }
@@ -2856,7 +2829,7 @@ window.addEventListener('popstate', function(event) {
     let pageId = 'home';
     if (event.state && event.state.page) pageId = event.state.page;
     else { const hash = window.location.hash; if (hash && hash.startsWith('#page-')) pageId = hash.replace('#page-', ''); }
-    const validPages = ['home', 'kas', 'jamaah', 'catatan', 'pembayaran', 'datamaster', 'konfigurasi', 'setting', 'fitur', 'uploaddokumen', 'foldervirtual', 'pengingatwa', 'cloudstorage', 'dashboard', 'scanqr', 'suratresmi', 'lisensi'];
+    const validPages = ['home', 'kas', 'jamaah', 'catatan', 'pembayaran', 'syahriah', 'datamaster', 'konfigurasi', 'setting', 'fitur', 'uploaddokumen', 'foldervirtual', 'pengingatwa', 'cloudstorage', 'dashboard', 'suratresmi', 'lisensi'];
     if (!validPages.includes(pageId)) pageId = 'home';
     internalShowPage(pageId);
     document.querySelectorAll('.nav-item-premium').forEach(nav => { nav.classList.remove('active'); if (nav.getAttribute('data-page') === pageId) nav.classList.add('active'); });
@@ -2971,6 +2944,7 @@ const menuItemsPremium = [
     { id: 'jamaah', icon: '🗂️', label: 'Database', badge: 'Siswa' }, 
     { id: 'catatan', icon: '📝', label: 'Catatan', badge: 'Notes' }, 
     { id: 'pembayaran', icon: '🧾', label: 'Pembayaran', badge: 'Tagihan' }, 
+    { id: 'syahriah', icon: '📅', label: 'Syahriah', badge: 'SPP' }, 
     { id: 'datamaster', icon: '🗓️', label: 'Kelas', badge: 'Data' }, 
     { id: 'konfigurasi', icon: '⚙️', label: 'Konfigurasi', badge: 'Setting' }, 
     { id: 'fitur', icon: '🚀', label: 'LENGKAP', badge: 'Fitur' }
@@ -7558,6 +7532,133 @@ function simpanPembayaran() {
     showToast(`✅ Pembayaran Rp ${nominal.toLocaleString('id-ID')} berhasil!`); 
 }
 
+// ==================== SYAHRIAH / SPP (RECURRING BULANAN) ====================
+let syahriahList = []; // {id, siswa_id, bulan(1-12), tahun, nominal, status:'lunas'|'belum', tgl_bayar, metode}
+let syahriahNominalDefault = 0;
+let syahriahTahunAktif = new Date().getFullYear();
+const BULAN_LABEL = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+
+async function loadSyahriahData() {
+    const saved = await idbGet(STORE_SYAHRIAH, 'syahriah_list');
+    syahriahList = saved || [];
+    syahriahNominalDefault = parseInt(localStorage.getItem('syahriah_nominal_default') || '0');
+}
+
+async function saveSyahriahData() {
+    await idbSet(STORE_SYAHRIAH, 'syahriah_list', syahriahList);
+}
+
+function gantiTahunSyahriah(delta) {
+    syahriahTahunAktif += delta;
+    renderSyahriahDashboard();
+    renderSyahriahMatrix();
+}
+
+function openSyahriahSetting() {
+    const nominal = prompt('Nominal Syahriah/SPP per bulan (Rp):', syahriahNominalDefault || '');
+    if (nominal === null) return;
+    const val = parseInt(nominal.replace(/\D/g, ''));
+    if (!val || val <= 0) { showToast('⚠️ Nominal tidak valid'); return; }
+    syahriahNominalDefault = val;
+    localStorage.setItem('syahriah_nominal_default', val);
+    showToast('✅ Nominal syahriah disimpan: Rp ' + val.toLocaleString('id-ID'));
+}
+
+function generateTagihanBulanIni() {
+    if (!syahriahNominalDefault) { showToast('⚠️ Atur nominal syahriah dulu (ikon ⚙️ di pojok kanan atas)'); return; }
+    if (jamaahList.length === 0) { showToast('⚠️ Belum ada data siswa di Database Siswa'); return; }
+    const now = new Date();
+    const bulan = now.getMonth() + 1, tahun = now.getFullYear();
+    let ditambah = 0;
+    jamaahList.forEach(j => {
+        const sudahAda = syahriahList.some(s => s.siswa_id == j.id && s.bulan === bulan && s.tahun === tahun);
+        if (!sudahAda) {
+            syahriahList.push({
+                id: 'SYH-' + Date.now() + '-' + Math.floor(Math.random() * 10000) + '-' + j.id,
+                siswa_id: j.id, bulan, tahun, nominal: syahriahNominalDefault,
+                status: 'belum', tgl_bayar: null, metode: null
+            });
+            ditambah++;
+        }
+    });
+    if (ditambah === 0) { showToast('Tagihan bulan ini sudah ada untuk semua siswa'); return; }
+    saveSyahriahData();
+    syahriahTahunAktif = tahun;
+    renderSyahriahDashboard();
+    renderSyahriahMatrix();
+    showToast(`✅ Tagihan ${BULAN_LABEL[bulan-1]} ${tahun} dibuat untuk ${ditambah} siswa`);
+}
+
+function getSyahriahRecord(siswaId, bulan, tahun) {
+    return syahriahList.find(s => s.siswa_id == siswaId && s.bulan === bulan && s.tahun === tahun) || null;
+}
+
+function renderSyahriahDashboard() {
+    document.getElementById('syahriahTahunLabel').innerText = 'Tahun ' + syahriahTahunAktif;
+    const now = new Date();
+    const bulanIni = now.getMonth() + 1, tahunIni = now.getFullYear();
+    const recBulanIni = syahriahList.filter(s => s.bulan === bulanIni && s.tahun === tahunIni);
+    const terkumpul = recBulanIni.filter(s => s.status === 'lunas').reduce((sum, s) => sum + s.nominal, 0);
+    const lunasCount = recBulanIni.filter(s => s.status === 'lunas').length;
+    const belumCount = recBulanIni.filter(s => s.status === 'belum').length;
+    const totalTunggakan = syahriahList.filter(s => s.status === 'belum').reduce((sum, s) => sum + s.nominal, 0);
+    document.getElementById('syahriahTerkumpulBulanIni').innerHTML = 'Rp ' + terkumpul.toLocaleString('id-ID');
+    document.getElementById('syahriahTotalTunggakan').innerHTML = 'Rp ' + totalTunggakan.toLocaleString('id-ID');
+    document.getElementById('syahriahLunasCount').innerHTML = lunasCount + ' siswa';
+    document.getElementById('syahriahBelumCount').innerHTML = belumCount + ' siswa';
+}
+
+function renderSyahriahMatrix() {
+    const table = document.getElementById('syahriahMatrixTable');
+    if (!table) return;
+    const q = (document.getElementById('searchSyahriahInput')?.value || '').toLowerCase();
+    let siswa = [...jamaahList];
+    if (q) siswa = siswa.filter(j => (j.nama_lengkap || '').toLowerCase().includes(q));
+    if (siswa.length === 0) { table.innerHTML = '<tr><td style="padding:20px;text-align:center;color:#94a3b8;">Belum ada data siswa / tidak ditemukan</td></tr>'; return; }
+    let thead = '<tr><th>Nama Siswa</th>' + BULAN_LABEL.map(b => `<th>${b}</th>`).join('') + '</tr>';
+    let rows = siswa.map(j => {
+        let cells = '';
+        for (let bulan = 1; bulan <= 12; bulan++) {
+            const rec = getSyahriahRecord(j.id, bulan, syahriahTahunAktif);
+            if (!rec) cells += `<td><span class="syahriah-cell syahriah-cell-none" onclick="showToast('Belum ada tagihan bulan ini')">–</span></td>`;
+            else if (rec.status === 'lunas') cells += `<td><span class="syahriah-cell syahriah-cell-lunas" onclick="toggleSyahriahCell('${j.id}',${bulan},${syahriahTahunAktif})">✓</span></td>`;
+            else cells += `<td><span class="syahriah-cell syahriah-cell-belum" onclick="toggleSyahriahCell('${j.id}',${bulan},${syahriahTahunAktif})">✕</span></td>`;
+        }
+        return `<tr><td>${escapeHtml(j.nama_lengkap)}</td>${cells}</tr>`;
+    }).join('');
+    table.innerHTML = thead + rows;
+}
+
+function toggleSyahriahCell(siswaId, bulan, tahun) {
+    const rec = getSyahriahRecord(siswaId, bulan, tahun);
+    if (!rec) return;
+    const jamaah = jamaahList.find(j => j.id == siswaId);
+    const namaBulan = BULAN_LABEL[bulan - 1];
+    if (rec.status === 'belum') {
+        if (!confirm(`Tandai LUNAS syahriah ${namaBulan} ${tahun} untuk ${jamaah?.nama_lengkap || ''}?\nNominal: Rp ${rec.nominal.toLocaleString('id-ID')}\n\nOtomatis dicatat sebagai pemasukan Kas.`)) return;
+        rec.status = 'lunas';
+        rec.tgl_bayar = new Date().toLocaleDateString('id-ID');
+        dataKas.unshift({
+            id: Date.now(),
+            tgl: rec.tgl_bayar,
+            kegiatan: 'Syahriah',
+            ket: `Syahriah ${namaBulan} ${tahun} - ${jamaah?.nama_lengkap || 'Siswa'}`,
+            nom: rec.nominal,
+            tipe: 'masuk'
+        });
+        saveKasData();
+        showToast('✅ Syahriah lunas & tercatat di Kas');
+    } else {
+        if (!confirm(`Batalkan status LUNAS syahriah ${namaBulan} ${tahun} untuk ${jamaah?.nama_lengkap || ''}?\n\nCatatan Kas terkait tidak otomatis terhapus, hapus manual di menu Kas jika perlu.`)) return;
+        rec.status = 'belum';
+        rec.tgl_bayar = null;
+        showToast('Status dikembalikan ke belum bayar');
+    }
+    saveSyahriahData();
+    renderSyahriahDashboard();
+    renderSyahriahMatrix();
+}
+
 // PERBAIKAN POIN 2: INVOICE WHATSAPP
 function prepareInvoice(idJamaah) { 
     currentInvoiceJamaahId = idJamaah; 
@@ -8781,7 +8882,7 @@ function exportFolderToExcel(folderId) {
 // ==================== UPLOAD DOKUMEN ====================
 let dokumenJenisList = [], dokumenData = {}, db = null;
 // ==================== INDEXEDDB TERPUSAT ====================
-const DB_NAME = 'NavaraDB', DB_VERSION = 3, 
+const DB_NAME = 'NavaraDB', DB_VERSION = 4, 
     STORE_NAME = 'dokumen', 
     JENIS_STORE_NAME = 'dokumenJenis',
     STORE_JAMAAH = 'jamaahData',
@@ -8792,24 +8893,40 @@ const DB_NAME = 'NavaraDB', DB_VERSION = 3,
     STORE_KONFIGURASI = 'konfigurasiData',
     STORE_MASTER = 'masterData',
     STORE_FOTO = 'fotoProfil',
-    STORE_ABSENSI = 'absensiData';
+    STORE_ABSENSI = 'absensiData',
+    STORE_SYAHRIAH = 'syahriahData';
 
+let _dbOpenPromise = null;
 function openIndexedDB() { 
-    return new Promise((resolve, reject) => { 
-        if (db) { resolve(db); return; } 
-        const request = indexedDB.open(DB_NAME, DB_VERSION); 
-        request.onerror = (e) => { console.error('IndexedDB error:', e); reject(request.error); }; 
+    if (db) return Promise.resolve(db);
+    if (_dbOpenPromise) return _dbOpenPromise; // cegah multiple request.open() bersamaan
+    _dbOpenPromise = new Promise((resolve, reject) => { 
+        let request;
+        try {
+            request = indexedDB.open(DB_NAME, DB_VERSION);
+        } catch (err) {
+            _dbOpenPromise = null;
+            console.error('IndexedDB tidak tersedia di environment ini:', err);
+            reject(err);
+            return;
+        }
+        request.onerror = (e) => { 
+            _dbOpenPromise = null;
+            console.error('IndexedDB error:', request.error || e); 
+            reject(request.error || e); 
+        }; 
         request.onsuccess = () => { db = request.result; resolve(db); }; 
-        request.onblocked = () => { db = null; window.location.reload(); };
+        request.onblocked = () => { db = null; _dbOpenPromise = null; window.location.reload(); };
         request.onupgradeneeded = (event) => { 
             const d = event.target.result; 
             [STORE_NAME, JENIS_STORE_NAME, STORE_JAMAAH, STORE_JAMAAH_KITA, 
              STORE_FOLDER, STORE_KAS, STORE_PEMBAYARAN, STORE_KONFIGURASI, 
-             STORE_MASTER, STORE_FOTO, STORE_ABSENSI].forEach(name => {
+             STORE_MASTER, STORE_FOTO, STORE_ABSENSI, STORE_SYAHRIAH].forEach(name => {
                 if (!d.objectStoreNames.contains(name)) d.createObjectStore(name, { keyPath: 'id' });
             });
         }; 
     }); 
+    return _dbOpenPromise;
 }
 
 // Helper: simpan ke IndexedDB
@@ -10710,7 +10827,7 @@ async function generateAndShareTiketWA(jamaah) {
 
 // PERBAIKAN POIN 1: CETAK TIKET - Hanya mencetak area tiket, bersih tanpa menu/footer
 // ==================== MULTI EVENT (SINGKAT) ====================
-let masterDataList = [], masterDynamicFields = [], masterItemList = ['Kain Ihram', 'Sendal', 'Obat-obatan', 'Tas', 'Air Zamzam', 'Kopyah'], editingMasterId = null, availableModes = ['Semua', 'Haji', 'Toko', 'Sekolah', 'Umroh', 'Donasi'], activeModes = ['Semua', 'Haji', 'Toko', 'Sekolah', 'Umroh', 'Donasi'], currentDisplayMode = 'Semua';
+let masterDataList = [], masterDynamicFields = [], masterItemList = ['Buku Paket', 'Seragam', 'LKS', 'Alat Tulis'], editingMasterId = null, availableModes = ['Semua', 'Kelas 7', 'Kelas 8', 'Kelas 9'], activeModes = ['Semua', 'Kelas 7', 'Kelas 8', 'Kelas 9'], currentDisplayMode = 'Semua';
 
 async function loadMasterData() {
     let saved = await idbGet(STORE_MASTER, 'master_data');
@@ -10732,7 +10849,7 @@ async function saveMasterDataToLocal() {
     await idbSet(STORE_MASTER, 'master_items', masterItemList);
 }
 
-function getMasterJudul() { return document.getElementById('masterJudul')?.value.trim() || 'Multi Event'; }
+function getMasterJudul() { return document.getElementById('masterJudul')?.value.trim() || 'Kelas'; }
 
 function renderMasterForm() {
     const container = document.getElementById('masterFormContainer');
@@ -11671,24 +11788,29 @@ async function initPremium() {
     loadThemePremium();
     initDarkMode();
     
-    loadEstimasiData();
     // Load semua data dari IndexedDB secara berurutan
-    await openIndexedDB(); // Pastikan DB terbuka dulu
-    await loadKonfigurasiPro();
-    await loadDynamicFieldsJamaah();
-    await loadJamaahData();
-    await loadJamaahKitaData();
-    await loadKasData();
-    await loadPaymentData();
-    await loadMasterData();
-    await loadFolderData();
-    loadModesFromStorage();
-    renderDynamicModeSwitcher();
-    loadCatatanData();
-    await loadDokumenData();
-    loadPengingatData();
-    await loadAbsensiData();
-    loadSumberHartaList();
+    try {
+        await openIndexedDB(); // Pastikan DB terbuka dulu
+        await loadKonfigurasiPro();
+        await loadDynamicFieldsJamaah();
+        await loadJamaahData();
+        await loadJamaahKitaData();
+        await loadKasData();
+        await loadPaymentData();
+        await loadSyahriahData();
+        await loadMasterData();
+        await loadFolderData();
+        loadModesFromStorage();
+        renderDynamicModeSwitcher();
+        loadCatatanData();
+        await loadDokumenData();
+        loadPengingatData();
+        await loadAbsensiData();
+        loadSumberHartaList();
+    } catch (err) {
+        console.error('Gagal memuat data IndexedDB:', err);
+        showToast('⚠️ Gagal memuat database lokal. Coba buka lewat browser/PWA terinstall, bukan preview.');
+    }
     
     // UPDATE STATS SETELAH SEMUA DATA LOAD!
     updateHomeStats();

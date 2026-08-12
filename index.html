@@ -347,6 +347,10 @@
                     <div style="font-size:26px;">📖</div>
                     <div style="font-size:12.5px;font-weight:600;margin-top:4px;">Jurnal Harian</div>
                 </div>
+                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('tagihan-lain')">
+                    <div style="font-size:26px;">🎒</div>
+                    <div style="font-size:12.5px;font-weight:600;margin-top:4px;">Tagihan Lain-lain</div>
+                </div>
             </div>
         </div>
     </div>
@@ -793,6 +797,11 @@
         </div>
 
         <div class="card">
+            <div style="font-weight:700;margin-bottom:10px;">🎒 Rincian Tagihan Lain per Jenis</div>
+            <div id="lapTagihanLain"></div>
+        </div>
+
+        <div class="card">
             <div style="font-weight:700;margin-bottom:10px;">🖨️ Cetak &amp; Ekspor</div>
             <div class="row mb-8">
                 <button class="btn btn-blue btn-small" style="flex:1" onclick="cetakLaporanKeuangan()"><i class="fas fa-print"></i> Cetak</button>
@@ -970,6 +979,130 @@
 </div>
 
 <!-- ==========================================================
+     TAGIHAN LAIN-LAIN PAGE (Pendaftaran, Daftar Ulang, Buku, Seragam, dll)
+     ========================================================== -->
+<div id="page-tagihan-lain" class="page">
+    <div class="header-premium header-premium-small">
+        <div class="back-header">
+            <i class="fas fa-arrow-left" onclick="showPage('home')"></i>
+            <h2>🎒 Tagihan Lain-lain</h2>
+            <div style="width:18px;" onclick="tambahJenisTagihanBaru()"><i class="fas fa-plus"></i></div>
+        </div>
+    </div>
+    <div class="container" style="padding-top:16px;">
+        <div id="jenisTagihanListWrap"></div>
+        <div id="jenisTagihanEmptyState" class="text-center txt-muted card" style="display:none;">
+            Belum ada jenis tagihan. Contoh: Uang Pendaftaran Siswa Baru, Daftar Ulang, Buku Paket, Seragam.<br>
+            Tap ikon + di pojok kanan atas untuk menambah.
+        </div>
+    </div>
+</div>
+
+<!-- Modal Form Jenis Tagihan -->
+<div id="modalFormJenisTagihan" class="modal">
+    <div class="modal-content" style="max-width:360px;">
+        <h3 id="titleModalJenisTagihan" style="color:var(--primary);margin-bottom:14px;">🎒 Jenis Tagihan Baru</h3>
+        <input type="hidden" id="editJenisTagihanId">
+        <label>Nama Tagihan</label>
+        <input type="text" id="inputNamaJenisTagihan" placeholder="cth: Uang Pendaftaran Siswa Baru">
+        <label class="mt-16">Nominal Default (Rp)</label>
+        <input type="text" id="inputNominalJenisTagihan" placeholder="0" inputmode="numeric" oninput="formatNominalInput(this)">
+        <div class="row mt-16">
+            <button class="btn btn-primary" style="flex:1" onclick="simpanFormJenisTagihan()">Simpan</button>
+            <button class="btn btn-gray" style="flex:1" onclick="document.getElementById('modalFormJenisTagihan').style.display='none'">Batal</button>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================================
+     DETAIL JENIS TAGIHAN PAGE
+     ========================================================== -->
+<div id="page-tagihan-detail" class="page">
+    <div class="header-premium header-premium-small">
+        <div class="back-header">
+            <i class="fas fa-arrow-left" onclick="showPage('tagihan-lain')"></i>
+            <h2 id="tagihanDetailTitle">Detail Tagihan</h2>
+            <div style="width:18px;" onclick="hapusJenisTagihanAktif()"><i class="fas fa-trash"></i></div>
+        </div>
+    </div>
+    <div class="container" style="padding-top:16px;">
+        <div class="card">
+            <div class="row">
+                <div style="flex:1;text-align:center;">
+                    <div class="txt-muted">Siswa Ditagih</div>
+                    <div id="tagihanDetailJumlah" style="font-size:15px;font-weight:800;">0</div>
+                </div>
+                <div style="flex:1;text-align:center;border-left:1px solid var(--border);border-right:1px solid var(--border);">
+                    <div class="txt-muted">Terkumpul</div>
+                    <div id="tagihanDetailTerkumpul" class="txt-in" style="font-size:14px;">Rp 0</div>
+                </div>
+                <div style="flex:1;text-align:center;">
+                    <div class="txt-muted">Tunggakan</div>
+                    <div id="tagihanDetailTunggakan" class="txt-out" style="font-size:14px;">Rp 0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <button class="btn btn-primary w-full" onclick="showAssignTagihanModal()"><i class="fas fa-user-plus"></i> Assign ke Siswa</button>
+        </div>
+
+        <div id="tagihanDetailListWrap"></div>
+        <div id="tagihanDetailEmptyState" class="text-center txt-muted card" style="display:none;">Belum ada siswa yang di-assign tagihan ini</div>
+
+        <div class="card">
+            <button class="btn btn-orange w-full" onclick="cetakRekapTagihanLain()"><i class="fas fa-print"></i> Cetak Rekap Tunggakan</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Assign Tagihan ke Siswa -->
+<div id="modalAssignTagihan" class="modal">
+    <div class="modal-content" style="max-width:420px;">
+        <h3 style="color:var(--primary);margin-bottom:10px;">👥 Assign Tagihan ke Siswa</h3>
+        <div class="row mb-8">
+            <button class="btn btn-small" id="btnModeKelas" style="flex:1;background:var(--primary);color:white;" onclick="pilihModeAssign('kelas')">🏷️ Per Kelas</button>
+            <button class="btn btn-small btn-gray" id="btnModeManual" style="flex:1;" onclick="pilihModeAssign('manual')">☑️ Pilih Manual</button>
+        </div>
+
+        <div id="assignModeKelasWrap">
+            <label>Pilih Kelas</label>
+            <select id="assignKelasSelect"></select>
+            <div class="txt-muted mt-8">Semua siswa di kelas ini akan ditagih (siswa yang sudah di-assign sebelumnya akan dilewati).</div>
+        </div>
+
+        <div id="assignModeManualWrap" class="hidden">
+            <label>Filter Kelas (opsional)</label>
+            <select id="assignManualFilterKelas" onchange="renderAssignManualList()" class="mb-8"></select>
+            <div id="assignManualListWrap" style="max-height:240px;overflow-y:auto;border:1px solid var(--border);border-radius:10px;padding:8px;"></div>
+        </div>
+
+        <div class="row mt-16">
+            <button class="btn btn-primary" style="flex:1" onclick="prosesAssignTagihan()">✅ Assign</button>
+            <button class="btn btn-gray" style="flex:1" onclick="document.getElementById('modalAssignTagihan').style.display='none'">Batal</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Bayar Tagihan Lain -->
+<div id="modalBayarTagihanLain" class="modal">
+    <div class="modal-content" style="max-width:380px;">
+        <h3 style="color:var(--primary);margin-bottom:6px;">💳 Catat Pembayaran</h3>
+        <div id="bayarTagihanLainInfo" style="font-size:12.5px;color:var(--gray-700);margin-bottom:14px;"></div>
+        <input type="hidden" id="bayarTagihanLainAssignId">
+        <label>Nominal Dibayar (Rp)</label>
+        <input type="text" id="inputBayarTagihanLain" placeholder="0" inputmode="numeric" oninput="formatNominalInput(this)">
+        <label class="mt-16">Keterangan (opsional)</label>
+        <input type="text" id="inputKetBayarTagihanLain" placeholder="cth: Cicilan ke-1">
+        <div class="row mt-16">
+            <button class="btn btn-primary" style="flex:1" onclick="simpanPembayaranTagihanLain()">Simpan</button>
+            <button class="btn btn-gray" style="flex:1" onclick="document.getElementById('modalBayarTagihanLain').style.display='none'">Batal</button>
+        </div>
+        <div id="riwayatBayarTagihanLainWrap" class="mt-16"></div>
+    </div>
+</div>
+
+<!-- ==========================================================
      BOTTOM NAVIGATION
      ========================================================== -->
 <div class="bottom-nav-premium" id="bottomNav">
@@ -1002,6 +1135,8 @@ function showPage(pageId) {
     if (pageId === 'rkas') renderRkasPage();
     if (pageId === 'gaji') renderGajiList();
     if (pageId === 'jurnal') renderJurnal();
+    if (pageId === 'tagihan-lain') renderJenisTagihanList();
+    if (pageId === 'tagihan-detail') renderTagihanDetail();
     if (pageId === 'pengaturan') loadTahunAjaranForm();
     window.scrollTo(0, 0);
 }
@@ -1040,7 +1175,7 @@ function applyDarkModeFromStorage() {
 /* ==============================================================
    SECTION: INDEXEDDB TERPUSAT (helper generik)
    ============================================================== */
-var DB_NAME = 'BendaharaKuDB', DB_VERSION = 1,
+var DB_NAME = 'BendaharaKuDB', DB_VERSION = 2,
     STORE_KAS = 'kasData',
     STORE_SPP = 'sppData',
     STORE_SISWA = 'siswaData',
@@ -1049,7 +1184,8 @@ var DB_NAME = 'BendaharaKuDB', DB_VERSION = 1,
     STORE_KONFIGURASI = 'konfigurasiData',
     STORE_RKAS = 'rkasData',
     STORE_GAJI = 'gajiData',
-    STORE_JURNAL = 'jurnalData';
+    STORE_JURNAL = 'jurnalData',
+    STORE_TAGIHAN_LAIN = 'tagihanLainData';
 
 var _dbInstance = null;
 
@@ -1063,7 +1199,7 @@ function openIndexedDB() {
         request.onupgradeneeded = function(event) {
             var d = event.target.result;
             [STORE_KAS, STORE_SPP, STORE_SISWA, STORE_KELAS, STORE_PEMBAYARAN,
-             STORE_KONFIGURASI, STORE_RKAS, STORE_GAJI, STORE_JURNAL].forEach(function(name) {
+             STORE_KONFIGURASI, STORE_RKAS, STORE_GAJI, STORE_JURNAL, STORE_TAGIHAN_LAIN].forEach(function(name) {
                 if (!d.objectStoreNames.contains(name)) d.createObjectStore(name, { keyPath: 'id' });
             });
         };
@@ -2037,15 +2173,9 @@ function angkaTerbilang(num) {
     return hasil.charAt(0).toUpperCase() + hasil.slice(1) + ' rupiah';
 }
 
-async function cetakKuitansiPdf(paymentId) {
-    var p = pembayaranSppList.find(function(x){ return x.id === paymentId; });
-    if (!p) return showToast('Data pembayaran tidak ditemukan');
-    var s = siswaList.find(function(x){ return String(x.id) === String(p.siswaId); });
-    if (!s) return showToast('Data siswa tidak ditemukan');
-    if (!p.noKuitansi) { p.noKuitansi = await generateNomorKuitansi(); savePembayaranSppList(); }
-
+function buatKuitansiPdf(opts) {
+    // opts: { noKuitansi, namaSiswa, namaKelas, uraian, keterangan, nominal, tgl, namaFile }
     var cfg = getKonfigurasiInstansiData();
-    var namaBulan = new Date(p.bulan + '-01').toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
     var { jsPDF } = window.jspdf;
     var doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: [148, 105] }); // ukuran A6 landscape
 
@@ -2063,20 +2193,20 @@ async function cetakKuitansiPdf(paymentId) {
     doc.setTextColor(30, 41, 59);
     doc.setFontSize(14);
     doc.setFont(undefined, 'bold');
-    doc.text('KUITANSI PEMBAYARAN SPP', 8, 32);
+    doc.text('KUITANSI PEMBAYARAN', 8, 32);
     doc.setFontSize(9);
     doc.setFont(undefined, 'normal');
-    doc.text('No: ' + p.noKuitansi, 8, 38);
-    doc.text('Tanggal: ' + p.tgl, 100, 38);
+    doc.text('No: ' + opts.noKuitansi, 8, 38);
+    doc.text('Tanggal: ' + opts.tgl, 100, 38);
 
     doc.setDrawColor(226, 232, 240);
     doc.line(8, 42, 140, 42);
 
     var baris = [
-        ['Telah terima dari', ': ' + s.nama],
-        ['Kelas', ': ' + getNamaKelas(s.kelasId)],
-        ['Untuk pembayaran', ': SPP bulan ' + namaBulan],
-        ['Keterangan', ': ' + (p.ket || '-')]
+        ['Telah terima dari', ': ' + opts.namaSiswa],
+        ['Kelas', ': ' + opts.namaKelas],
+        ['Untuk pembayaran', ': ' + opts.uraian],
+        ['Keterangan', ': ' + (opts.keterangan || '-')]
     ];
     var y = 50;
     doc.setFontSize(10);
@@ -2092,20 +2222,34 @@ async function cetakKuitansiPdf(paymentId) {
     doc.text('Sebesar', 10, y + 7);
     doc.setFontSize(13);
     doc.setFont(undefined, 'bold');
-    doc.text('Rp ' + p.nominal.toLocaleString('id-ID'), 10, y + 13);
+    doc.text('Rp ' + opts.nominal.toLocaleString('id-ID'), 10, y + 13);
     doc.setFontSize(8);
     doc.setFont(undefined, 'italic');
-    doc.text('(' + angkaTerbilang(p.nominal) + ')', 55, y + 13);
+    doc.text('(' + angkaTerbilang(opts.nominal) + ')', 55, y + 13);
 
     var yTtd = y + 24;
     doc.setFont(undefined, 'normal');
     doc.setFontSize(9);
-    doc.text((cfg.alamat ? cfg.alamat.split(',')[cfg.alamat.split(',').length-1].trim() : '') + ', ' + p.tgl, 90, yTtd);
+    doc.text((cfg.alamat ? cfg.alamat.split(',')[cfg.alamat.split(',').length-1].trim() : '') + ', ' + opts.tgl, 90, yTtd);
     doc.text('Bendahara,', 100, yTtd + 6);
     doc.text(cfg.bendahara || '( ___________________ )', 90, yTtd + 22);
 
-    doc.save('Kuitansi_' + s.nama.replace(/[^a-zA-Z0-9]/g,'_') + '_' + p.bulan + '.pdf');
+    doc.save(opts.namaFile + '.pdf');
     showToast('✅ Kuitansi diunduh');
+}
+
+async function cetakKuitansiPdf(paymentId) {
+    var p = pembayaranSppList.find(function(x){ return x.id === paymentId; });
+    if (!p) return showToast('Data pembayaran tidak ditemukan');
+    var s = siswaList.find(function(x){ return String(x.id) === String(p.siswaId); });
+    if (!s) return showToast('Data siswa tidak ditemukan');
+    if (!p.noKuitansi) { p.noKuitansi = await generateNomorKuitansi(); savePembayaranSppList(); }
+    var namaBulan = new Date(p.bulan + '-01').toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+    buatKuitansiPdf({
+        noKuitansi: p.noKuitansi, namaSiswa: s.nama, namaKelas: getNamaKelas(s.kelasId),
+        uraian: 'SPP bulan ' + namaBulan, keterangan: p.ket, nominal: p.nominal, tgl: p.tgl,
+        namaFile: 'Kuitansi_SPP_' + s.nama.replace(/[^a-zA-Z0-9]/g,'_') + '_' + p.bulan
+    });
 }
 
 function renderRiwayatKuitansi() {
@@ -2154,7 +2298,17 @@ function renderLaporanKeuangan() {
         perKelasSpp[namaKelas] = (perKelasSpp[namaKelas] || 0) + p.nominal;
     });
 
-    var totalMasuk = kasMasuk + sppTotal;
+    var tlPeriode = pembayaranTagihanLainList.filter(function(p){ return p.tglIso && p.tglIso.slice(0,7) === bulan; });
+    var tlTotal = tlPeriode.reduce(function(s,p){ return s + p.nominal; }, 0);
+    var perJenisTl = {};
+    tlPeriode.forEach(function(p) {
+        var a = tagihanAssignList.find(function(x){ return String(x.id) === String(p.assignmentId); });
+        var jt = a ? jenisTagihanList.find(function(x){ return String(x.id) === String(a.jenisTagihanId); }) : null;
+        var nama = jt ? jt.nama : 'Tidak diketahui';
+        perJenisTl[nama] = (perJenisTl[nama] || 0) + p.nominal;
+    });
+
+    var totalMasuk = kasMasuk + sppTotal + tlTotal;
     var totalKeluar = kasKeluar;
     var saldo = totalMasuk - totalKeluar;
 
@@ -2187,6 +2341,17 @@ function renderLaporanKeuangan() {
                 '<span>' + escapeHtmlKas(k) + '</span><span class="txt-in">Rp ' + perKelasSpp[k].toLocaleString('id-ID') + '</span></div>';
         }).join('') + '<div class="flex items-center justify-between mt-8" style="font-weight:700;"><span>Total SPP</span><span>Rp ' + sppTotal.toLocaleString('id-ID') + '</span></div>';
     }
+
+    var tlWrap = document.getElementById('lapTagihanLain');
+    var jenisKeys = Object.keys(perJenisTl);
+    if (jenisKeys.length === 0) {
+        tlWrap.innerHTML = '<div class="txt-muted">Tidak ada pembayaran tagihan lain periode ini</div>';
+    } else {
+        tlWrap.innerHTML = jenisKeys.map(function(k) {
+            return '<div class="flex items-center justify-between" style="font-size:12.5px;padding:6px 0;border-bottom:1px solid var(--border);">' +
+                '<span>' + escapeHtmlKas(k) + '</span><span class="txt-in">Rp ' + perJenisTl[k].toLocaleString('id-ID') + '</span></div>';
+        }).join('') + '<div class="flex items-center justify-between mt-8" style="font-weight:700;"><span>Total Tagihan Lain</span><span>Rp ' + tlTotal.toLocaleString('id-ID') + '</span></div>';
+    }
 }
 
 async function cetakLaporanKeuangan() {
@@ -2197,10 +2362,12 @@ async function cetakLaporanKeuangan() {
 
     var kasPeriode = dataKas.filter(function(i){ return i.tglIso && i.tglIso.slice(0,7) === bulan; });
     var sppPeriode = pembayaranSppList.filter(function(p){ return p.bulan === bulan; });
+    var tlPeriode = pembayaranTagihanLainList.filter(function(p){ return p.tglIso && p.tglIso.slice(0,7) === bulan; });
     var kasMasuk = 0, kasKeluar = 0;
     kasPeriode.forEach(function(i){ if (i.tipe === 'masuk') kasMasuk += i.nom; else kasKeluar += i.nom; });
     var sppTotal = sppPeriode.reduce(function(s,p){ return s + p.nominal; }, 0);
-    var totalMasuk = kasMasuk + sppTotal, totalKeluar = kasKeluar, saldo = totalMasuk - totalKeluar;
+    var tlTotal = tlPeriode.reduce(function(s,p){ return s + p.nominal; }, 0);
+    var totalMasuk = kasMasuk + sppTotal + tlTotal, totalKeluar = kasKeluar, saldo = totalMasuk - totalKeluar;
 
     var rowsHtml = '';
     kasPeriode.forEach(function(i) {
@@ -2214,6 +2381,14 @@ async function cetakLaporanKeuangan() {
         var s = siswaList.find(function(x){ return String(x.id) === String(p.siswaId); });
         rowsHtml += '<tr><td style="padding:6px 8px;border-bottom:1px solid #eee;">' + p.tgl + '</td>' +
             '<td style="padding:6px 8px;border-bottom:1px solid #eee;">SPP - ' + (s ? s.nama : '-') + '</td>' +
+            '<td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;color:#10B981;font-weight:bold;">+Rp ' + p.nominal.toLocaleString('id-ID') + '</td></tr>';
+    });
+    tlPeriode.forEach(function(p) {
+        var a = tagihanAssignList.find(function(x){ return String(x.id) === String(p.assignmentId); });
+        var s = a ? siswaList.find(function(x){ return String(x.id) === String(a.siswaId); }) : null;
+        var jt = a ? jenisTagihanList.find(function(x){ return String(x.id) === String(a.jenisTagihanId); }) : null;
+        rowsHtml += '<tr><td style="padding:6px 8px;border-bottom:1px solid #eee;">' + p.tgl + '</td>' +
+            '<td style="padding:6px 8px;border-bottom:1px solid #eee;">' + (jt?jt.nama:'Tagihan Lain') + ' - ' + (s ? s.nama : '-') + '</td>' +
             '<td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;color:#10B981;font-weight:bold;">+Rp ' + p.nominal.toLocaleString('id-ID') + '</td></tr>';
     });
 
@@ -2253,19 +2428,22 @@ function exportLaporanKeuanganExcel() {
     var bulan = document.getElementById('laporanBulanAktif').value || new Date().toISOString().slice(0,7);
     var kasPeriode = dataKas.filter(function(i){ return i.tglIso && i.tglIso.slice(0,7) === bulan; });
     var sppPeriode = pembayaranSppList.filter(function(p){ return p.bulan === bulan; });
-    if (kasPeriode.length === 0 && sppPeriode.length === 0) return showToast('Tidak ada data periode ini!');
+    var tlPeriode = pembayaranTagihanLainList.filter(function(p){ return p.tglIso && p.tglIso.slice(0,7) === bulan; });
+    if (kasPeriode.length === 0 && sppPeriode.length === 0 && tlPeriode.length === 0) return showToast('Tidak ada data periode ini!');
     showToast('Membuat Excel...');
     setTimeout(function() {
         try {
             var kasMasuk = 0, kasKeluar = 0;
             kasPeriode.forEach(function(i){ if (i.tipe === 'masuk') kasMasuk += i.nom; else kasKeluar += i.nom; });
             var sppTotal = sppPeriode.reduce(function(s,p){ return s + p.nominal; }, 0);
+            var tlTotal = tlPeriode.reduce(function(s,p){ return s + p.nominal; }, 0);
 
             var wsRingkasan = XLSX.utils.json_to_sheet([
                 { Uraian: 'Total Pemasukan Kas', Nominal: kasMasuk },
                 { Uraian: 'Total Pemasukan SPP', Nominal: sppTotal },
+                { Uraian: 'Total Pemasukan Tagihan Lain', Nominal: tlTotal },
                 { Uraian: 'Total Pengeluaran Kas', Nominal: kasKeluar },
-                { Uraian: 'SALDO', Nominal: (kasMasuk + sppTotal) - kasKeluar }
+                { Uraian: 'SALDO', Nominal: (kasMasuk + sppTotal + tlTotal) - kasKeluar }
             ]);
             var wsKas = XLSX.utils.json_to_sheet(kasPeriode.map(function(i){
                 return { Tanggal: i.tgl, Kategori: i.kategori, Keterangan: i.ket, Tipe: i.tipe.toUpperCase(), Nominal: i.nom };
@@ -2274,10 +2452,17 @@ function exportLaporanKeuanganExcel() {
                 var s = siswaList.find(function(x){ return String(x.id) === String(p.siswaId); });
                 return { Tanggal: p.tgl, Siswa: s ? s.nama : '-', Kelas: s ? getNamaKelas(s.kelasId) : '-', NoKuitansi: p.noKuitansi || '-', Nominal: p.nominal };
             }));
+            var wsTl = XLSX.utils.json_to_sheet(tlPeriode.map(function(p){
+                var a = tagihanAssignList.find(function(x){ return String(x.id) === String(p.assignmentId); });
+                var s = a ? siswaList.find(function(x){ return String(x.id) === String(a.siswaId); }) : null;
+                var jt = a ? jenisTagihanList.find(function(x){ return String(x.id) === String(a.jenisTagihanId); }) : null;
+                return { Tanggal: p.tgl, JenisTagihan: jt ? jt.nama : '-', Siswa: s ? s.nama : '-', Kelas: s ? getNamaKelas(s.kelasId) : '-', NoKuitansi: p.noKuitansi || '-', Nominal: p.nominal };
+            }));
             var wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, wsRingkasan, 'Ringkasan');
             XLSX.utils.book_append_sheet(wb, wsKas, 'Kas');
             XLSX.utils.book_append_sheet(wb, wsSpp, 'SPP');
+            XLSX.utils.book_append_sheet(wb, wsTl, 'Tagihan Lain');
             XLSX.writeFile(wb, 'Laporan_Keuangan_' + bulan + '.xlsx');
             showToast('✅ Excel berhasil diunduh');
         } catch(e) {
@@ -2327,6 +2512,9 @@ function hitungTotalPeriode(tglMulaiIso, tglSelesaiIso) {
         }
     });
     pembayaranSppList.forEach(function(p) {
+        if (p.tglIso >= tglMulaiIso && p.tglIso <= tglSelesaiIso) masuk += p.nominal;
+    });
+    pembayaranTagihanLainList.forEach(function(p) {
         if (p.tglIso >= tglMulaiIso && p.tglIso <= tglSelesaiIso) masuk += p.nominal;
     });
     return { masuk: masuk, keluar: keluar };
@@ -2641,11 +2829,20 @@ function getJurnalEntries(bulan) {
             entries.push({ tglIso: p.tglIso, tgl: p.tgl, uraian: 'SPP - ' + (s?s.nama:'-'), masuk: p.nominal, keluar: 0 });
         }
     });
+    pembayaranTagihanLainList.forEach(function(p) {
+        if (p.tglIso && p.tglIso.slice(0,7) === bulan) {
+            var a = tagihanAssignList.find(function(x){ return String(x.id) === String(p.assignmentId); });
+            var s = a ? siswaList.find(function(x){ return String(x.id) === String(a.siswaId); }) : null;
+            var jt = a ? jenisTagihanList.find(function(x){ return String(x.id) === String(a.jenisTagihanId); }) : null;
+            entries.push({ tglIso: p.tglIso, tgl: p.tgl, uraian: (jt?jt.nama:'Tagihan Lain') + ' - ' + (s?s.nama:'-'), masuk: p.nominal, keluar: 0 });
+        }
+    });
     entries.sort(function(a,b){ return a.tglIso.localeCompare(b.tglIso); });
     var saldoBerjalan = dataKas
         .filter(function(i){ return i.tglIso && i.tglIso.slice(0,7) < bulan; })
         .reduce(function(s,i){ return s + (i.tipe==='masuk'?i.nom:-i.nom); }, 0)
-        + pembayaranSppList.filter(function(p){ return p.tglIso && p.tglIso.slice(0,7) < bulan; }).reduce(function(s,p){ return s + p.nominal; }, 0);
+        + pembayaranSppList.filter(function(p){ return p.tglIso && p.tglIso.slice(0,7) < bulan; }).reduce(function(s,p){ return s + p.nominal; }, 0)
+        + pembayaranTagihanLainList.filter(function(p){ return p.tglIso && p.tglIso.slice(0,7) < bulan; }).reduce(function(s,p){ return s + p.nominal; }, 0);
     entries.forEach(function(e) {
         saldoBerjalan += (e.masuk - e.keluar);
         e.saldo = saldoBerjalan;
@@ -2765,6 +2962,335 @@ async function cetakLaporanBos() {
 }
 
 /* ==============================================================
+   SECTION: TAGIHAN LAIN-LAIN (Pendaftaran, Daftar Ulang, Buku, Seragam, dll)
+   ============================================================== */
+var jenisTagihanList = [];
+var tagihanAssignList = [];       // { id, jenisTagihanId, siswaId, nominal }
+var pembayaranTagihanLainList = []; // { id, assignmentId, nominal, ket, tgl, tglIso, noKuitansi }
+var tagihanDetailAktifId = null;
+var assignModeAktif = 'kelas';
+var assignManualChecked = {};
+
+async function loadTagihanLainData() {
+    var jt = await idbGet(STORE_TAGIHAN_LAIN, 'jenis_tagihan_list');
+    jenisTagihanList = jt || [];
+    var ta = await idbGet(STORE_TAGIHAN_LAIN, 'tagihan_assign_list');
+    tagihanAssignList = ta || [];
+    var pb = await idbGet(STORE_TAGIHAN_LAIN, 'pembayaran_tagihan_lain_list');
+    pembayaranTagihanLainList = pb || [];
+}
+async function saveJenisTagihanList() { await idbSet(STORE_TAGIHAN_LAIN, 'jenis_tagihan_list', jenisTagihanList); }
+async function saveTagihanAssignList() { await idbSet(STORE_TAGIHAN_LAIN, 'tagihan_assign_list', tagihanAssignList); }
+async function savePembayaranTagihanLainList() { await idbSet(STORE_TAGIHAN_LAIN, 'pembayaran_tagihan_lain_list', pembayaranTagihanLainList); }
+
+function getTotalBayarTagihanLain(assignmentId) {
+    return pembayaranTagihanLainList.filter(function(p){ return String(p.assignmentId) === String(assignmentId); })
+        .reduce(function(s,p){ return s + p.nominal; }, 0);
+}
+function getStatusTagihanLain(assignment) {
+    var terbayar = getTotalBayarTagihanLain(assignment.id);
+    var sisa = assignment.nominal - terbayar;
+    if (sisa <= 0) return { status: 'LUNAS', warna: 'var(--green)', sisa: 0, terbayar: terbayar };
+    if (terbayar > 0) return { status: 'CICIL', warna: 'var(--orange)', sisa: sisa, terbayar: terbayar };
+    return { status: 'BELUM BAYAR', warna: 'var(--red)', sisa: sisa, terbayar: terbayar };
+}
+
+function tambahJenisTagihanBaru() {
+    document.getElementById('titleModalJenisTagihan').textContent = '🎒 Jenis Tagihan Baru';
+    document.getElementById('editJenisTagihanId').value = '';
+    document.getElementById('inputNamaJenisTagihan').value = '';
+    document.getElementById('inputNominalJenisTagihan').value = '';
+    document.getElementById('modalFormJenisTagihan').style.display = 'flex';
+}
+
+function editJenisTagihan(id) {
+    var jt = jenisTagihanList.find(function(x){ return String(x.id) === String(id); });
+    if (!jt) return;
+    document.getElementById('titleModalJenisTagihan').textContent = '✏️ Edit Jenis Tagihan';
+    document.getElementById('editJenisTagihanId').value = jt.id;
+    document.getElementById('inputNamaJenisTagihan').value = jt.nama;
+    document.getElementById('inputNominalJenisTagihan').value = jt.nominalDefault ? jt.nominalDefault.toLocaleString('id-ID') : '';
+    document.getElementById('modalFormJenisTagihan').style.display = 'flex';
+}
+
+function simpanFormJenisTagihan() {
+    var nama = document.getElementById('inputNamaJenisTagihan').value.trim();
+    if (!nama) return showToast('Nama tagihan tidak boleh kosong!');
+    var nominalDefault = parseNominal(document.getElementById('inputNominalJenisTagihan').value);
+    var editId = document.getElementById('editJenisTagihanId').value;
+    if (editId) {
+        var jt = jenisTagihanList.find(function(x){ return String(x.id) === String(editId); });
+        if (jt) { jt.nama = nama; jt.nominalDefault = nominalDefault; }
+    } else {
+        jenisTagihanList.push({ id: Date.now(), nama: nama, nominalDefault: nominalDefault });
+    }
+    saveJenisTagihanList();
+    renderJenisTagihanList();
+    document.getElementById('modalFormJenisTagihan').style.display = 'none';
+    showToast('✅ Jenis tagihan tersimpan');
+}
+
+function hapusJenisTagihanAktif() {
+    if (!tagihanDetailAktifId) return;
+    var jt = jenisTagihanList.find(function(x){ return String(x.id) === String(tagihanDetailAktifId); });
+    if (!jt) return;
+    if (!confirm('Hapus jenis tagihan "' + jt.nama + '"? Semua data assign & riwayat pembayarannya ikut terhapus.')) return;
+    var assignIds = tagihanAssignList.filter(function(a){ return String(a.jenisTagihanId) === String(jt.id); }).map(function(a){ return a.id; });
+    jenisTagihanList = jenisTagihanList.filter(function(x){ return String(x.id) !== String(jt.id); });
+    tagihanAssignList = tagihanAssignList.filter(function(a){ return String(a.jenisTagihanId) !== String(jt.id); });
+    pembayaranTagihanLainList = pembayaranTagihanLainList.filter(function(p){ return assignIds.indexOf(p.assignmentId) === -1; });
+    saveJenisTagihanList(); saveTagihanAssignList(); savePembayaranTagihanLainList();
+    showToast('🗑️ Jenis tagihan dihapus');
+    showPage('tagihan-lain');
+}
+
+function renderJenisTagihanList() {
+    var wrap = document.getElementById('jenisTagihanListWrap');
+    if (!wrap) return;
+    wrap.innerHTML = '';
+    jenisTagihanList.forEach(function(jt) {
+        var assigns = tagihanAssignList.filter(function(a){ return String(a.jenisTagihanId) === String(jt.id); });
+        var terkumpul = 0, tunggakan = 0;
+        assigns.forEach(function(a) {
+            var st = getStatusTagihanLain(a);
+            terkumpul += st.terbayar; tunggakan += st.sisa;
+        });
+        wrap.innerHTML += '<div class="card" style="cursor:pointer;" onclick="openTagihanDetail(' + jt.id + ')">' +
+            '<div class="flex items-center justify-between">' +
+                '<div><div style="font-weight:700;font-size:14px;">' + escapeHtmlKas(jt.nama) + '</div>' +
+                '<div class="txt-muted">Default Rp ' + (jt.nominalDefault||0).toLocaleString('id-ID') + ' · ' + assigns.length + ' siswa</div></div>' +
+                '<button onclick="event.stopPropagation();editJenisTagihan(' + jt.id + ')" style="background:none;border:none;color:var(--blue);font-size:14px;cursor:pointer;padding:4px;"><i class="fas fa-edit"></i></button>' +
+            '</div>' +
+            '<div class="row mt-8">' +
+                '<div style="flex:1;"><div class="txt-muted" style="font-size:11px;">Terkumpul</div><div class="txt-in" style="font-size:13px;">Rp ' + terkumpul.toLocaleString('id-ID') + '</div></div>' +
+                '<div style="flex:1;"><div class="txt-muted" style="font-size:11px;">Tunggakan</div><div class="txt-out" style="font-size:13px;">Rp ' + tunggakan.toLocaleString('id-ID') + '</div></div>' +
+            '</div></div>';
+    });
+    document.getElementById('jenisTagihanEmptyState').style.display = jenisTagihanList.length === 0 ? 'block' : 'none';
+}
+
+function openTagihanDetail(id) {
+    tagihanDetailAktifId = id;
+    showPage('tagihan-detail');
+}
+
+function renderTagihanDetail() {
+    var jt = jenisTagihanList.find(function(x){ return String(x.id) === String(tagihanDetailAktifId); });
+    if (!jt) { showPage('tagihan-lain'); return; }
+    document.getElementById('tagihanDetailTitle').textContent = jt.nama;
+    var assigns = tagihanAssignList.filter(function(a){ return String(a.jenisTagihanId) === String(jt.id); });
+    var terkumpul = 0, tunggakan = 0;
+    var wrap = document.getElementById('tagihanDetailListWrap');
+    wrap.innerHTML = '';
+    assigns.forEach(function(a) {
+        var s = siswaList.find(function(x){ return String(x.id) === String(a.siswaId); });
+        var st = getStatusTagihanLain(a);
+        terkumpul += st.terbayar; tunggakan += st.sisa;
+        wrap.innerHTML += '<div class="setting-card flex items-center justify-between" style="cursor:pointer;" onclick="showBayarTagihanLainModal(' + a.id + ')">' +
+            '<div><div style="font-weight:700;font-size:13.5px;">' + escapeHtmlKas(s ? s.nama : '(siswa dihapus)') + '</div>' +
+            '<div class="txt-muted">' + escapeHtmlKas(s ? getNamaKelas(s.kelasId) : '-') + ' · Rp ' + a.nominal.toLocaleString('id-ID') + '</div></div>' +
+            '<div style="text-align:right;">' +
+                '<span style="background:' + st.warna + ';color:white;padding:3px 10px;border-radius:12px;font-size:10.5px;font-weight:700;">' + st.status + '</span>' +
+                (st.sisa > 0 ? '<div class="txt-muted mt-8">Sisa Rp ' + st.sisa.toLocaleString('id-ID') + '</div>' : '') +
+            '</div></div>';
+    });
+    document.getElementById('tagihanDetailEmptyState').style.display = assigns.length === 0 ? 'block' : 'none';
+    document.getElementById('tagihanDetailJumlah').textContent = assigns.length;
+    document.getElementById('tagihanDetailTerkumpul').textContent = 'Rp ' + terkumpul.toLocaleString('id-ID');
+    document.getElementById('tagihanDetailTunggakan').textContent = 'Rp ' + tunggakan.toLocaleString('id-ID');
+}
+
+/* ---------- ASSIGN TAGIHAN KE SISWA ---------- */
+function showAssignTagihanModal() {
+    assignModeAktif = 'kelas';
+    assignManualChecked = {};
+    isiDropdownKelas();
+    var selKelas = document.getElementById('assignKelasSelect');
+    if (selKelas) selKelas.innerHTML = kelasList.map(function(k){ return '<option value="' + k.id + '">' + escapeHtmlKas(k.nama) + '</option>'; }).join('');
+    var selFilter = document.getElementById('assignManualFilterKelas');
+    if (selFilter) selFilter.innerHTML = '<option value="">Semua Kelas</option>' + kelasList.map(function(k){ return '<option value="' + k.id + '">' + escapeHtmlKas(k.nama) + '</option>'; }).join('');
+    pilihModeAssign('kelas');
+    document.getElementById('modalAssignTagihan').style.display = 'flex';
+}
+
+function pilihModeAssign(mode) {
+    assignModeAktif = mode;
+    var btnKelas = document.getElementById('btnModeKelas');
+    var btnManual = document.getElementById('btnModeManual');
+    if (mode === 'kelas') {
+        btnKelas.style.background = 'var(--primary)'; btnKelas.style.color = 'white'; btnKelas.className = 'btn btn-small';
+        btnManual.className = 'btn btn-small btn-gray'; btnManual.style.background = ''; btnManual.style.color = '';
+        document.getElementById('assignModeKelasWrap').classList.remove('hidden');
+        document.getElementById('assignModeManualWrap').classList.add('hidden');
+    } else {
+        btnManual.style.background = 'var(--primary)'; btnManual.style.color = 'white'; btnManual.className = 'btn btn-small';
+        btnKelas.className = 'btn btn-small btn-gray'; btnKelas.style.background = ''; btnKelas.style.color = '';
+        document.getElementById('assignModeManualWrap').classList.remove('hidden');
+        document.getElementById('assignModeKelasWrap').classList.add('hidden');
+        renderAssignManualList();
+    }
+}
+
+function renderAssignManualList() {
+    var wrap = document.getElementById('assignManualListWrap');
+    var filterKelas = (document.getElementById('assignManualFilterKelas') || {}).value || '';
+    var list = filterKelas ? siswaList.filter(function(s){ return String(s.kelasId) === String(filterKelas); }) : siswaList;
+    var sudahAssignIds = tagihanAssignList.filter(function(a){ return String(a.jenisTagihanId) === String(tagihanDetailAktifId); }).map(function(a){ return String(a.siswaId); });
+    wrap.innerHTML = '';
+    list.forEach(function(s) {
+        var sudah = sudahAssignIds.indexOf(String(s.id)) !== -1;
+        wrap.innerHTML += '<label class="flex items-center gap-8" style="padding:6px 0;font-size:13px;' + (sudah ? 'opacity:0.5;' : 'cursor:pointer;') + '">' +
+            '<input type="checkbox" ' + (sudah ? 'disabled' : '') + ' onchange="assignManualChecked[\'' + s.id + '\']=this.checked" style="width:auto;">' +
+            '<span>' + escapeHtmlKas(s.nama) + ' <span class="txt-muted">(' + escapeHtmlKas(getNamaKelas(s.kelasId)) + ')</span>' + (sudah ? ' · sudah ditagih' : '') + '</span></label>';
+    });
+}
+
+function prosesAssignTagihan() {
+    var jt = jenisTagihanList.find(function(x){ return String(x.id) === String(tagihanDetailAktifId); });
+    if (!jt) return;
+    var sudahAssignIds = tagihanAssignList.filter(function(a){ return String(a.jenisTagihanId) === String(jt.id); }).map(function(a){ return String(a.siswaId); });
+    var jumlahBaru = 0;
+
+    if (assignModeAktif === 'kelas') {
+        var kelasId = document.getElementById('assignKelasSelect').value;
+        if (!kelasId) return showToast('Pilih kelas dulu!');
+        var siswaKelas = siswaList.filter(function(s){ return String(s.kelasId) === String(kelasId) && sudahAssignIds.indexOf(String(s.id)) === -1; });
+        siswaKelas.forEach(function(s) {
+            tagihanAssignList.push({ id: Date.now() + Math.floor(Math.random()*1000), jenisTagihanId: jt.id, siswaId: s.id, nominal: jt.nominalDefault });
+            jumlahBaru++;
+        });
+    } else {
+        Object.keys(assignManualChecked).forEach(function(sId) {
+            if (!assignManualChecked[sId]) return;
+            if (sudahAssignIds.indexOf(String(sId)) !== -1) return;
+            tagihanAssignList.push({ id: Date.now() + Math.floor(Math.random()*1000), jenisTagihanId: jt.id, siswaId: sId, nominal: jt.nominalDefault });
+            jumlahBaru++;
+        });
+    }
+
+    if (jumlahBaru === 0) return showToast('Tidak ada siswa baru yang di-assign (mungkin sudah ditagih semua)');
+    saveTagihanAssignList();
+    document.getElementById('modalAssignTagihan').style.display = 'none';
+    renderTagihanDetail();
+    showToast('✅ ' + jumlahBaru + ' siswa ditambahkan ke tagihan ini');
+}
+
+/* ---------- PEMBAYARAN TAGIHAN LAIN ---------- */
+function showBayarTagihanLainModal(assignmentId) {
+    var a = tagihanAssignList.find(function(x){ return String(x.id) === String(assignmentId); });
+    if (!a) return;
+    var s = siswaList.find(function(x){ return String(x.id) === String(a.siswaId); });
+    var jt = jenisTagihanList.find(function(x){ return String(x.id) === String(a.jenisTagihanId); });
+    var st = getStatusTagihanLain(a);
+    document.getElementById('bayarTagihanLainAssignId').value = assignmentId;
+    document.getElementById('inputBayarTagihanLain').value = '';
+    document.getElementById('inputKetBayarTagihanLain').value = '';
+    document.getElementById('bayarTagihanLainInfo').innerHTML =
+        '<b>' + escapeHtmlKas(s ? s.nama : '-') + '</b> · ' + escapeHtmlKas(s ? getNamaKelas(s.kelasId) : '-') + '<br>' +
+        escapeHtmlKas(jt ? jt.nama : '-') + ' · Tagihan Rp ' + a.nominal.toLocaleString('id-ID') + '<br>' +
+        'Sudah dibayar: Rp ' + st.terbayar.toLocaleString('id-ID') + (st.sisa > 0 ? ' · Sisa Rp ' + st.sisa.toLocaleString('id-ID') : ' · LUNAS');
+
+    var riwayat = pembayaranTagihanLainList.filter(function(p){ return String(p.assignmentId) === String(assignmentId); });
+    var riwayatWrap = document.getElementById('riwayatBayarTagihanLainWrap');
+    if (riwayat.length > 0) {
+        riwayatWrap.innerHTML = '<div class="txt-muted mb-8">Riwayat pembayaran:</div>' +
+            riwayat.map(function(p) {
+                return '<div class="flex items-center justify-between" style="font-size:12px;padding:6px 0;border-bottom:1px solid var(--border);">' +
+                    '<span>' + p.tgl + (p.ket ? ' · ' + escapeHtmlKas(p.ket) : '') + '</span>' +
+                    '<span class="flex items-center gap-8"><span style="font-weight:700;">Rp ' + p.nominal.toLocaleString('id-ID') + '</span>' +
+                    '<button onclick="cetakKuitansiTagihanLain(' + p.id + ')" style="background:none;border:none;color:var(--blue);cursor:pointer;padding:2px;"><i class="fas fa-print"></i></button></span></div>';
+            }).join('');
+    } else {
+        riwayatWrap.innerHTML = '';
+    }
+    document.getElementById('modalBayarTagihanLain').style.display = 'flex';
+}
+
+async function simpanPembayaranTagihanLain() {
+    var assignmentId = document.getElementById('bayarTagihanLainAssignId').value;
+    var nominal = parseNominal(document.getElementById('inputBayarTagihanLain').value);
+    var ket = document.getElementById('inputKetBayarTagihanLain').value.trim();
+    if (nominal <= 0) return showToast('Isi nominal pembayaran yang benar!');
+    var noKuitansi = await generateNomorKuitansi();
+    pembayaranTagihanLainList.unshift({
+        id: Date.now(), assignmentId: assignmentId, nominal: nominal, ket: ket, noKuitansi: noKuitansi,
+        tgl: new Date().toLocaleDateString('id-ID'), tglIso: new Date().toISOString().slice(0,10)
+    });
+    savePembayaranTagihanLainList();
+    document.getElementById('modalBayarTagihanLain').style.display = 'none';
+    renderTagihanDetail();
+    showToast('✅ Pembayaran tersimpan · Kuitansi ' + noKuitansi);
+}
+
+function cetakKuitansiTagihanLain(paymentId) {
+    var p = pembayaranTagihanLainList.find(function(x){ return x.id === paymentId; });
+    if (!p) return showToast('Data pembayaran tidak ditemukan');
+    var a = tagihanAssignList.find(function(x){ return String(x.id) === String(p.assignmentId); });
+    if (!a) return showToast('Data tagihan tidak ditemukan');
+    var s = siswaList.find(function(x){ return String(x.id) === String(a.siswaId); });
+    var jt = jenisTagihanList.find(function(x){ return String(x.id) === String(a.jenisTagihanId); });
+    buatKuitansiPdf({
+        noKuitansi: p.noKuitansi, namaSiswa: s ? s.nama : '-', namaKelas: s ? getNamaKelas(s.kelasId) : '-',
+        uraian: jt ? jt.nama : 'Tagihan Lain', keterangan: p.ket, nominal: p.nominal, tgl: p.tgl,
+        namaFile: 'Kuitansi_' + (jt?jt.nama:'Tagihan').replace(/[^a-zA-Z0-9]/g,'_') + '_' + (s?s.nama.replace(/[^a-zA-Z0-9]/g,'_'):'siswa')
+    });
+}
+
+async function cetakRekapTagihanLain() {
+    var jt = jenisTagihanList.find(function(x){ return String(x.id) === String(tagihanDetailAktifId); });
+    if (!jt) return;
+    var assigns = tagihanAssignList.filter(function(a){ return String(a.jenisTagihanId) === String(jt.id); });
+    var perKelas = {};
+    assigns.forEach(function(a) {
+        var st = getStatusTagihanLain(a);
+        if (st.sisa > 0) {
+            var s = siswaList.find(function(x){ return String(x.id) === String(a.siswaId); });
+            var namaKelas = s ? getNamaKelas(s.kelasId) : '-';
+            if (!perKelas[namaKelas]) perKelas[namaKelas] = [];
+            perKelas[namaKelas].push({ nama: s ? s.nama : '-', sisa: st.sisa });
+        }
+    });
+    var kelasNames = Object.keys(perKelas);
+    if (kelasNames.length === 0) return showToast('Tidak ada tunggakan untuk tagihan ini 🎉');
+
+    var cfg = getKonfigurasiInstansiData();
+    var tglCetak = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+    var totalTunggakan = 0, bodyHtml = '';
+    kelasNames.forEach(function(nk) {
+        var siswaKelas = perKelas[nk];
+        var subtotal = siswaKelas.reduce(function(s,x){ return s + x.sisa; }, 0);
+        totalTunggakan += subtotal;
+        bodyHtml += '<tr><td colspan="3" style="padding:8px;background:#f0fdf4;font-weight:bold;">' + nk + '</td></tr>';
+        siswaKelas.forEach(function(x, idx) {
+            bodyHtml += '<tr><td style="padding:6px 8px;border-bottom:1px solid #eee;">' + (idx+1) + '</td>' +
+                '<td style="padding:6px 8px;border-bottom:1px solid #eee;">' + x.nama + '</td>' +
+                '<td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;color:#EF4444;font-weight:bold;">Rp ' + x.sisa.toLocaleString('id-ID') + '</td></tr>';
+        });
+    });
+    var headerHtml = buildPrintHeader(cfg, tglCetak);
+    var watermarkHtml = buildPrintWatermark(cfg);
+    var ttdHtml = buildPrintTandaTangan(cfg, tglCetak);
+    var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Rekap Tunggakan</title><style>' +
+        '*{margin:0;padding:0;box-sizing:border-box;}body{font-family:Arial,sans-serif;background:#f0f0f0;padding:20px;}' +
+        '.box{background:white;max-width:800px;margin:0 auto;border-radius:16px;padding:30px;box-shadow:0 2px 16px rgba(0,0,0,0.1);}' +
+        'h2{color:#0D5C4A;font-size:20px;margin-bottom:2px;}.tgl{color:#aaa;font-size:11px;margin-bottom:20px;}' +
+        'table{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:20px;}' +
+        '.summary{background:#fef2f2;border-radius:10px;padding:16px;font-size:14px;font-weight:bold;color:#991b1b;}' +
+        '.no-print{text-align:center;margin-top:24px;}.no-print button{padding:12px 32px;margin:0 8px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;}' +
+        '@page{size:A4 portrait;margin:10mm 12mm;}@media print{*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}html{width:210mm;}body{background:white;padding:0;margin:0;width:210mm;}.box{box-shadow:none;border-radius:0;max-width:none;width:100%;}.no-print{display:none!important;}}' +
+        '</style></head><body><div class="box">' + headerHtml +
+        '<h2>REKAP TUNGGAKAN — ' + jt.nama.toUpperCase() + '</h2><div class="tgl">Tanggal Cetak: ' + tglCetak + '</div>' +
+        '<table><thead><tr><th style="text-align:left;padding:8px;background:#0D5C4A;color:white;">No</th><th style="text-align:left;padding:8px;background:#0D5C4A;color:white;">Nama Siswa</th><th style="text-align:right;padding:8px;background:#0D5C4A;color:white;">Tunggakan</th></tr></thead><tbody>' + bodyHtml + '</tbody></table>' +
+        '<div class="summary">TOTAL TUNGGAKAN: Rp ' + totalTunggakan.toLocaleString('id-ID') + '</div>' +
+        ttdHtml + '</div><div class="no-print"><button onclick="window.print()" style="background:#0D5C4A;color:white;">🖨️ CETAK</button>' +
+        '<button onclick="window.close()" style="background:#E2E8F0;color:#1E293B;">✕ TUTUP</button></div>' +
+        watermarkHtml + '</body></html>';
+    var win = window.open('', '_blank');
+    if (!win) return showToast('Izinkan popup untuk cetak!');
+    win.document.write(html); injectWatermarkToPrintWin(win); win.document.close();
+}
+
+/* ==============================================================
    SECTION: HELPER CETAK (Header, Watermark, Tanda Tangan, QR)
    Dipakai oleh modul Kas/SPP/Invoice/Laporan di fase berikutnya
    ============================================================== */
@@ -2850,7 +3376,8 @@ async function buildBackupJsonData() {
         kuitansi_counter: kuitansiCounter || 0,
         rkas: rkasList,
         guru: guruList,
-        gaji_pembayaran: gajiPembayaranList
+        gaji_pembayaran: gajiPembayaranList,
+        tagihan_lain: { jenis: jenisTagihanList, assign: tagihanAssignList, pembayaran: pembayaranTagihanLainList }
     };
 }
 
@@ -2967,6 +3494,14 @@ async function applyRestoreBackupData(backup) {
     if (backup.rkas) { rkasList = backup.rkas; await idbSet(STORE_RKAS, 'rkas_list', rkasList); }
     if (backup.guru) { guruList = backup.guru; await idbSet(STORE_GAJI, 'guru_list', guruList); }
     if (backup.gaji_pembayaran) { gajiPembayaranList = backup.gaji_pembayaran; await idbSet(STORE_GAJI, 'gaji_pembayaran', gajiPembayaranList); }
+    if (backup.tagihan_lain) {
+        jenisTagihanList = backup.tagihan_lain.jenis || [];
+        tagihanAssignList = backup.tagihan_lain.assign || [];
+        pembayaranTagihanLainList = backup.tagihan_lain.pembayaran || [];
+        await idbSet(STORE_TAGIHAN_LAIN, 'jenis_tagihan_list', jenisTagihanList);
+        await idbSet(STORE_TAGIHAN_LAIN, 'tagihan_assign_list', tagihanAssignList);
+        await idbSet(STORE_TAGIHAN_LAIN, 'pembayaran_tagihan_lain_list', pembayaranTagihanLainList);
+    }
 }
 
 /* ==============================================================
@@ -3033,6 +3568,7 @@ window.addEventListener('DOMContentLoaded', function() {
         loadSppData();
         loadRkasData();
         loadGajiData();
+        loadTagihanLainData();
     }).catch(function(e){ console.error('Gagal buka IndexedDB:', e); });
     cekSessionAwal();
     pilihTipeKas('masuk');

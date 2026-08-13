@@ -557,15 +557,6 @@
         </div>
 
         <div class="card">
-            <div style="font-weight:700;margin-bottom:8px;">🗓️ Mulai Pencatatan SPP di Aplikasi</div>
-            <div class="row">
-                <input type="month" id="inputSppMulaiPencatatan" style="flex:1;">
-                <button class="btn btn-primary btn-small" onclick="simpanSppMulaiPencatatan()">Simpan</button>
-            </div>
-            <div class="txt-muted mt-8">Penting kalau baru mulai pakai BendaharaKu di tengah tahun ajaran — set ke bulan pertama kali dipakai, supaya bulan-bulan sebelumnya (yang tidak dicatat di sini) tidak dianggap tunggakan di Beranda. Kosongkan = dihitung dari awal Tahun Ajaran.</div>
-        </div>
-
-        <div class="card">
             <div style="font-weight:700;margin-bottom:8px;">💰 Saldo Awal Kas</div>
             <label>Tanggal Saldo Awal</label>
             <input type="date" id="inputSaldoAwalTanggal">
@@ -727,6 +718,12 @@
             <input type="file" id="importSiswaExcelFile" accept=".xlsx,.xls" style="display:none" onchange="importSiswaFromExcel(this)">
         </div>
 
+        <div class="card" style="background:var(--primary-light);border:1px solid var(--border);">
+            <div style="font-weight:700;margin-bottom:6px;">🗓️ Wajib SPP Sejak</div>
+            <div class="txt-muted mb-8">Sekali pakai: isi bulan mulai wajib SPP untuk banyak siswa sekaligus (mis. semua siswa lama diisi Mei 2026 kalau memang dari situ tunggakannya). Siswa baru otomatis ke-set ke bulan saat ditambahkan.</div>
+            <button class="btn btn-primary w-full" onclick="showAturWajibSppMassalModal()"><i class="fas fa-calendar-check"></i> Atur untuk Banyak Siswa Sekaligus</button>
+        </div>
+
         <div class="card">
             <div class="flex items-center justify-between mb-8">
                 <div style="font-weight:700;">🏷️ Kelas</div>
@@ -798,6 +795,43 @@
         <div class="row">
             <button class="btn btn-primary" style="flex:1" onclick="prosesImportEduKu()">✅ Impor Sekarang</button>
             <button class="btn btn-gray" style="flex:1" onclick="document.getElementById('modalImportEduKu').style.display='none'">Batal</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Atur Wajib SPP Massal -->
+<div id="modalAturWajibSppMassal" class="modal">
+    <div class="modal-content" style="max-width:420px;">
+        <h3 style="color:var(--primary);margin-bottom:14px;">🗓️ Atur Wajib SPP Massal</h3>
+        <label>Bulan Mulai Wajib SPP</label>
+        <input type="month" id="inputAturSppBulan">
+
+        <label class="mt-16">Terapkan ke</label>
+        <select id="aturSppTargetMode" onchange="onAturSppModeChange()">
+            <option value="semua">Semua Siswa</option>
+            <option value="kelas">Kelas Tertentu</option>
+            <option value="manual">Pilih Manual</option>
+        </select>
+
+        <div id="aturSppKelasWrap" class="hidden mt-16">
+            <label>Pilih Kelas</label>
+            <select id="aturSppKelasSelect"></select>
+        </div>
+
+        <div id="aturSppManualWrap" class="hidden mt-16">
+            <label>Filter Kelas (opsional)</label>
+            <select id="aturSppManualFilterKelas" onchange="renderAturSppManualList()" class="mb-8"></select>
+            <div id="aturSppManualListWrap" style="max-height:220px;overflow-y:auto;border:1px solid var(--border);border-radius:10px;padding:8px;"></div>
+        </div>
+
+        <label class="flex items-center gap-8 mt-16" style="cursor:pointer;">
+            <input type="checkbox" id="aturSppTimpaSemua" style="width:auto;">
+            <span style="font-size:13px;">Timpa siswa yang sudah punya tanggal juga (kalau tidak dicentang, cuma siswa yang belum diisi yang diubah)</span>
+        </label>
+
+        <div class="row mt-16">
+            <button class="btn btn-primary" style="flex:1" onclick="prosesAturWajibSppMassal()">✅ Terapkan</button>
+            <button class="btn btn-gray" style="flex:1" onclick="document.getElementById('modalAturWajibSppMassal').style.display='none'">Batal</button>
         </div>
     </div>
 </div>
@@ -1968,26 +2002,20 @@ function updateHomeSaldoRingkasan() {
    SECTION: RINGKASAN BERANDA (Statistik + Perlu Perhatian + Tunggakan Terbesar)
    ============================================================== */
 /* ---------- Helper akumulasi tunggakan SPP multi-bulan (bukan cuma bulan berjalan) ----------
-   Titik mulai dihitung dari yang PALING BARU di antara:
-   1. Awal Tahun Ajaran aktif (Juli)
-   2. "Mulai Pencatatan SPP di Aplikasi" (pengaturan global, Pengaturan → kalau baru mulai
-      pakai BendaharaKu di tengah tahun ajaran, supaya bulan sebelum itu — yang memang
-      tidak pernah dicatat di app ini — tidak dianggap tunggakan)
-   Lalu per siswa, "Mulai Wajib SPP Sejak" (field di form Edit Siswa) bisa memundurkan lagi
-   titik mulainya kalau siswa itu baru masuk lebih belakangan. Lihat getTunggakanSppKumulatifSiswa(). */
-function getDaftarBulanTahunAjaranSampaiSekarang() {
-    var ta = getTahunAjaranAktif();
-    var rentang = getRentangTahunAjaran(ta);
+   DESAIN SEDERHANA — SATU SUMBER KEBENARAN: field "Wajib SPP Sejak" per siswa
+   (diisi lewat Data Kelas & Siswa → Edit Siswa). Tunggakan dihitung dari bulan itu sampai
+   sekarang, titik — tidak peduli itu sebelum/sesudah Tahun Ajaran ganti, karena tunggakan
+   siswa memang tidak otomatis reset pas tahun ajaran baru.
+   Kalau field itu belum diisi (siswa lama/impor), otomatis pakai awal Tahun Ajaran aktif
+   sebagai default aman — bendahara bisa isi manual kapan saja lewat Edit Siswa, atau pakai
+   tombol "Atur Wajib SPP untuk Semua Siswa" di halaman Data Kelas & Siswa untuk isi massal. */
+function getDaftarBulanUntukSiswa(siswa) {
     var bulanSekarang = new Date().toISOString().slice(0,7);
-    var akhirBulan = rentang.end.slice(0,7);
-    var akhir = bulanSekarang < akhirBulan ? bulanSekarang : akhirBulan;
-    var mulaiPencatatan = getSppMulaiPencatatan();
-    var awalBulan = rentang.start.slice(0,7);
-    if (mulaiPencatatan && mulaiPencatatan > awalBulan) awalBulan = mulaiPencatatan;
+    var mulai = siswa.bulanMulaiSpp || getRentangTahunAjaran(getTahunAjaranAktif()).start.slice(0,7);
     var daftar = [];
-    var cursor = awalBulan;
+    var cursor = mulai;
     var pengaman = 0;
-    while (cursor <= akhir && pengaman < 24) {
+    while (cursor <= bulanSekarang && pengaman < 36) {
         daftar.push(cursor);
         var d = new Date(cursor + '-01');
         d.setMonth(d.getMonth() + 1);
@@ -1997,14 +2025,10 @@ function getDaftarBulanTahunAjaranSampaiSekarang() {
     return daftar;
 }
 
-function getTunggakanSppKumulatifSiswa(siswa, daftarBulan) {
-    // Kalau siswa punya "Mulai Wajib SPP Sejak", bulan sebelum itu tidak ikut dihitung
-    // (siswa yang masuk pertengahan tahun ajaran tidak dianggap "nunggak" bulan sebelum dia terdaftar)
-    var bulanRelevan = siswa.bulanMulaiSpp
-        ? daftarBulan.filter(function(b){ return b >= siswa.bulanMulaiSpp; })
-        : daftarBulan;
+function getTunggakanSppKumulatifSiswa(siswa) {
+    var daftarBulan = getDaftarBulanUntukSiswa(siswa);
     var totalTagihan = 0, totalTerbayar = 0;
-    bulanRelevan.forEach(function(bulan) {
+    daftarBulan.forEach(function(bulan) {
         var st = getStatusSppSiswa(siswa, bulan);
         totalTagihan += st.nominal;
         totalTerbayar += st.terbayar;
@@ -2016,14 +2040,10 @@ function renderRingkasanBerandaLengkap() {
     var elTotalSiswa = document.getElementById('statTotalSiswa');
     if (!elTotalSiswa) return; // elemen cuma ada di halaman Beranda
 
-    // ---------- Daftar bulan dari awal Tahun Ajaran aktif sampai bulan sekarang ----------
-    var daftarBulanTa = getDaftarBulanTahunAjaranSampaiSekarang();
-
-    // ---------- Statistik SPP: akumulasi SEMUA bulan berjalan tahun ajaran ini, bukan cuma bulan sekarang ----------
-    // Catatan: asumsi siswa sudah aktif sejak awal tahun ajaran (belum ada tanggal masuk per siswa)
+    // ---------- Statistik SPP: akumulasi dari "Wajib SPP Sejak" per siswa sampai sekarang ----------
     var sppLunas = 0, sppBelum = 0, totalTunggakanSpp = 0;
     siswaList.forEach(function(s) {
-        var hasil = getTunggakanSppKumulatifSiswa(s, daftarBulanTa);
+        var hasil = getTunggakanSppKumulatifSiswa(s);
         if (hasil.totalTagihan <= 0) return; // nominal SPP belum diatur, jangan ikut dihitung lunas/belum
         if (hasil.totalSisa <= 0) sppLunas++; else sppBelum++;
         totalTunggakanSpp += Math.max(0, hasil.totalSisa);
@@ -2066,7 +2086,7 @@ function renderRingkasanBerandaLengkap() {
     // ---------- Tunggakan Terbesar (akumulasi SPP tahun ajaran berjalan + Tagihan Lain, top 5) ----------
     var perSiswaTunggakan = {};
     siswaList.forEach(function(s) {
-        var sisa = getTunggakanSppKumulatifSiswa(s, daftarBulanTa).totalSisa;
+        var sisa = getTunggakanSppKumulatifSiswa(s).totalSisa;
         if (sisa > 0) perSiswaTunggakan[s.id] = (perSiswaTunggakan[s.id] || 0) + sisa;
     });
     tagihanAssignList.forEach(function(a) {
@@ -2349,7 +2369,7 @@ function tambahSiswaBaru() {
     document.getElementById('inputNamaSiswa').value = '';
     document.getElementById('inputKelasSiswa').value = '';
     document.getElementById('inputSppSiswa').value = '';
-    document.getElementById('inputBulanMulaiSpp').value = '';
+    document.getElementById('inputBulanMulaiSpp').value = new Date().toISOString().slice(0,7); // default: bulan ini, tinggal diubah kalau perlu
     document.getElementById('modalFormSiswa').style.display = 'flex';
 }
 
@@ -2469,6 +2489,72 @@ function prosesImportEduKu() {
     renderListSiswa();
     document.getElementById('modalImportEduKu').style.display = 'none';
     showToast('✅ Impor selesai: ' + kelasList.length + ' kelas, ' + jumlahImpor + ' siswa baru ditambahkan');
+}
+
+/* ---------- ATUR WAJIB SPP MASSAL (sekali pakai, bukan pengaturan permanen) ---------- */
+var aturSppManualChecked = {};
+
+function showAturWajibSppMassalModal() {
+    document.getElementById('inputAturSppBulan').value = new Date().toISOString().slice(0,7);
+    document.getElementById('aturSppTargetMode').value = 'semua';
+    document.getElementById('aturSppTimpaSemua').checked = false;
+    aturSppManualChecked = {};
+    var selKelas = document.getElementById('aturSppKelasSelect');
+    selKelas.innerHTML = kelasList.map(function(k){ return '<option value="' + k.id + '">' + escapeHtmlKas(k.nama) + '</option>'; }).join('');
+    var selFilter = document.getElementById('aturSppManualFilterKelas');
+    selFilter.innerHTML = '<option value="">Semua Kelas</option>' + kelasList.map(function(k){ return '<option value="' + k.id + '">' + escapeHtmlKas(k.nama) + '</option>'; }).join('');
+    onAturSppModeChange();
+    document.getElementById('modalAturWajibSppMassal').style.display = 'flex';
+}
+
+function onAturSppModeChange() {
+    var mode = document.getElementById('aturSppTargetMode').value;
+    document.getElementById('aturSppKelasWrap').classList.toggle('hidden', mode !== 'kelas');
+    document.getElementById('aturSppManualWrap').classList.toggle('hidden', mode !== 'manual');
+    if (mode === 'manual') renderAturSppManualList();
+}
+
+function renderAturSppManualList() {
+    var wrap = document.getElementById('aturSppManualListWrap');
+    var filterKelas = (document.getElementById('aturSppManualFilterKelas') || {}).value || '';
+    var list = filterKelas ? siswaList.filter(function(s){ return String(s.kelasId) === String(filterKelas); }) : siswaList;
+    wrap.innerHTML = '';
+    list.forEach(function(s) {
+        wrap.innerHTML += '<label class="flex items-center gap-8" style="padding:6px 0;font-size:13px;cursor:pointer;">' +
+            '<input type="checkbox" onchange="aturSppManualChecked[\'' + s.id + '\']=this.checked" style="width:auto;">' +
+            '<span>' + escapeHtmlKas(s.nama) + ' <span class="txt-muted">(' + escapeHtmlKas(getNamaKelas(s.kelasId)) + ')</span></span></label>';
+    });
+}
+
+function prosesAturWajibSppMassal() {
+    var bulan = document.getElementById('inputAturSppBulan').value;
+    if (!bulan) return showToast('Pilih bulan dulu!');
+    var mode = document.getElementById('aturSppTargetMode').value;
+    var timpaSemua = document.getElementById('aturSppTimpaSemua').checked;
+
+    var target = [];
+    if (mode === 'semua') target = siswaList;
+    else if (mode === 'kelas') {
+        var kelasId = document.getElementById('aturSppKelasSelect').value;
+        if (!kelasId) return showToast('Pilih kelas dulu!');
+        target = siswaList.filter(function(s){ return String(s.kelasId) === String(kelasId); });
+    } else {
+        target = siswaList.filter(function(s){ return aturSppManualChecked[String(s.id)]; });
+    }
+    if (target.length === 0) return showToast('Tidak ada siswa dipilih!');
+
+    var jumlahDiubah = 0;
+    target.forEach(function(s) {
+        if (!timpaSemua && s.bulanMulaiSpp) return; // sudah ada isinya & tidak mau ditimpa, lewati
+        s.bulanMulaiSpp = bulan;
+        jumlahDiubah++;
+    });
+
+    if (jumlahDiubah === 0) return showToast('Tidak ada yang diubah (semua target sudah punya tanggal — centang "Timpa" kalau mau ganti)');
+    saveSiswaList();
+    document.getElementById('modalAturWajibSppMassal').style.display = 'none';
+    updateHomeSaldoRingkasan();
+    showToast('✅ ' + jumlahDiubah + ' siswa diatur mulai wajib SPP: ' + bulan);
 }
 
 /* ---------- TEMPLATE & IMPORT EXCEL (pola sama seperti EduKu) ---------- */
@@ -3265,8 +3351,6 @@ function getTahunAjaranAktif() {
 function loadTahunAjaranForm() {
     var el = document.getElementById('inputTahunAjaranAktif');
     if (el) el.value = getTahunAjaranAktif();
-    var elMulai = document.getElementById('inputSppMulaiPencatatan');
-    if (elMulai) elMulai.value = getSppMulaiPencatatan() || '';
     var saldoAwal = getSaldoAwalKasData();
     var elSaldoTgl = document.getElementById('inputSaldoAwalTanggal');
     var elSaldoNom = document.getElementById('inputSaldoAwalNominal');
@@ -3289,18 +3373,6 @@ function simpanTahunAjaranAktif() {
     if (!/^\d{4}\/\d{4}$/.test(val)) return showToast('Format harus: 2026/2027');
     localStorage.setItem('bendaharaku_tahun_ajaran_aktif', val);
     showToast('✅ Tahun Ajaran Aktif: ' + val);
-    updateHomeSaldoRingkasan();
-}
-
-function getSppMulaiPencatatan() {
-    return localStorage.getItem('bendaharaku_spp_mulai_pencatatan') || null;
-}
-
-function simpanSppMulaiPencatatan() {
-    var val = document.getElementById('inputSppMulaiPencatatan').value;
-    if (val) localStorage.setItem('bendaharaku_spp_mulai_pencatatan', val);
-    else localStorage.removeItem('bendaharaku_spp_mulai_pencatatan');
-    showToast(val ? '✅ Mulai pencatatan SPP: ' + val : '✅ Dikosongkan, dihitung dari awal Tahun Ajaran lagi');
     updateHomeSaldoRingkasan();
 }
 
@@ -4389,8 +4461,7 @@ function getRincianTagihanSiswa(siswaId) {
 function getRincianSppPerBulanSiswa(siswaId) {
     var s = siswaList.find(function(x){ return String(x.id) === String(siswaId); });
     if (!s) return [];
-    var daftarBulan = getDaftarBulanTahunAjaranSampaiSekarang();
-    if (s.bulanMulaiSpp) daftarBulan = daftarBulan.filter(function(b){ return b >= s.bulanMulaiSpp; });
+    var daftarBulan = getDaftarBulanUntukSiswa(s);
     return daftarBulan.map(function(bulan) {
         var st = getStatusSppSiswa(s, bulan);
         return { bulan: bulan, namaBulan: new Date(bulan + '-01').toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }),

@@ -758,6 +758,9 @@
         <select id="inputKelasSiswa"></select>
         <label class="mt-16">Nominal SPP Khusus (opsional)</label>
         <input type="text" id="inputSppSiswa" placeholder="Kosongkan jika ikut nominal kelas" inputmode="numeric" oninput="formatNominalInput(this)">
+        <label class="mt-16">Mulai Wajib SPP Sejak (opsional)</label>
+        <input type="month" id="inputBulanMulaiSpp">
+        <div class="txt-muted mt-8">Dipakai untuk hitung akumulasi tunggakan dari bulan ini. Kosongkan = dihitung sejak awal tahun ajaran aktif.</div>
         <div class="row mt-16">
             <button class="btn btn-primary" style="flex:1" onclick="simpanFormSiswa()">Simpan</button>
             <button class="btn btn-gray" style="flex:1" onclick="document.getElementById('modalFormSiswa').style.display='none'">Batal</button>
@@ -1907,19 +1910,60 @@ function updateHomeSaldoRingkasan() {
 /* ==============================================================
    SECTION: RINGKASAN BERANDA (Statistik + Perlu Perhatian + Tunggakan Terbesar)
    ============================================================== */
+/* ---------- Helper akumulasi tunggakan SPP multi-bulan (bukan cuma bulan berjalan) ----------
+   Default: dihitung dari awal Tahun Ajaran aktif. Kalau siswa punya field "bulanMulaiSpp"
+   (diisi lewat form Edit Siswa → "Mulai Wajib SPP Sejak"), bulan sebelum itu dilewati —
+   supaya siswa yang masuk pertengahan tahun ajaran tidak dianggap nunggak bulan sebelum
+   dia terdaftar. Lihat getTunggakanSppKumulatifSiswa() untuk logika filternya. */
+function getDaftarBulanTahunAjaranSampaiSekarang() {
+    var ta = getTahunAjaranAktif();
+    var rentang = getRentangTahunAjaran(ta);
+    var bulanSekarang = new Date().toISOString().slice(0,7);
+    var akhirBulan = rentang.end.slice(0,7);
+    var akhir = bulanSekarang < akhirBulan ? bulanSekarang : akhirBulan;
+    var daftar = [];
+    var cursor = rentang.start.slice(0,7);
+    var pengaman = 0;
+    while (cursor <= akhir && pengaman < 24) {
+        daftar.push(cursor);
+        var d = new Date(cursor + '-01');
+        d.setMonth(d.getMonth() + 1);
+        cursor = d.toISOString().slice(0,7);
+        pengaman++;
+    }
+    return daftar;
+}
+
+function getTunggakanSppKumulatifSiswa(siswa, daftarBulan) {
+    // Kalau siswa punya "Mulai Wajib SPP Sejak", bulan sebelum itu tidak ikut dihitung
+    // (siswa yang masuk pertengahan tahun ajaran tidak dianggap "nunggak" bulan sebelum dia terdaftar)
+    var bulanRelevan = siswa.bulanMulaiSpp
+        ? daftarBulan.filter(function(b){ return b >= siswa.bulanMulaiSpp; })
+        : daftarBulan;
+    var totalTagihan = 0, totalTerbayar = 0;
+    bulanRelevan.forEach(function(bulan) {
+        var st = getStatusSppSiswa(siswa, bulan);
+        totalTagihan += st.nominal;
+        totalTerbayar += st.terbayar;
+    });
+    return { totalTagihan: totalTagihan, totalTerbayar: totalTerbayar, totalSisa: totalTagihan - totalTerbayar };
+}
+
 function renderRingkasanBerandaLengkap() {
     var elTotalSiswa = document.getElementById('statTotalSiswa');
     if (!elTotalSiswa) return; // elemen cuma ada di halaman Beranda
 
-    var bulanIni = new Date().toISOString().slice(0,7);
+    // ---------- Daftar bulan dari awal Tahun Ajaran aktif sampai bulan sekarang ----------
+    var daftarBulanTa = getDaftarBulanTahunAjaranSampaiSekarang();
 
-    // ---------- Statistik SPP bulan ini ----------
+    // ---------- Statistik SPP: akumulasi SEMUA bulan berjalan tahun ajaran ini, bukan cuma bulan sekarang ----------
+    // Catatan: asumsi siswa sudah aktif sejak awal tahun ajaran (belum ada tanggal masuk per siswa)
     var sppLunas = 0, sppBelum = 0, totalTunggakanSpp = 0;
     siswaList.forEach(function(s) {
-        var st = getStatusSppSiswa(s, bulanIni);
-        if (st.status === 'LUNAS') sppLunas++;
-        else if (st.status === 'BELUM BAYAR' || st.status === 'CICIL') sppBelum++;
-        totalTunggakanSpp += st.sisa;
+        var hasil = getTunggakanSppKumulatifSiswa(s, daftarBulanTa);
+        if (hasil.totalTagihan <= 0) return; // nominal SPP belum diatur, jangan ikut dihitung lunas/belum
+        if (hasil.totalSisa <= 0) sppLunas++; else sppBelum++;
+        totalTunggakanSpp += Math.max(0, hasil.totalSisa);
     });
 
     // ---------- Tunggakan Tagihan Lain (semua, tidak terikat bulan) ----------
@@ -1943,7 +1987,7 @@ function renderRingkasanBerandaLengkap() {
     if (siswaTanpaKelas > 0) poin.push(siswaTanpaKelas + ' siswa belum punya <b>Kelas</b>');
     var siswaTanpaNominalSpp = siswaList.filter(function(s){ return getNominalSppSiswa(s) <= 0; }).length;
     if (siswaTanpaNominalSpp > 0) poin.push(siswaTanpaNominalSpp + ' siswa belum ada <b>Nominal SPP</b> (lihat halaman SPP)');
-    if (sppBelum > 0) poin.push(sppBelum + ' siswa belum lunas SPP bulan ini (Rp ' + totalTunggakanSpp.toLocaleString('id-ID') + ')');
+    if (sppBelum > 0) poin.push(sppBelum + ' siswa belum lunas SPP (akumulasi Tahun Ajaran berjalan, total Rp ' + totalTunggakanSpp.toLocaleString('id-ID') + ')');
     if (totalTunggakanTL > 0) poin.push('Ada tunggakan Tagihan Lain sebesar Rp ' + totalTunggakanTL.toLocaleString('id-ID'));
 
     var perhatianCard = document.getElementById('perluPerhatianCard');
@@ -1956,10 +2000,10 @@ function renderRingkasanBerandaLengkap() {
         perhatianCard.style.display = 'none';
     }
 
-    // ---------- Tunggakan Terbesar (gabungan SPP bulan ini + Tagihan Lain, top 5) ----------
+    // ---------- Tunggakan Terbesar (akumulasi SPP tahun ajaran berjalan + Tagihan Lain, top 5) ----------
     var perSiswaTunggakan = {};
     siswaList.forEach(function(s) {
-        var sisa = getStatusSppSiswa(s, bulanIni).sisa;
+        var sisa = getTunggakanSppKumulatifSiswa(s, daftarBulanTa).totalSisa;
         if (sisa > 0) perSiswaTunggakan[s.id] = (perSiswaTunggakan[s.id] || 0) + sisa;
     });
     tagihanAssignList.forEach(function(a) {
@@ -2242,6 +2286,7 @@ function tambahSiswaBaru() {
     document.getElementById('inputNamaSiswa').value = '';
     document.getElementById('inputKelasSiswa').value = '';
     document.getElementById('inputSppSiswa').value = '';
+    document.getElementById('inputBulanMulaiSpp').value = '';
     document.getElementById('modalFormSiswa').style.display = 'flex';
 }
 
@@ -2253,6 +2298,7 @@ function editSiswa(id) {
     document.getElementById('inputNamaSiswa').value = s.nama;
     document.getElementById('inputKelasSiswa').value = s.kelasId || '';
     document.getElementById('inputSppSiswa').value = s.sppNominal ? s.sppNominal.toLocaleString('id-ID') : '';
+    document.getElementById('inputBulanMulaiSpp').value = s.bulanMulaiSpp || '';
     document.getElementById('modalFormSiswa').style.display = 'flex';
 }
 
@@ -2261,12 +2307,13 @@ function simpanFormSiswa() {
     if (!nama) return showToast('Nama siswa tidak boleh kosong!');
     var kelasId = document.getElementById('inputKelasSiswa').value;
     var sppNominal = parseNominal(document.getElementById('inputSppSiswa').value) || null;
+    var bulanMulaiSpp = document.getElementById('inputBulanMulaiSpp').value || null;
     var editId = document.getElementById('editSiswaId').value;
     if (editId) {
         var s = siswaList.find(function(x){ return String(x.id) === String(editId); });
-        if (s) { s.nama = nama; s.kelasId = kelasId; s.sppNominal = sppNominal; }
+        if (s) { s.nama = nama; s.kelasId = kelasId; s.sppNominal = sppNominal; s.bulanMulaiSpp = bulanMulaiSpp; }
     } else {
-        siswaList.push({ id: Date.now(), nama: nama, kelasId: kelasId, sppNominal: sppNominal });
+        siswaList.push({ id: Date.now(), nama: nama, kelasId: kelasId, sppNominal: sppNominal, bulanMulaiSpp: bulanMulaiSpp });
     }
     saveSiswaList();
     renderListKelas();

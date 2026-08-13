@@ -1195,7 +1195,8 @@
         </div>
 
         <div class="card">
-            <button class="btn btn-primary w-full" onclick="showAssignTagihanModal()"><i class="fas fa-user-plus"></i> Assign ke Siswa</button>
+            <button class="btn btn-primary w-full mb-8" onclick="showAssignTagihanModal()"><i class="fas fa-user-plus"></i> Assign ke Siswa</button>
+            <button class="btn btn-gray w-full" onclick="selaraskanNominalKeDefault()"><i class="fas fa-rotate"></i> Selaraskan Semua ke Nominal Default</button>
         </div>
 
         <div id="tagihanDetailListWrap"></div>
@@ -3906,6 +3907,7 @@ function renderTagihanDetail() {
             '<div style="display:flex;flex-wrap:wrap;gap:6px;">' +
                 '<button class="btn btn-primary btn-small" onclick="showBayarTagihanLainModal(' + a.id + ')"><i class="fas fa-plus-circle"></i> Bayar</button>' +
                 '<button class="btn btn-small" style="background:var(--wa);color:white;" onclick="kirimInvoiceTagihanLainWA(' + a.id + ')"><i class="fab fa-whatsapp"></i> WA</button>' +
+                '<button class="btn btn-gray btn-small" onclick="editHargaTagihanLain(' + a.id + ')"><i class="fas fa-edit"></i> Harga</button>' +
                 '<button class="btn btn-gray btn-small" onclick="showBayarTagihanLainModal(' + a.id + ')"><i class="fas fa-history"></i> Riwayat</button>' +
             '</div></div>';
     });
@@ -3991,6 +3993,33 @@ function prosesAssignTagihan() {
 }
 
 /* ---------- PEMBAYARAN TAGIHAN LAIN ---------- */
+function editHargaTagihanLain(assignmentId) {
+    var a = tagihanAssignList.find(function(x){ return String(x.id) === String(assignmentId); });
+    if (!a) return;
+    var s = siswaList.find(function(x){ return String(x.id) === String(a.siswaId); });
+    var input = prompt('Nominal tagihan untuk ' + (s?s.nama:'siswa ini') + ':', a.nominal);
+    if (input === null) return;
+    var nominal = parseNominal(input);
+    if (nominal <= 0) return showToast('Nominal harus lebih dari 0!');
+    a.nominal = nominal;
+    saveTagihanAssignList();
+    renderTagihanDetail();
+    showToast('✅ Nominal diperbarui jadi Rp ' + nominal.toLocaleString('id-ID'));
+}
+
+function selaraskanNominalKeDefault() {
+    var jt = jenisTagihanList.find(function(x){ return String(x.id) === String(tagihanDetailAktifId); });
+    if (!jt) return;
+    var assigns = tagihanAssignList.filter(function(a){ return String(a.jenisTagihanId) === String(jt.id); });
+    var berbeda = assigns.filter(function(a){ return a.nominal !== jt.nominalDefault; });
+    if (berbeda.length === 0) return showToast('Semua siswa sudah pakai nominal default (Rp ' + jt.nominalDefault.toLocaleString('id-ID') + ')');
+    if (!confirm(berbeda.length + ' siswa punya nominal beda dari default (Rp ' + jt.nominalDefault.toLocaleString('id-ID') + '). Samakan semua ke nominal default? (Siswa yang sudah bayar sebagian tetap aman, cuma nominal tagihannya yang berubah)')) return;
+    berbeda.forEach(function(a){ a.nominal = jt.nominalDefault; });
+    saveTagihanAssignList();
+    renderTagihanDetail();
+    showToast('✅ ' + berbeda.length + ' siswa disamakan ke Rp ' + jt.nominalDefault.toLocaleString('id-ID'));
+}
+
 function kirimInvoiceTagihanLainWA(assignmentId) {
     var a = tagihanAssignList.find(function(x){ return String(x.id) === String(assignmentId); });
     if (!a) return;

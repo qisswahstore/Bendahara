@@ -319,6 +319,48 @@
         </div>
 
         <div class="card">
+            <div style="font-weight:700;margin-bottom:10px;">📊 Ringkasan Bulan Ini</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
+                <div class="text-center" style="padding:8px 4px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);">
+                    <div style="font-size:18px;">🎓</div>
+                    <div class="txt-muted" style="font-size:11px;margin-top:2px;">Total Siswa</div>
+                    <div id="statTotalSiswa" style="font-size:17px;font-weight:800;color:var(--primary);">0</div>
+                </div>
+                <div class="text-center" style="padding:8px 4px;border-bottom:1px solid var(--border);">
+                    <div style="font-size:18px;">✅</div>
+                    <div class="txt-muted" style="font-size:11px;margin-top:2px;">SPP Lunas</div>
+                    <div id="statSppLunas" style="font-size:17px;font-weight:800;color:var(--green);">0</div>
+                </div>
+                <div class="text-center" style="padding:8px 4px;border-right:1px solid var(--border);">
+                    <div style="font-size:18px;">⏳</div>
+                    <div class="txt-muted" style="font-size:11px;margin-top:2px;">Belum Bayar</div>
+                    <div id="statSppBelum" style="font-size:17px;font-weight:800;color:var(--red);">0</div>
+                </div>
+                <div class="text-center" style="padding:8px 4px;">
+                    <div style="font-size:18px;">📌</div>
+                    <div class="txt-muted" style="font-size:11px;margin-top:2px;">Total Tunggakan</div>
+                    <div id="statTotalTunggakan" style="font-size:13.5px;font-weight:800;color:var(--orange);">Rp 0</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="perluPerhatianCard" class="card" style="display:none;background:#FEF3F2;border:1.5px solid #FCA5A5;">
+            <div class="flex items-center gap-8 mb-8">
+                <i class="fas fa-triangle-exclamation" style="color:#DC2626;"></i>
+                <div style="font-weight:700;color:#991B1B;">Perlu Perhatian</div>
+            </div>
+            <div id="perluPerhatianListWrap"></div>
+        </div>
+
+        <div id="perluDitagihCard" class="card" style="display:none;">
+            <div class="flex items-center justify-between mb-8">
+                <div style="font-weight:700;">💸 Tunggakan Terbesar</div>
+                <span onclick="showPage('spp')" style="color:var(--primary);font-size:12px;font-weight:600;cursor:pointer;">Lihat Semua ›</span>
+            </div>
+            <div id="perluDitagihListWrap"></div>
+        </div>
+
+        <div class="card">
             <div style="font-weight:700;margin-bottom:2px;color:var(--gray-700);font-size:12.5px;">🎒 TAGIHAN &amp; DOKUMEN</div>
             <div class="menu-grid-home mt-8" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
                 <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('tagihan-lain')">
@@ -397,7 +439,8 @@
         </div>
 
         <div class="card">
-            <div style="font-weight:700;margin-bottom:10px;">➕ Tambah Transaksi</div>
+            <div style="font-weight:700;margin-bottom:4px;">➕ Tambah Transaksi</div>
+            <div class="txt-muted mb-16" style="line-height:1.5;">Khusus kas umum (Dana BOS, ATK, Listrik, Kegiatan, dll). Untuk <b>SPP siswa</b> catat lewat menu <b>SPP</b>, untuk <b>Buku/Seragam/Pendaftaran</b> dll catat lewat menu <b>Tagihan Lain-lain</b> — supaya status per siswa ikut tercatat.</div>
             <div class="row mb-8">
                 <button class="btn btn-small" id="btnTipeMasuk" style="flex:1;background:var(--green);color:white;" onclick="pilihTipeKas('masuk')">⬆️ Masuk</button>
                 <button class="btn btn-small btn-gray" id="btnTipeKeluar" style="flex:1;" onclick="pilihTipeKas('keluar')">⬇️ Keluar</button>
@@ -630,7 +673,8 @@
             <div class="flex items-center justify-between mb-8"><span>Email</span><label class="switch"><input type="checkbox" id="cfgShowEmail"></label></div>
             <div class="flex items-center justify-between mb-8"><span>Website</span><label class="switch"><input type="checkbox" id="cfgShowWeb"></label></div>
             <div class="flex items-center justify-between mb-8"><span>NPWP</span><label class="switch"><input type="checkbox" id="cfgShowNpwp"></label></div>
-            <div class="flex items-center justify-between"><span>Pimpinan &amp; Jabatan (di tanda tangan)</span><label class="switch"><input type="checkbox" id="cfgShowPimpinan"></label></div>
+            <div class="flex items-center justify-between"><span>Kolom "Mengetahui" Kepala Sekolah</span><label class="switch"><input type="checkbox" id="cfgShowPimpinan"></label></div>
+            <div class="txt-muted mt-8">Tanda tangan Bendahara selalu tampil di setiap cetakan. Toggle ini cuma untuk kolom Kepala Sekolah.</div>
         </div>
 
         <div class="card">
@@ -1337,6 +1381,7 @@ function showPage(pageId) {
         n.classList.toggle('active', n.dataset.page === pageId);
     });
     if (pageId === 'konfigurasi-instansi') loadKonfigurasiInstansiForm();
+    if (pageId === 'home') { updateHomeSaldoRingkasan(); renderRingkasanBerandaLengkap(); }
     if (pageId === 'kas') renderKasTable();
     if (pageId === 'kelas-siswa') { renderListKelas(); renderListSiswa(); }
     if (pageId === 'spp') renderSppList();
@@ -1652,7 +1697,7 @@ function simpanKonfigurasiInstansi() {
    ============================================================== */
 var dataKas = [];
 var kategoriKasList = [];
-var KATEGORI_KAS_DEFAULT = ['SPP', 'Dana BOS', 'Donasi/Sumbangan', 'ATK', 'Listrik/Air',
+var KATEGORI_KAS_DEFAULT = ['Dana BOS', 'Donasi/Sumbangan', 'ATK', 'Listrik/Air',
     'Gaji/Honor', 'Kegiatan Sekolah', 'Perawatan/Perbaikan', 'Lain-lain'];
 
 async function loadKasData() {
@@ -1699,6 +1744,11 @@ function simpanKategoriBaru() {
     var nama = document.getElementById('inputKategoriBaru').value.trim();
     if (!nama) return showToast('Nama kategori tidak boleh kosong!');
     if (kategoriKasList.indexOf(nama) !== -1) return showToast('Kategori sudah ada!');
+    var bentrok = isKategoriBentrokModulKhusus(nama);
+    if (bentrok) {
+        var lanjut = confirm('⚠️ Nama "' + nama + '" sama dengan (' + bentrok + '). Kalau dipakai di Kas, uangnya berisiko kehitung dobel dengan menu khusus itu.\n\nTetap buat kategori ini?');
+        if (!lanjut) return;
+    }
     kategoriKasList.push(nama);
     saveKategoriKasList();
     document.getElementById('kategoriKas').value = nama;
@@ -1731,6 +1781,14 @@ function parseNominal(str) {
     return parseInt(cleaned) || 0;
 }
 
+function isKategoriBentrokModulKhusus(kategori) {
+    var namaLower = kategori.trim().toLowerCase();
+    if (namaLower === 'spp') return 'SPP siswa';
+    var jt = jenisTagihanList.find(function(x){ return x.nama.trim().toLowerCase() === namaLower; });
+    if (jt) return jt.nama;
+    return null;
+}
+
 function tambahTransaksiKas() {
     var tipe = document.getElementById('tipeKas').value;
     var kategori = document.getElementById('kategoriKas').value;
@@ -1738,6 +1796,13 @@ function tambahTransaksiKas() {
     var nom = parseNominal(document.getElementById('nomKas').value);
     if (!ket) return showToast('Isi keterangan dulu!');
     if (nom <= 0) return showToast('Isi nominal yang benar!');
+
+    var bentrok = isKategoriBentrokModulKhusus(kategori);
+    if (bentrok) {
+        var lanjut = confirm('⚠️ Kategori "' + kategori + '" biasanya dicatat lewat menu khusus (' + bentrok + '), supaya status pembayaran per siswa ikut tercatat & tidak dobel-hitung di saldo.\n\nTetap simpan di Kas umum ini?');
+        if (!lanjut) return;
+    }
+
     dataKas.unshift({
         id: Date.now(),
         tgl: new Date().toLocaleDateString('id-ID'),
@@ -1836,6 +1901,88 @@ function updateHomeSaldoRingkasan() {
     });
     document.getElementById('homeMasukValue').textContent = 'Rp ' + masukBulan.toLocaleString('id-ID');
     document.getElementById('homeKeluarValue').textContent = 'Rp ' + keluarBulan.toLocaleString('id-ID');
+    renderRingkasanBerandaLengkap();
+}
+
+/* ==============================================================
+   SECTION: RINGKASAN BERANDA (Statistik + Perlu Perhatian + Tunggakan Terbesar)
+   ============================================================== */
+function renderRingkasanBerandaLengkap() {
+    var elTotalSiswa = document.getElementById('statTotalSiswa');
+    if (!elTotalSiswa) return; // elemen cuma ada di halaman Beranda
+
+    var bulanIni = new Date().toISOString().slice(0,7);
+
+    // ---------- Statistik SPP bulan ini ----------
+    var sppLunas = 0, sppBelum = 0, totalTunggakanSpp = 0;
+    siswaList.forEach(function(s) {
+        var st = getStatusSppSiswa(s, bulanIni);
+        if (st.status === 'LUNAS') sppLunas++;
+        else if (st.status === 'BELUM BAYAR' || st.status === 'CICIL') sppBelum++;
+        totalTunggakanSpp += st.sisa;
+    });
+
+    // ---------- Tunggakan Tagihan Lain (semua, tidak terikat bulan) ----------
+    var totalTunggakanTL = 0;
+    tagihanAssignList.forEach(function(a) {
+        totalTunggakanTL += getStatusTagihanLain(a).sisa;
+    });
+
+    elTotalSiswa.textContent = siswaList.length;
+    document.getElementById('statSppLunas').textContent = sppLunas;
+    document.getElementById('statSppBelum').textContent = sppBelum;
+    document.getElementById('statTotalTunggakan').textContent = 'Rp ' + (totalTunggakanSpp + totalTunggakanTL).toLocaleString('id-ID');
+
+    // ---------- Perlu Perhatian (checklist kelengkapan data) ----------
+    var cfg = getKonfigurasiInstansiData();
+    var poin = [];
+    if (!cfg.nama || cfg.nama === 'BendaharaKu') poin.push('Nama sekolah belum diisi di <b>Konfigurasi Instansi</b>');
+    if (kelasList.length === 0) poin.push('Belum ada <b>Kelas</b> dibuat');
+    if (siswaList.length === 0) poin.push('Belum ada <b>Siswa</b> ditambahkan');
+    var siswaTanpaKelas = siswaList.filter(function(s){ return !s.kelasId; }).length;
+    if (siswaTanpaKelas > 0) poin.push(siswaTanpaKelas + ' siswa belum punya <b>Kelas</b>');
+    var siswaTanpaNominalSpp = siswaList.filter(function(s){ return getNominalSppSiswa(s) <= 0; }).length;
+    if (siswaTanpaNominalSpp > 0) poin.push(siswaTanpaNominalSpp + ' siswa belum ada <b>Nominal SPP</b> (lihat halaman SPP)');
+    if (sppBelum > 0) poin.push(sppBelum + ' siswa belum lunas SPP bulan ini (Rp ' + totalTunggakanSpp.toLocaleString('id-ID') + ')');
+    if (totalTunggakanTL > 0) poin.push('Ada tunggakan Tagihan Lain sebesar Rp ' + totalTunggakanTL.toLocaleString('id-ID'));
+
+    var perhatianCard = document.getElementById('perluPerhatianCard');
+    if (poin.length > 0) {
+        document.getElementById('perluPerhatianListWrap').innerHTML = poin.map(function(p) {
+            return '<div style="font-size:12.5px;color:#7F1D1D;padding:4px 0;">• ' + p + '</div>';
+        }).join('');
+        perhatianCard.style.display = 'block';
+    } else {
+        perhatianCard.style.display = 'none';
+    }
+
+    // ---------- Tunggakan Terbesar (gabungan SPP bulan ini + Tagihan Lain, top 5) ----------
+    var perSiswaTunggakan = {};
+    siswaList.forEach(function(s) {
+        var sisa = getStatusSppSiswa(s, bulanIni).sisa;
+        if (sisa > 0) perSiswaTunggakan[s.id] = (perSiswaTunggakan[s.id] || 0) + sisa;
+    });
+    tagihanAssignList.forEach(function(a) {
+        var sisa = getStatusTagihanLain(a).sisa;
+        if (sisa > 0) perSiswaTunggakan[a.siswaId] = (perSiswaTunggakan[a.siswaId] || 0) + sisa;
+    });
+    var daftarTunggakan = Object.keys(perSiswaTunggakan).map(function(sId) {
+        var s = siswaList.find(function(x){ return String(x.id) === String(sId); });
+        return { siswa: s, sisa: perSiswaTunggakan[sId] };
+    }).filter(function(x){ return x.siswa; }).sort(function(a,b){ return b.sisa - a.sisa; }).slice(0, 5);
+
+    var ditagihCard = document.getElementById('perluDitagihCard');
+    if (daftarTunggakan.length > 0) {
+        document.getElementById('perluDitagihListWrap').innerHTML = daftarTunggakan.map(function(x) {
+            return '<div class="flex items-center justify-between" style="padding:6px 0;border-bottom:1px solid var(--border);">' +
+                '<div><div style="font-weight:600;font-size:13px;">' + escapeHtmlKas(x.siswa.nama) + '</div>' +
+                '<div class="txt-muted">' + escapeHtmlKas(getNamaKelas(x.siswa.kelasId)) + '</div></div>' +
+                '<span style="color:var(--red);font-weight:700;font-size:13px;">Rp ' + x.sisa.toLocaleString('id-ID') + '</span></div>';
+        }).join('');
+        ditagihCard.style.display = 'block';
+    } else {
+        ditagihCard.style.display = 'none';
+    }
 }
 
 function escapeHtmlKas(str) {
@@ -4211,20 +4358,25 @@ function buildPrintWatermark(cfg) {
 }
 
 function buildPrintTandaTangan(cfg, tglCetak) {
-    if (!cfg.settings || cfg.settings.show_pimpinan === false) return '';
+    var s = cfg.settings || {};
+    var tampilkanPimpinan = s.show_pimpinan !== false;
     var lokasiTgl = (cfg.kota ? cfg.kota + ', ' : '') + tglCetak;
-    return '<div style="display:flex;justify-content:space-around;margin-top:40px;padding-top:20px;border-top:1px dashed var(--gray-300);">' +
-        '<div style="text-align:center;flex:1;">' +
+    var blokPimpinan = tampilkanPimpinan
+        ? '<div style="text-align:center;flex:1;">' +
             '<div style="font-size:12px;color:#555;">' + lokasiTgl + '</div>' +
             '<div style="font-size:12px;color:#555;margin-bottom:60px;">Mengetahui,</div>' +
             '<div style="border-top:1px solid var(--gray-800);padding-top:6px;font-size:13px;font-weight:bold;">' + (cfg.pimpinan || 'Kepala Sekolah') + '</div>' +
             '<div style="font-size:11px;color:var(--gray-700);">' + (cfg.jabatan_pimpinan || '') + '</div>' +
-        '</div>' +
-        '<div style="text-align:center;flex:1;">' +
+        '</div>'
+        : '';
+    // Tanda tangan Bendahara selalu tampil — dialah yang menerbitkan dokumennya
+    var blokBendahara = '<div style="text-align:center;flex:1;">' +
             '<div style="font-size:12px;color:#555;">' + lokasiTgl + '</div>' +
             '<div style="font-size:12px;color:#555;margin-bottom:60px;">Bendahara,</div>' +
             '<div style="border-top:1px solid var(--gray-800);padding-top:6px;font-size:13px;font-weight:bold;">' + (cfg.bendahara || 'Bendahara') + '</div>' +
-        '</div>' +
+        '</div>';
+    return '<div style="display:flex;justify-content:space-around;margin-top:40px;padding-top:20px;border-top:1px dashed var(--gray-300);">' +
+        blokPimpinan + blokBendahara +
     '</div>';
 }
 
@@ -4458,13 +4610,18 @@ if ('serviceWorker' in navigator && (location.protocol === 'http:' || location.p
 window.addEventListener('DOMContentLoaded', function() {
     applyDarkModeFromStorage();
     openIndexedDB().then(function(){
-        loadKasData();
-        loadKelasSiswaData();
-        loadSppData();
-        loadRkasData();
-        loadGajiData();
-        loadTagihanLainData();
-        loadTemplatePaketData();
+        return Promise.all([
+            loadKasData(),
+            loadKelasSiswaData(),
+            loadSppData(),
+            loadRkasData(),
+            loadGajiData(),
+            loadTagihanLainData(),
+            loadTemplatePaketData()
+        ]);
+    }).then(function(){
+        // Render ulang setelah SEMUA data siap, supaya ringkasan Beranda (yang gabung data siswa+SPP+Tagihan Lain) akurat
+        renderRingkasanBerandaLengkap();
     }).catch(function(e){ console.error('Gagal buka IndexedDB:', e); });
     cekSessionAwal();
     pilihTipeKas('masuk');

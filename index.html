@@ -132,6 +132,12 @@
             margin-bottom: 10px;
             box-shadow: 0 1px 6px rgba(0,0,0,0.05);
         }
+        .menu-icon-circle {
+            width: 46px; height: 46px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto; color: white; font-size: 18px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
 
         /* ---------- BUTTONS ---------- */
         .btn {
@@ -313,51 +319,45 @@
         </div>
 
         <div class="card">
-            <div style="font-weight:700;margin-bottom:10px;">Menu</div>
-            <div class="menu-grid-home" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('kas')">
-                    <div style="font-size:26px;">💵</div>
-                    <div style="font-size:12.5px;font-weight:600;margin-top:4px;">Kas Masuk/Keluar</div>
-                </div>
-                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('spp')">
-                    <div style="font-size:26px;">🎓</div>
-                    <div style="font-size:12.5px;font-weight:600;margin-top:4px;">SPP Siswa</div>
-                </div>
-                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('kuitansi')">
-                    <div style="font-size:26px;">🧾</div>
-                    <div style="font-size:12.5px;font-weight:600;margin-top:4px;">Invoice/Kuitansi</div>
-                </div>
-                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('laporan')">
-                    <div style="font-size:26px;">📊</div>
-                    <div style="font-size:12.5px;font-weight:600;margin-top:4px;">Laporan Keuangan</div>
-                </div>
-                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('dashboard')">
-                    <div style="font-size:26px;">📈</div>
-                    <div style="font-size:12.5px;font-weight:600;margin-top:4px;">Dashboard</div>
-                </div>
-                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('rkas')">
-                    <div style="font-size:26px;">🗂️</div>
-                    <div style="font-size:12.5px;font-weight:600;margin-top:4px;">RKAS</div>
-                </div>
-                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('gaji')">
-                    <div style="font-size:26px;">👩‍🏫</div>
-                    <div style="font-size:12.5px;font-weight:600;margin-top:4px;">Gaji/Honor Guru</div>
-                </div>
-                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('jurnal')">
-                    <div style="font-size:26px;">📖</div>
-                    <div style="font-size:12.5px;font-weight:600;margin-top:4px;">Jurnal Harian</div>
-                </div>
+            <div style="font-weight:700;margin-bottom:2px;color:var(--gray-700);font-size:12.5px;">🎒 TAGIHAN &amp; DOKUMEN</div>
+            <div class="menu-grid-home mt-8" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
                 <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('tagihan-lain')">
-                    <div style="font-size:26px;">🎒</div>
-                    <div style="font-size:12.5px;font-weight:600;margin-top:4px;">Tagihan Lain-lain</div>
+                    <div class="menu-icon-circle" style="background:#F59E0B;"><i class="fas fa-receipt"></i></div>
+                    <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Tagihan Lain-lain</div>
                 </div>
                 <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('template-paket')">
-                    <div style="font-size:26px;">📦</div>
-                    <div style="font-size:12.5px;font-weight:600;margin-top:4px;">Template Paket Biaya</div>
+                    <div class="menu-icon-circle" style="background:#8B5CF6;"><i class="fas fa-boxes-stacked"></i></div>
+                    <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Template Paket Biaya</div>
                 </div>
                 <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('kartu-siswa')">
-                    <div style="font-size:26px;">🪪</div>
-                    <div style="font-size:12.5px;font-weight:600;margin-top:4px;">Kartu Tagihan Siswa</div>
+                    <div class="menu-icon-circle" style="background:#3B82F6;"><i class="fas fa-id-card"></i></div>
+                    <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Kartu Tagihan Siswa</div>
+                </div>
+                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('kuitansi')">
+                    <div class="menu-icon-circle" style="background:#EC4899;"><i class="fas fa-file-invoice"></i></div>
+                    <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Log Kuitansi</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div style="font-weight:700;margin-bottom:2px;color:var(--gray-700);font-size:12.5px;">📊 MANAJEMEN &amp; ANALISIS</div>
+            <div class="menu-grid-home mt-8" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('dashboard')">
+                    <div class="menu-icon-circle" style="background:var(--primary);"><i class="fas fa-chart-line"></i></div>
+                    <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Dashboard</div>
+                </div>
+                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('rkas')">
+                    <div class="menu-icon-circle" style="background:#D97706;"><i class="fas fa-sitemap"></i></div>
+                    <div style="font-size:12.5px;font-weight:600;margin-top:6px;">RKAS</div>
+                </div>
+                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('gaji')">
+                    <div class="menu-icon-circle" style="background:#6366F1;"><i class="fas fa-chalkboard-teacher"></i></div>
+                    <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Gaji/Honor Guru</div>
+                </div>
+                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('jurnal')">
+                    <div class="menu-icon-circle" style="background:#57534E;"><i class="fas fa-book"></i></div>
+                    <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Jurnal Harian</div>
                 </div>
             </div>
         </div>
@@ -372,7 +372,7 @@
         <div class="back-header">
             <i class="fas fa-arrow-left" onclick="showPage('home')"></i>
             <h2>💵 Kas Masuk/Keluar</h2>
-            <div style="width:18px;" onclick="showKasMenuLain()"><i class="fas fa-ellipsis-v"></i></div>
+            <div style="width:18px;" onclick="showKelolaKategoriModal()"><i class="fas fa-ellipsis-v"></i></div>
         </div>
     </div>
 
@@ -408,6 +408,7 @@
             <div class="row mb-8">
                 <select id="kategoriKas" style="flex:1;"></select>
                 <button class="btn btn-gray btn-small" onclick="tambahKategoriBaru()"><i class="fas fa-plus"></i></button>
+                <button class="btn btn-gray btn-small" onclick="showKelolaKategoriModal()"><i class="fas fa-cog"></i></button>
             </div>
 
             <label>Keterangan</label>
@@ -466,6 +467,17 @@
             <button class="btn btn-primary" style="flex:1" onclick="simpanKategoriBaru()">Simpan</button>
             <button class="btn btn-gray" style="flex:1" onclick="document.getElementById('modalKategoriKas').style.display='none'">Batal</button>
         </div>
+    </div>
+</div>
+
+<!-- Modal Kelola Kategori (edit & hapus) -->
+<div id="modalKelolaKategori" class="modal">
+    <div class="modal-content" style="max-width:400px;">
+        <h3 style="color:var(--primary);margin-bottom:6px;">🏷️ Kelola Kategori Kas</h3>
+        <div class="txt-muted mb-16">Ubah nama atau hapus kategori sesuai kebutuhan sekolah.</div>
+        <div id="kelolaKategoriListWrap" style="max-height:340px;overflow-y:auto;"></div>
+        <button class="btn btn-primary w-full mt-16" onclick="tambahKategoriBaru()"><i class="fas fa-plus"></i> Tambah Kategori Baru</button>
+        <button class="btn btn-gray w-full mt-8" onclick="document.getElementById('modalKelolaKategori').style.display='none'">Tutup</button>
     </div>
 </div>
 
@@ -807,14 +819,18 @@
     <div class="header-premium header-premium-small">
         <div class="back-header">
             <i class="fas fa-arrow-left" onclick="showPage('home')"></i>
-            <h2>🧾 Riwayat Kuitansi</h2>
+            <h2>🧾 Log Kuitansi</h2>
             <div style="width:18px;"></div>
         </div>
     </div>
     <div class="container" style="padding-top:16px;">
         <div class="card">
+            <label>Cari Nomor Kuitansi / Nama Siswa</label>
+            <input type="text" id="cariKuitansi" placeholder="cth: KWT/0012 atau nama siswa" oninput="renderRiwayatKuitansi()">
+            <label class="mt-16">Filter Bulan (opsional)</label>
             <input type="month" id="filterBulanKuitansi" onchange="renderRiwayatKuitansi()">
         </div>
+        <div class="txt-muted mb-8" style="padding:0 4px;">Diurutkan dari nomor kuitansi terbaru — arsip semua kuitansi SPP &amp; Tagihan Lain yang pernah terbit.</div>
         <div id="listKuitansi"></div>
         <div id="kuitansiEmptyState" class="text-center txt-muted card" style="display:none;">Belum ada kuitansi yang diterbitkan</div>
     </div>
@@ -1829,7 +1845,72 @@ function escapeHtmlKas(str) {
 }
 
 function showKasMenuLain() {
-    // Placeholder untuk menu tambahan (mis. reset kas) di fase berikutnya
+    showKelolaKategoriModal();
+}
+
+function hitungPemakaianKategori(nama) {
+    var jumlahKas = dataKas.filter(function(i){ return i.kategori === nama; }).length;
+    var jumlahRkas = rkasList.filter(function(r){ return r.kategori === nama; }).length;
+    return jumlahKas + jumlahRkas;
+}
+
+function showKelolaKategoriModal() {
+    renderKelolaKategoriList();
+    document.getElementById('modalKelolaKategori').style.display = 'flex';
+}
+
+function renderKelolaKategoriList() {
+    var wrap = document.getElementById('kelolaKategoriListWrap');
+    if (!wrap) return;
+    wrap.innerHTML = '';
+    kategoriKasList.forEach(function(nama) {
+        var jumlahPakai = hitungPemakaianKategori(nama);
+        wrap.innerHTML += '<div class="flex items-center justify-between" style="padding:8px 0;border-bottom:1px solid var(--border);">' +
+            '<div><div style="font-weight:600;font-size:13.5px;">' + escapeHtmlKas(nama) + '</div>' +
+            '<div class="txt-muted">' + jumlahPakai + ' transaksi memakai ini</div></div>' +
+            '<div>' +
+                '<button onclick="editKategoriKas(\'' + nama.replace(/'/g,"\\'") + '\')" style="background:none;border:none;color:var(--blue);font-size:14px;cursor:pointer;padding:4px;"><i class="fas fa-edit"></i></button>' +
+                '<button onclick="hapusKategoriKas(\'' + nama.replace(/'/g,"\\'") + '\')" style="background:none;border:none;color:var(--red);font-size:14px;cursor:pointer;padding:4px;"><i class="fas fa-trash"></i></button>' +
+            '</div></div>';
+    });
+}
+
+function editKategoriKas(namaLama) {
+    var namaBaru = prompt('Ubah nama kategori:', namaLama);
+    if (namaBaru === null) return;
+    namaBaru = namaBaru.trim();
+    if (!namaBaru) return showToast('Nama kategori tidak boleh kosong!');
+    if (namaBaru === namaLama) return;
+    if (kategoriKasList.indexOf(namaBaru) !== -1) return showToast('Nama kategori "' + namaBaru + '" sudah ada!');
+
+    var idx = kategoriKasList.indexOf(namaLama);
+    if (idx === -1) return;
+    kategoriKasList[idx] = namaBaru;
+
+    // Ganti nama kategori di semua transaksi Kas & anggaran RKAS yang sudah ada, biar tidak "yatim"
+    var jumlahDiubah = 0;
+    dataKas.forEach(function(i) { if (i.kategori === namaLama) { i.kategori = namaBaru; jumlahDiubah++; } });
+    rkasList.forEach(function(r) { if (r.kategori === namaLama) r.kategori = namaBaru; });
+
+    saveKategoriKasList();
+    saveKasData();
+    saveRkasList();
+    renderKelolaKategoriList();
+    renderKasTable();
+    showToast('✅ Kategori diubah jadi "' + namaBaru + '" (' + jumlahDiubah + ' transaksi ikut diperbarui)');
+}
+
+function hapusKategoriKas(nama) {
+    var jumlahPakai = hitungPemakaianKategori(nama);
+    if (jumlahPakai > 0) {
+        showToast('❌ Tidak bisa dihapus, masih dipakai di ' + jumlahPakai + ' transaksi/anggaran. Ubah/hapus itu dulu, atau ganti namanya saja.');
+        return;
+    }
+    if (!confirm('Hapus kategori "' + nama + '"?')) return;
+    kategoriKasList = kategoriKasList.filter(function(k){ return k !== nama; });
+    saveKategoriKasList();
+    renderKelolaKategoriList();
+    showToast('🗑️ Kategori dihapus');
 }
 
 async function cetakKasHTML() {
@@ -2660,25 +2741,58 @@ async function shareKuitansiSpp(paymentId) {
     });
 }
 
+function ambilNomorUrutKuitansi(noKuitansi) {
+    // Format: PREFIX/0012/VIII/2026 -> ambil bagian angka urutnya untuk pengurutan
+    if (!noKuitansi) return 0;
+    var parts = noKuitansi.split('/');
+    return parts.length > 1 ? (parseInt(parts[1]) || 0) : 0;
+}
+
 function renderRiwayatKuitansi() {
     var wrap = document.getElementById('listKuitansi');
     if (!wrap) return;
     var bulan = (document.getElementById('filterBulanKuitansi') || {}).value || '';
-    var list = pembayaranSppList.filter(function(p){ return !bulan || p.bulan === bulan; });
-    wrap.innerHTML = '';
-    list.forEach(function(p) {
+    var cari = (document.getElementById('cariKuitansi') || {}).value.trim().toLowerCase();
+
+    var gabungan = [];
+    pembayaranSppList.forEach(function(p) {
         var s = siswaList.find(function(x){ return String(x.id) === String(p.siswaId); });
         var namaBulan = new Date(p.bulan + '-01').toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+        gabungan.push({
+            noKuitansi: p.noKuitansi, nama: s ? s.nama : '(siswa dihapus)', kelas: s ? getNamaKelas(s.kelasId) : '-',
+            uraian: 'SPP ' + namaBulan, nominal: p.nominal, tglIso: p.tglIso, tipe: 'spp', id: p.id
+        });
+    });
+    pembayaranTagihanLainList.forEach(function(p) {
+        var a = tagihanAssignList.find(function(x){ return String(x.id) === String(p.assignmentId); });
+        var s = a ? siswaList.find(function(x){ return String(x.id) === String(a.siswaId); }) : null;
+        var jt = a ? jenisTagihanList.find(function(x){ return String(x.id) === String(a.jenisTagihanId); }) : null;
+        gabungan.push({
+            noKuitansi: p.noKuitansi, nama: s ? s.nama : '(siswa dihapus)', kelas: s ? getNamaKelas(s.kelasId) : '-',
+            uraian: jt ? jt.nama : 'Tagihan Lain', nominal: p.nominal, tglIso: p.tglIso, tipe: 'tagihan_lain', id: p.id
+        });
+    });
+
+    if (bulan) gabungan = gabungan.filter(function(g){ return g.tglIso && g.tglIso.slice(0,7) === bulan; });
+    if (cari) gabungan = gabungan.filter(function(g){
+        return (g.noKuitansi || '').toLowerCase().indexOf(cari) !== -1 || g.nama.toLowerCase().indexOf(cari) !== -1;
+    });
+    gabungan.sort(function(a,b){ return ambilNomorUrutKuitansi(b.noKuitansi) - ambilNomorUrutKuitansi(a.noKuitansi); });
+
+    wrap.innerHTML = '';
+    gabungan.forEach(function(g) {
+        var fnCetak = g.tipe === 'spp' ? 'cetakKuitansiPdf' : 'cetakKuitansiTagihanLain';
+        var fnShare = g.tipe === 'spp' ? 'shareKuitansiSpp' : 'shareKuitansiTagihanLain';
         wrap.innerHTML += '<div class="setting-card flex items-center justify-between">' +
-            '<div><div style="font-weight:700;font-size:13.5px;">' + escapeHtmlKas(s ? s.nama : '(siswa dihapus)') + '</div>' +
-            '<div class="txt-muted">' + (p.noKuitansi || '-') + ' · SPP ' + namaBulan + '</div></div>' +
+            '<div><div style="font-weight:700;font-size:13.5px;">' + escapeHtmlKas(g.nama) + '</div>' +
+            '<div class="txt-muted">' + (g.noKuitansi || '-') + ' · ' + escapeHtmlKas(g.uraian) + ' · ' + escapeHtmlKas(g.kelas) + '</div></div>' +
             '<div style="text-align:right;">' +
-                '<div style="font-weight:700;color:var(--green);">Rp ' + p.nominal.toLocaleString('id-ID') + '</div>' +
-                '<button onclick="cetakKuitansiPdf(' + p.id + ')" style="background:none;border:none;color:var(--blue);cursor:pointer;padding:2px;"><i class="fas fa-print"></i> Cetak</button>' +
-                '<button onclick="shareKuitansiSpp(' + p.id + ')" style="background:none;border:none;color:var(--wa);cursor:pointer;padding:2px;"><i class="fas fa-share-alt"></i> Share</button>' +
+                '<div style="font-weight:700;color:var(--green);">Rp ' + g.nominal.toLocaleString('id-ID') + '</div>' +
+                '<button onclick="' + fnCetak + '(' + g.id + ')" style="background:none;border:none;color:var(--blue);cursor:pointer;padding:2px;"><i class="fas fa-print"></i></button>' +
+                '<button onclick="' + fnShare + '(' + g.id + ')" style="background:none;border:none;color:var(--wa);cursor:pointer;padding:2px;"><i class="fas fa-share-alt"></i></button>' +
             '</div></div>';
     });
-    document.getElementById('kuitansiEmptyState').style.display = list.length === 0 ? 'block' : 'none';
+    document.getElementById('kuitansiEmptyState').style.display = gabungan.length === 0 ? 'block' : 'none';
 }
 
 /* ==============================================================

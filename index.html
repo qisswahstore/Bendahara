@@ -361,19 +361,56 @@
         </div>
 
         <div class="card">
-            <div style="font-weight:700;margin-bottom:2px;color:var(--gray-700);font-size:12.5px;">🎒 TAGIHAN &amp; DOKUMEN</div>
+            <div style="font-weight:700;margin-bottom:2px;color:var(--gray-700);font-size:12.5px;">📋 KERJAAN HARIAN</div>
             <div class="menu-grid-home mt-8" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
                 <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('tagihan-lain')">
                     <div class="menu-icon-circle" style="background:#F59E0B;"><i class="fas fa-receipt"></i></div>
                     <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Tagihan Lain-lain</div>
                 </div>
-                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('template-paket')">
-                    <div class="menu-icon-circle" style="background:#8B5CF6;"><i class="fas fa-boxes-stacked"></i></div>
-                    <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Template Paket Biaya</div>
-                </div>
                 <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('kartu-siswa')">
                     <div class="menu-icon-circle" style="background:#3B82F6;"><i class="fas fa-id-card"></i></div>
                     <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Kartu Tagihan Siswa</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="cursor:pointer;" onclick="showPage('lainnya')">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-12">
+                    <div class="menu-icon-circle" style="background:var(--gray-600);width:40px;height:40px;font-size:16px;"><i class="fas fa-ellipsis"></i></div>
+                    <div>
+                        <div style="font-weight:700;font-size:14px;">Menu Lainnya</div>
+                        <div class="txt-muted" style="font-size:11.5px;">RKAS, Gaji/Honor, Jurnal, Template, Log Kuitansi, Dashboard</div>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-right" style="color:var(--gray-400);"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================================
+     MENU LAINNYA PAGE (fitur lanjutan, tidak dipakai harian)
+     ========================================================== -->
+<div id="page-lainnya" class="page">
+    <div class="header-premium header-premium-small">
+        <div class="back-header">
+            <i class="fas fa-arrow-left" onclick="showPage('home')"></i>
+            <h2>⋯ Menu Lainnya</h2>
+            <div style="width:18px;"></div>
+        </div>
+    </div>
+    <div class="container" style="padding-top:16px;">
+        <div class="card" style="background:var(--primary-light);border:1px solid var(--border);">
+            <div class="txt-muted" style="line-height:1.6;">Fitur di sini tidak dipakai tiap hari, tapi kalau ada yang perlu ditindaklanjuti (misal honor guru belum dibayar), tetap muncul otomatis di "Perlu Perhatian" pada Beranda.</div>
+        </div>
+
+        <div class="card">
+            <div style="font-weight:700;margin-bottom:2px;color:var(--gray-700);font-size:12.5px;">🎒 DOKUMEN & TAGIHAN LANJUTAN</div>
+            <div class="menu-grid-home mt-8" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('template-paket')">
+                    <div class="menu-icon-circle" style="background:#8B5CF6;"><i class="fas fa-boxes-stacked"></i></div>
+                    <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Template Paket Biaya</div>
                 </div>
                 <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('kuitansi')">
                     <div class="menu-icon-circle" style="background:#EC4899;"><i class="fas fa-file-invoice"></i></div>
@@ -383,7 +420,7 @@
         </div>
 
         <div class="card">
-            <div style="font-weight:700;margin-bottom:2px;color:var(--gray-700);font-size:12.5px;">📊 MANAJEMEN &amp; ANALISIS</div>
+            <div style="font-weight:700;margin-bottom:2px;color:var(--gray-700);font-size:12.5px;">📊 MANAJEMEN & ANALISIS</div>
             <div class="menu-grid-home mt-8" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
                 <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('dashboard')">
                     <div class="menu-icon-circle" style="background:var(--primary);"><i class="fas fa-chart-line"></i></div>
@@ -405,6 +442,7 @@
         </div>
     </div>
 </div>
+
 
 <!-- ==========================================================
      KAS MASUK/KELUAR PAGE
@@ -2181,6 +2219,12 @@ function renderRingkasanBerandaLengkap() {
     if (siswaTanpaNominalSpp > 0) poin.push(siswaTanpaNominalSpp + ' siswa belum ada <b>Nominal SPP</b> (lihat halaman SPP)');
     if (sppBelum > 0) poin.push(sppBelum + ' siswa belum lunas SPP (akumulasi Tahun Ajaran berjalan, total Rp ' + totalTunggakanSpp.toLocaleString('id-ID') + ')');
     if (totalTunggakanTL > 0) poin.push('Ada tunggakan Tagihan Lain sebesar Rp ' + totalTunggakanTL.toLocaleString('id-ID'));
+
+    // Cek juga hal yang perlu dikerjakan di "Menu Lainnya" (RKAS/Gaji/dll) — supaya tidak
+    // ketinggalan cuma karena menunya tidak kelihatan langsung di Beranda
+    var bulanIniCek = new Date().toISOString().slice(0,7);
+    var guruBelumDibayar = guruList.filter(function(g){ return !getStatusHonor(g.id, bulanIniCek); }).length;
+    if (guruBelumDibayar > 0) poin.push(guruBelumDibayar + ' guru belum dibayar honornya bulan ini (menu Lainnya → Gaji/Honor Guru)');
 
     var perhatianCard = document.getElementById('perluPerhatianCard');
     if (poin.length > 0) {

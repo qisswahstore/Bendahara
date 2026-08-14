@@ -513,6 +513,43 @@
     </div>
 </div>
 
+<!-- ==========================================================
+     MODAL GENERIK: Confirm / Prompt / Alert bertema aplikasi
+     (pengganti confirm()/prompt()/alert() bawaan browser)
+     ========================================================== -->
+<div id="modalCustomConfirm" class="modal">
+    <div class="modal-content" style="max-width:380px;text-align:center;">
+        <div id="customConfirmIcon" style="font-size:44px;margin-bottom:8px;">⚠️</div>
+        <div id="customConfirmTitle" style="font-size:17px;font-weight:800;margin-bottom:10px;"></div>
+        <div id="customConfirmMessage" style="font-size:13px;color:var(--gray-700);text-align:left;white-space:pre-line;line-height:1.6;margin-bottom:20px;"></div>
+        <div class="row">
+            <button class="btn btn-gray" id="customConfirmBatalBtn" style="flex:1" onclick="_resolveCustomConfirm(false)">Batal</button>
+            <button class="btn" id="customConfirmYaBtn" style="flex:1" onclick="_resolveCustomConfirm(true)">Ya</button>
+        </div>
+    </div>
+</div>
+
+<div id="modalCustomPrompt" class="modal">
+    <div class="modal-content" style="max-width:380px;">
+        <div id="customPromptTitle" style="font-size:16px;font-weight:800;color:var(--primary);margin-bottom:10px;"></div>
+        <div id="customPromptMessage" class="txt-muted mb-8" style="white-space:pre-line;line-height:1.5;"></div>
+        <input type="text" id="customPromptInput" onkeydown="if(event.key==='Enter')_resolveCustomPromptFromInput()">
+        <div class="row mt-16">
+            <button class="btn btn-gray" style="flex:1" onclick="_resolveCustomPrompt(null)">Batal</button>
+            <button class="btn btn-primary" style="flex:1" onclick="_resolveCustomPromptFromInput()">Simpan</button>
+        </div>
+    </div>
+</div>
+
+<div id="modalCustomAlert" class="modal">
+    <div class="modal-content" style="max-width:380px;text-align:center;">
+        <div style="font-size:40px;margin-bottom:8px;">⚠️</div>
+        <div id="customAlertTitle" style="font-weight:800;color:var(--orange);margin-bottom:10px;font-size:16px;"></div>
+        <div id="customAlertMessage" style="font-size:13px;color:var(--gray-700);text-align:left;white-space:pre-line;line-height:1.6;"></div>
+        <button class="btn btn-primary w-full mt-16" onclick="_resolveCustomAlert()">Oke, Mengerti</button>
+    </div>
+</div>
+
 <!-- Modal Kelola Kategori (edit & hapus) -->
 <div id="modalKelolaKategori" class="modal">
     <div class="modal-content" style="max-width:400px;">
@@ -1405,6 +1442,10 @@
     </div>
     <div class="container" style="padding-top:16px;">
         <div class="card">
+            <label>Filter Kelas (opsional)</label>
+            <select id="kartuFilterKelas" onchange="isiDropdownKartuSiswa()" class="mb-16"></select>
+            <label>Cari Nama Siswa (opsional)</label>
+            <input type="text" id="kartuCariSiswa" placeholder="Ketik nama untuk mempersempit daftar..." oninput="isiDropdownKartuSiswa()" class="mb-16">
             <label>Pilih Siswa</label>
             <select id="kartuSiswaSelect" onchange="renderKartuTagihanSiswa()"></select>
         </div>
@@ -1481,6 +1522,74 @@ function showToast(msg) {
     toast.textContent = msg;
     toast.classList.add('show');
     setTimeout(function(){ toast.classList.remove('show'); }, 3000);
+}
+
+/* ==============================================================
+   SECTION: MODAL GENERIK (pengganti confirm/prompt/alert bawaan browser)
+   Dipakai lewat: await customConfirm(pesan, opsi), await customPrompt(pesan, nilaiAwal, opsi),
+   await customAlert(pesan, judul). Semua berbasis Promise supaya bisa dipakai dengan await,
+   persis seperti dialog bawaan browser tapi tampilannya konsisten dengan tema aplikasi.
+   ============================================================== */
+var _customConfirmResolve = null;
+
+function customConfirm(message, opts) {
+    opts = opts || {};
+    return new Promise(function(resolve) {
+        _customConfirmResolve = resolve;
+        document.getElementById('customConfirmIcon').textContent = opts.icon || (opts.danger ? '🗑️' : '⚠️');
+        var titleEl = document.getElementById('customConfirmTitle');
+        titleEl.textContent = opts.title || (opts.danger ? 'Hapus Data?' : 'Konfirmasi');
+        titleEl.style.color = opts.danger ? 'var(--red)' : 'var(--primary)';
+        document.getElementById('customConfirmMessage').textContent = message || '';
+        var yaBtn = document.getElementById('customConfirmYaBtn');
+        yaBtn.textContent = opts.yaText || (opts.danger ? 'Ya, Hapus' : 'Ya, Lanjutkan');
+        yaBtn.className = 'btn ' + (opts.danger ? 'btn-red' : 'btn-primary');
+        document.getElementById('modalCustomConfirm').style.display = 'flex';
+    });
+}
+function _resolveCustomConfirm(val) {
+    document.getElementById('modalCustomConfirm').style.display = 'none';
+    if (_customConfirmResolve) { _customConfirmResolve(val); _customConfirmResolve = null; }
+}
+
+var _customPromptResolve = null;
+
+function customPrompt(message, defaultValue, opts) {
+    opts = opts || {};
+    return new Promise(function(resolve) {
+        _customPromptResolve = resolve;
+        document.getElementById('customPromptTitle').textContent = opts.title || 'Input';
+        document.getElementById('customPromptMessage').textContent = message || '';
+        var inp = document.getElementById('customPromptInput');
+        inp.value = (defaultValue !== null && defaultValue !== undefined) ? defaultValue : '';
+        inp.type = opts.password ? 'password' : 'text';
+        if (opts.numeric) { inp.inputMode = 'numeric'; inp.oninput = function(){ formatNominalInput(this); }; }
+        else { inp.inputMode = 'text'; inp.oninput = null; }
+        document.getElementById('modalCustomPrompt').style.display = 'flex';
+        setTimeout(function(){ inp.focus(); }, 150);
+    });
+}
+function _resolveCustomPrompt(val) {
+    document.getElementById('modalCustomPrompt').style.display = 'none';
+    if (_customPromptResolve) { _customPromptResolve(val); _customPromptResolve = null; }
+}
+function _resolveCustomPromptFromInput() {
+    _resolveCustomPrompt(document.getElementById('customPromptInput').value);
+}
+
+var _customAlertResolve = null;
+
+function customAlert(message, title) {
+    return new Promise(function(resolve) {
+        _customAlertResolve = resolve;
+        document.getElementById('customAlertTitle').textContent = title || 'Perhatian';
+        document.getElementById('customAlertMessage').textContent = message || '';
+        document.getElementById('modalCustomAlert').style.display = 'flex';
+    });
+}
+function _resolveCustomAlert() {
+    document.getElementById('modalCustomAlert').style.display = 'none';
+    if (_customAlertResolve) { _customAlertResolve(); _customAlertResolve = null; }
 }
 
 /* ==============================================================
@@ -1608,18 +1717,18 @@ function doLoginAdmin() {
     showToast('Selamat datang, Bendahara!');
 }
 
-function logoutAdmin() {
-    if (!confirm('Keluar dari aplikasi?')) return;
+async function logoutAdmin() {
+    if (!(await customConfirm('Keluar dari aplikasi?'))) return;
     clearBkSession();
     location.reload();
 }
 
-function gantiPasswordAdmin() {
-    var lama = prompt('Masukkan password lama:');
+async function gantiPasswordAdmin() {
+    var lama = await customPrompt('Masukkan password lama:', '', { title: '🔑 Password Lama', password: true });
     if (lama === null) return;
     var savedPass = localStorage.getItem(BK_ADMIN_PASS_KEY) || BK_DEFAULT_PASS;
     if (lama !== savedPass) { showToast('Password lama salah!'); return; }
-    var baru = prompt('Masukkan password baru:');
+    var baru = await customPrompt('Masukkan password baru:', '', { title: '🔑 Password Baru', password: true });
     if (!baru) return;
     localStorage.setItem(BK_ADMIN_PASS_KEY, baru);
     showToast('Password berhasil diubah');
@@ -1813,13 +1922,13 @@ function tambahKategoriBaru() {
     document.getElementById('modalKategoriKas').style.display = 'flex';
 }
 
-function simpanKategoriBaru() {
+async function simpanKategoriBaru() {
     var nama = document.getElementById('inputKategoriBaru').value.trim();
     if (!nama) return showToast('Nama kategori tidak boleh kosong!');
     if (kategoriKasList.indexOf(nama) !== -1) return showToast('Kategori sudah ada!');
     var bentrok = isKategoriBentrokModulKhusus(nama);
     if (bentrok) {
-        var lanjut = confirm('⚠️ Nama "' + nama + '" sama dengan (' + bentrok + '). Kalau dipakai di Kas, uangnya berisiko kehitung dobel dengan menu khusus itu.\n\nTetap buat kategori ini?');
+        var lanjut = await customConfirm('Nama "' + nama + '" sama dengan (' + bentrok + '). Kalau dipakai di Kas, uangnya berisiko kehitung dobel dengan menu khusus itu.\n\nTetap buat kategori ini?', { title: '⚠️ Nama Mirip Modul Lain' });
         if (!lanjut) return;
     }
     kategoriKasList.push(nama);
@@ -1862,7 +1971,7 @@ function isKategoriBentrokModulKhusus(kategori) {
     return null;
 }
 
-function tambahTransaksiKas() {
+async function tambahTransaksiKas() {
     var tipe = document.getElementById('tipeKas').value;
     var kategori = document.getElementById('kategoriKas').value;
     var ket = document.getElementById('ketKas').value.trim();
@@ -1872,7 +1981,7 @@ function tambahTransaksiKas() {
 
     var bentrok = isKategoriBentrokModulKhusus(kategori);
     if (bentrok) {
-        var lanjut = confirm('⚠️ Kategori "' + kategori + '" biasanya dicatat lewat menu khusus (' + bentrok + '), supaya status pembayaran per siswa ikut tercatat & tidak dobel-hitung di saldo.\n\nTetap simpan di Kas umum ini?');
+        var lanjut = await customConfirm('Kategori "' + kategori + '" biasanya dicatat lewat menu khusus (' + bentrok + '), supaya status pembayaran per siswa ikut tercatat & tidak dobel-hitung di saldo.\n\nTetap simpan di Kas umum ini?', { title: '⚠️ Kategori Mirip Modul Lain' });
         if (!lanjut) return;
     }
 
@@ -1891,12 +2000,12 @@ function tambahTransaksiKas() {
     showToast('✅ Transaksi tersimpan');
 }
 
-function editTransaksiKas(id) {
+async function editTransaksiKas(id) {
     var item = dataKas.find(function(x){ return x.id === id; });
     if (!item) return;
-    var ket = prompt('Keterangan:', item.ket);
+    var ket = await customPrompt('Keterangan:', item.ket, { title: '✏️ Edit Keterangan' });
     if (ket === null) return;
-    var nom = prompt('Nominal:', item.nom);
+    var nom = await customPrompt('Nominal:', item.nom, { title: '✏️ Edit Nominal', numeric: true });
     if (nom === null) return;
     item.ket = ket.trim() || item.ket;
     item.nom = parseNominal(nom) || item.nom;
@@ -1904,8 +2013,8 @@ function editTransaksiKas(id) {
     showToast('✅ Transaksi diperbarui');
 }
 
-function hapusTransaksiKas(id) {
-    if (!confirm('Hapus transaksi ini?')) return;
+async function hapusTransaksiKas(id) {
+    if (!(await customConfirm('Hapus transaksi ini?', { danger: true }))) return;
     dataKas = dataKas.filter(function(i){ return i.id !== id; });
     saveKasData();
     showToast('🗑️ Transaksi dihapus');
@@ -2149,8 +2258,8 @@ function renderKelolaKategoriList() {
     });
 }
 
-function editKategoriKas(namaLama) {
-    var namaBaru = prompt('Ubah nama kategori:', namaLama);
+async function editKategoriKas(namaLama) {
+    var namaBaru = await customPrompt('Ubah nama kategori:', namaLama, { title: '✏️ Edit Kategori' });
     if (namaBaru === null) return;
     namaBaru = namaBaru.trim();
     if (!namaBaru) return showToast('Nama kategori tidak boleh kosong!');
@@ -2174,13 +2283,13 @@ function editKategoriKas(namaLama) {
     showToast('✅ Kategori diubah jadi "' + namaBaru + '" (' + jumlahDiubah + ' transaksi ikut diperbarui)');
 }
 
-function hapusKategoriKas(nama) {
+async function hapusKategoriKas(nama) {
     var jumlahPakai = hitungPemakaianKategori(nama);
     if (jumlahPakai > 0) {
         showToast('❌ Tidak bisa dihapus, masih dipakai di ' + jumlahPakai + ' transaksi/anggaran. Ubah/hapus itu dulu, atau ganti namanya saja.');
         return;
     }
-    if (!confirm('Hapus kategori "' + nama + '"?')) return;
+    if (!(await customConfirm('Hapus kategori "' + nama + '"?', { danger: true }))) return;
     kategoriKasList = kategoriKasList.filter(function(k){ return k !== nama; });
     saveKategoriKasList();
     renderKelolaKategoriList();
@@ -2333,10 +2442,10 @@ function simpanFormKelas() {
     showToast('✅ Kelas tersimpan');
 }
 
-function hapusKelas(id) {
+async function hapusKelas(id) {
     var jumlahSiswa = siswaList.filter(function(s){ return String(s.kelasId) === String(id); }).length;
     var pesan = jumlahSiswa > 0 ? 'Kelas ini punya ' + jumlahSiswa + ' siswa. Siswa tidak akan dihapus, hanya keluar dari kelas ini. Lanjutkan?' : 'Hapus kelas ini?';
-    if (!confirm(pesan)) return;
+    if (!(await customConfirm(pesan, { danger: true }))) return;
     kelasList = kelasList.filter(function(x){ return String(x.id) !== String(id); });
     siswaList.forEach(function(s){ if (String(s.kelasId) === String(id)) s.kelasId = ''; });
     saveKelasList();
@@ -2405,8 +2514,8 @@ function simpanFormSiswa() {
     showToast('✅ Siswa tersimpan');
 }
 
-function hapusSiswa(id) {
-    if (!confirm('Hapus siswa ini? Riwayat pembayaran SPP-nya juga akan hilang.')) return;
+async function hapusSiswa(id) {
+    if (!(await customConfirm('Hapus siswa ini? Riwayat pembayaran SPP-nya juga akan hilang.', { danger: true }))) return;
     siswaList = siswaList.filter(function(x){ return String(x.id) !== String(id); });
     pembayaranSppList = pembayaranSppList.filter(function(p){ return String(p.siswaId) !== String(id); });
     saveSiswaList();
@@ -2603,10 +2712,10 @@ function downloadTemplateSiswaExcel() {
     showToast('✅ Template Excel diunduh');
 }
 
-function importSiswaFromExcel(input) {
+async function importSiswaFromExcel(input) {
     var file = input.files[0];
     if (!file) return;
-    if (!confirm('Import Excel akan MENAMBAH siswa baru (data yang sudah ada tidak dihapus). Lanjutkan?')) { input.value = ''; return; }
+    if (!(await customConfirm('Import Excel akan MENAMBAH siswa baru (data yang sudah ada tidak dihapus). Lanjutkan?'))) { input.value = ''; return; }
     var reader = new FileReader();
     reader.onload = function(e) {
         try {
@@ -2662,7 +2771,7 @@ function importSiswaFromExcel(input) {
             if (namaTidakDitemukan.length > 0) {
                 var detail = namaTidakDitemukan.map(function(n){ return '- "' + n + '" (' + kelasTidakDitemukan[n] + ' siswa)'; }).join('\n');
                 setTimeout(function(){
-                    alert('⚠️ Beberapa nama kelas di Excel tidak ditemukan, siswa tetap ditambahkan tanpa kelas:\n\n' + detail + '\n\nSilakan buat kelas tersebut di menu Kelas, lalu assign manual lewat Edit Siswa.');
+                    customAlert('Beberapa nama kelas di Excel tidak ditemukan, siswa tetap ditambahkan tanpa kelas:\n\n' + detail + '\n\nSilakan buat kelas tersebut di menu Kelas, lalu assign manual lewat Edit Siswa.', '⚠️ Kelas Tidak Ditemukan');
                 }, 500);
             }
         } catch (err) {
@@ -2774,11 +2883,11 @@ function renderSppList() {
     document.getElementById('sppCountBelum').textContent = belum;
 }
 
-function editHargaSppSiswa(siswaId) {
+async function editHargaSppSiswa(siswaId) {
     var s = siswaList.find(function(x){ return String(x.id) === String(siswaId); });
     if (!s) return;
     var nominalSekarang = getNominalSppSiswa(s);
-    var input = prompt('Nominal SPP khusus untuk ' + s.nama + ':\n(Kosongkan lalu OK untuk ikut nominal kelas/default)', nominalSekarang || '');
+    var input = await customPrompt('Nominal SPP khusus untuk ' + s.nama + ':\n(Kosongkan lalu Simpan untuk ikut nominal kelas/default)', nominalSekarang || '', { title: '✏️ Ubah Nominal SPP', numeric: true });
     if (input === null) return;
     var nominal = parseNominal(input);
     s.sppNominal = nominal > 0 ? nominal : null;
@@ -3485,8 +3594,8 @@ function tambahRkas() {
     showToast('✅ Anggaran tersimpan');
 }
 
-function hapusRkas(id) {
-    if (!confirm('Hapus anggaran ini?')) return;
+async function hapusRkas(id) {
+    if (!(await customConfirm('Hapus anggaran ini?', { danger: true }))) return;
     rkasList = rkasList.filter(function(r){ return r.id !== id; });
     saveRkasList();
     renderRkasPage();
@@ -3621,8 +3730,8 @@ function simpanFormGuru() {
     showToast('✅ Data guru tersimpan');
 }
 
-function hapusGuru(id) {
-    if (!confirm('Hapus guru ini? Riwayat honor tetap tersimpan di Kas.')) return;
+async function hapusGuru(id) {
+    if (!(await customConfirm('Hapus guru ini? Riwayat honor tetap tersimpan di Kas.', { danger: true }))) return;
     guruList = guruList.filter(function(x){ return String(x.id) !== String(id); });
     saveGuruList();
     renderGajiList();
@@ -3912,11 +4021,11 @@ function simpanFormJenisTagihan() {
     showToast('✅ Jenis tagihan tersimpan');
 }
 
-function hapusJenisTagihanAktif() {
+async function hapusJenisTagihanAktif() {
     if (!tagihanDetailAktifId) return;
     var jt = jenisTagihanList.find(function(x){ return String(x.id) === String(tagihanDetailAktifId); });
     if (!jt) return;
-    if (!confirm('Hapus jenis tagihan "' + jt.nama + '"? Semua data assign & riwayat pembayarannya ikut terhapus.')) return;
+    if (!(await customConfirm('Hapus jenis tagihan "' + jt.nama + '"? Semua data assign & riwayat pembayarannya ikut terhapus.', { danger: true }))) return;
     var assignIds = tagihanAssignList.filter(function(a){ return String(a.jenisTagihanId) === String(jt.id); }).map(function(a){ return a.id; });
     jenisTagihanList = jenisTagihanList.filter(function(x){ return String(x.id) !== String(jt.id); });
     tagihanAssignList = tagihanAssignList.filter(function(a){ return String(a.jenisTagihanId) !== String(jt.id); });
@@ -4065,11 +4174,11 @@ function prosesAssignTagihan() {
 }
 
 /* ---------- PEMBAYARAN TAGIHAN LAIN ---------- */
-function editHargaTagihanLain(assignmentId) {
+async function editHargaTagihanLain(assignmentId) {
     var a = tagihanAssignList.find(function(x){ return String(x.id) === String(assignmentId); });
     if (!a) return;
     var s = siswaList.find(function(x){ return String(x.id) === String(a.siswaId); });
-    var input = prompt('Nominal tagihan untuk ' + (s?s.nama:'siswa ini') + ':', a.nominal);
+    var input = await customPrompt('Nominal tagihan untuk ' + (s?s.nama:'siswa ini') + ':', a.nominal, { title: '✏️ Ubah Nominal Tagihan', numeric: true });
     if (input === null) return;
     var nominal = parseNominal(input);
     if (nominal <= 0) return showToast('Nominal harus lebih dari 0!');
@@ -4079,13 +4188,13 @@ function editHargaTagihanLain(assignmentId) {
     showToast('✅ Nominal diperbarui jadi Rp ' + nominal.toLocaleString('id-ID'));
 }
 
-function selaraskanNominalKeDefault() {
+async function selaraskanNominalKeDefault() {
     var jt = jenisTagihanList.find(function(x){ return String(x.id) === String(tagihanDetailAktifId); });
     if (!jt) return;
     var assigns = tagihanAssignList.filter(function(a){ return String(a.jenisTagihanId) === String(jt.id); });
     var berbeda = assigns.filter(function(a){ return a.nominal !== jt.nominalDefault; });
     if (berbeda.length === 0) return showToast('Semua siswa sudah pakai nominal default (Rp ' + jt.nominalDefault.toLocaleString('id-ID') + ')');
-    if (!confirm(berbeda.length + ' siswa punya nominal beda dari default (Rp ' + jt.nominalDefault.toLocaleString('id-ID') + '). Samakan semua ke nominal default? (Siswa yang sudah bayar sebagian tetap aman, cuma nominal tagihannya yang berubah)')) return;
+    if (!(await customConfirm(berbeda.length + ' siswa punya nominal beda dari default (Rp ' + jt.nominalDefault.toLocaleString('id-ID') + '). Samakan semua ke nominal default? (Siswa yang sudah bayar sebagian tetap aman, cuma nominal tagihannya yang berubah)', { title: 'Selaraskan Nominal?' }))) return;
     berbeda.forEach(function(a){ a.nominal = jt.nominalDefault; });
     saveTagihanAssignList();
     renderTagihanDetail();
@@ -4304,9 +4413,9 @@ function simpanFormTemplate() {
     showToast('✅ Template tersimpan');
 }
 
-function hapusTemplateAktif() {
+async function hapusTemplateAktif() {
     if (!templateDetailAktifId) return;
-    if (!confirm('Hapus template ini? (Data siswa yang sudah pernah menerapkannya tidak terpengaruh)')) return;
+    if (!(await customConfirm('Hapus template ini? (Data siswa yang sudah pernah menerapkannya tidak terpengaruh)', { danger: true }))) return;
     templatePaketList = templatePaketList.filter(function(t){ return String(t.id) !== String(templateDetailAktifId); });
     saveTemplatePaketList();
     showToast('🗑️ Template dihapus');
@@ -4430,10 +4539,34 @@ function isiDropdownKartuSiswa() {
     var sel = document.getElementById('kartuSiswaSelect');
     if (!sel) return;
     var current = sel.value;
-    sel.innerHTML = '<option value="">- Pilih Siswa -</option>' + siswaList.map(function(s) {
+
+    var selKelas = document.getElementById('kartuFilterKelas');
+    if (selKelas && selKelas.options.length === 0) {
+        var kelasSaatIni = selKelas.value;
+        selKelas.innerHTML = '<option value="">Semua Kelas</option>' + kelasList.map(function(k) {
+            return '<option value="' + k.id + '">' + escapeHtmlKas(k.nama) + '</option>';
+        }).join('');
+        if (kelasSaatIni) selKelas.value = kelasSaatIni;
+    }
+    var filterKelas = selKelas ? selKelas.value : '';
+    var cari = (document.getElementById('kartuCariSiswa') || {}).value || '';
+    cari = cari.trim().toLowerCase();
+
+    var list = siswaList.filter(function(s) {
+        if (filterKelas && String(s.kelasId) !== String(filterKelas)) return false;
+        if (cari && s.nama.toLowerCase().indexOf(cari) === -1) return false;
+        return true;
+    });
+
+    sel.innerHTML = '<option value="">- Pilih Siswa (' + list.length + ') -</option>' + list.map(function(s) {
         return '<option value="' + s.id + '">' + escapeHtmlKas(s.nama) + ' (' + escapeHtmlKas(getNamaKelas(s.kelasId)) + ')</option>';
     }).join('');
-    if (current) sel.value = current;
+    // Pertahankan siswa yang sudah dipilih kalau masih ada di daftar hasil filter
+    if (current && list.some(function(s){ return String(s.id) === String(current); })) {
+        sel.value = current;
+    } else if (current) {
+        renderKartuTagihanSiswa(); // siswa yg dipilih hilang dari filter -> kosongkan tampilan
+    }
 }
 
 function getRincianTagihanSiswa(siswaId) {
@@ -4593,8 +4726,8 @@ async function prosesBayarMultiBulan() {
     showToast('✅ ' + hasil.alokasi.length + ' bulan tercatat · Kuitansi ' + noKuitansi);
 
     kuitansiGabunganTerakhir = entriBaru; // dipakai kalau mau cetak/share kuitansi gabungan
-    setTimeout(function(){
-        if (confirm('Cetak kuitansi gabungan untuk ' + hasil.alokasi.length + ' bulan sekaligus?')) {
+    setTimeout(async function(){
+        if (await customConfirm('Cetak kuitansi gabungan untuk ' + hasil.alokasi.length + ' bulan sekaligus?', { title: '🖨️ Cetak Kuitansi?', yaText: 'Ya, Cetak' })) {
             cetakKuitansiGabunganSpp(entriBaru);
         }
     }, 300);
@@ -4886,7 +5019,7 @@ function showRestoreJsonPasteModal() {
 async function processRestoreJsonText() {
     var text = document.getElementById('restoreJsonPasteText').value.trim();
     if (!text) return showToast('Tempel teks JSON dulu!');
-    if (!confirm('Restore akan menimpa konfigurasi yang ada. Lanjutkan?')) return;
+    if (!(await customConfirm('Restore akan menimpa konfigurasi yang ada. Lanjutkan?', { danger: true, yaText: 'Ya, Restore' }))) return;
     showToast('⏳ Memulihkan data...');
     try {
         var backup = JSON.parse(text);
@@ -4958,11 +5091,11 @@ async function backupZipData() {
     }
 }
 
-function restoreZipData(input) {
+async function restoreZipData(input) {
     var file = input.files[0];
     if (!file) return;
     input.value = '';
-    if (!confirm('Restore akan menimpa data yang ada. Lanjutkan?')) return;
+    if (!(await customConfirm('Restore akan menimpa data yang ada. Lanjutkan?', { danger: true, yaText: 'Ya, Restore' }))) return;
     showToast('⏳ Memulihkan dari ZIP...');
     JSZip.loadAsync(file).then(function(zip) {
         return zip.file('data.json').async('string');

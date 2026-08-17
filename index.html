@@ -977,6 +977,13 @@
         <input type="hidden" id="bayarSppBulan">
         <label>Nominal Dibayar (Rp)</label>
         <input type="text" id="inputBayarSpp" placeholder="0" inputmode="numeric" oninput="formatNominalInput(this)">
+        <label class="mt-16">Metode Pembayaran</label>
+        <div class="row">
+            <select id="inputMetodeBayarSpp" style="flex:1;"></select>
+            <button class="btn btn-gray btn-small" onclick="tambahMetodePembayaranBaru('inputMetodeBayarSpp')"><i class="fas fa-plus"></i></button>
+        </div>
+        <label class="mt-16">No. Referensi/Jam Transfer (opsional)</label>
+        <input type="text" id="inputRefBayarSpp" placeholder="cth: 16/7/26-08:59">
         <label class="mt-16">Keterangan (opsional)</label>
         <input type="text" id="inputKetBayarSpp" placeholder="cth: Cicilan ke-1">
         <div class="row mt-16">
@@ -1044,6 +1051,14 @@
                 <div style="font-size:11px;opacity:0.85;">Saldo Periode Ini</div>
                 <div id="lapSaldo" style="font-size:22px;font-weight:800;">Rp 0</div>
             </div>
+        </div>
+
+        <div class="card" id="lapSetoranYayasanCard" style="display:none;background:#EFF6FF;border:1px solid #BFDBFE;">
+            <div class="flex items-center justify-between">
+                <div style="font-weight:700;color:#1E40AF;">🏦 Total Setor ke Yayasan</div>
+                <div id="lapTotalSetoranYayasan" style="font-weight:800;color:#1E40AF;font-size:15px;">Rp 0</div>
+            </div>
+            <div class="txt-muted mt-8" style="font-size:11px;">Periode ini · dari kategori Kas "Setor ke Yayasan"</div>
         </div>
 
         <div class="card">
@@ -1250,10 +1265,24 @@
         </div>
     </div>
     <div class="container" style="padding-top:16px;">
+        <button class="btn btn-gray w-full mb-16" onclick="showTambahJenisTagihanCepatModal()"><i class="fas fa-bolt"></i> Tambah Cepat: Komponen Umum Pondok</button>
         <div id="jenisTagihanListWrap"></div>
         <div id="jenisTagihanEmptyState" class="text-center txt-muted card" style="display:none;">
             Belum ada jenis tagihan. Contoh: Uang Pendaftaran Siswa Baru, Daftar Ulang, Buku Paket, Seragam.<br>
-            Tap ikon + di pojok kanan atas untuk menambah.
+            Tap ikon + di pojok kanan atas untuk menambah manual, atau tombol "Tambah Cepat" di atas untuk daftar siap pakai.
+        </div>
+    </div>
+</div>
+
+<!-- Modal Tambah Cepat Komponen Umum Pondok -->
+<div id="modalTambahJenisTagihanCepat" class="modal">
+    <div class="modal-content" style="max-width:440px;">
+        <h3 style="color:var(--primary);margin-bottom:6px;">⚡ Tambah Cepat</h3>
+        <div class="txt-muted mb-16">Centang yang dipakai di pondok Bapak/Ibu, isi nominalnya (boleh dikosongkan/diisi belakangan), lalu Tambahkan. Yang sudah ada (nama sama) otomatis dilewati.</div>
+        <div id="jenisTagihanCepatListWrap" style="max-height:400px;overflow-y:auto;"></div>
+        <div class="row mt-16">
+            <button class="btn btn-primary" style="flex:1" onclick="prosesTambahJenisTagihanCepat()">Tambahkan yang Dicentang</button>
+            <button class="btn btn-gray" style="flex:1" onclick="document.getElementById('modalTambahJenisTagihanCepat').style.display='none'">Tutup</button>
         </div>
     </div>
 </div>
@@ -1353,6 +1382,13 @@
         <input type="hidden" id="bayarTagihanLainAssignId">
         <label>Nominal Dibayar (Rp)</label>
         <input type="text" id="inputBayarTagihanLain" placeholder="0" inputmode="numeric" oninput="formatNominalInput(this)">
+        <label class="mt-16">Metode Pembayaran</label>
+        <div class="row">
+            <select id="inputMetodeBayarTagihanLain" style="flex:1;"></select>
+            <button class="btn btn-gray btn-small" onclick="tambahMetodePembayaranBaru('inputMetodeBayarTagihanLain')"><i class="fas fa-plus"></i></button>
+        </div>
+        <label class="mt-16">No. Referensi/Jam Transfer (opsional)</label>
+        <input type="text" id="inputRefBayarTagihanLain" placeholder="cth: 16/7/26-08:59">
         <label class="mt-16">Keterangan (opsional)</label>
         <input type="text" id="inputKetBayarTagihanLain" placeholder="cth: Cicilan ke-1">
         <div class="row mt-16">
@@ -1500,7 +1536,14 @@
         <div id="bayarMultiBulanInfo" style="font-size:12.5px;color:var(--gray-700);margin-bottom:14px;"></div>
         <label>Total Nominal Dibayar (Rp)</label>
         <input type="text" id="inputBayarMultiBulan" placeholder="0" inputmode="numeric" oninput="formatNominalInput(this); previewAlokasiMultiBulan();">
-        <div class="txt-muted mt-8">Otomatis dialokasikan ke bulan tertunggak paling lama dulu.</div>
+        <label class="mt-16">Metode Pembayaran</label>
+        <div class="row">
+            <select id="inputMetodeBayarMultiBulan" style="flex:1;"></select>
+            <button class="btn btn-gray btn-small" onclick="tambahMetodePembayaranBaru('inputMetodeBayarMultiBulan')"><i class="fas fa-plus"></i></button>
+        </div>
+        <label class="mt-16">No. Referensi/Jam Transfer (opsional)</label>
+        <input type="text" id="inputRefBayarMultiBulan" placeholder="cth: 16/7/26-08:59">
+        <div class="txt-muted mt-16">Otomatis dialokasikan ke bulan tertunggak paling lama dulu.</div>
         <div id="previewAlokasiWrap" class="mt-16"></div>
         <div class="row mt-16">
             <button class="btn btn-primary" style="flex:1" onclick="prosesBayarMultiBulan()">✅ Simpan Pembayaran</button>
@@ -1918,13 +1961,53 @@ function simpanKonfigurasiInstansi() {
 var dataKas = [];
 var kategoriKasList = [];
 var KATEGORI_KAS_DEFAULT = ['Dana BOS', 'Donasi/Sumbangan', 'ATK', 'Listrik/Air',
-    'Gaji/Honor', 'Kegiatan Sekolah', 'Perawatan/Perbaikan', 'Lain-lain'];
+    'Gaji/Honor', 'Kegiatan Sekolah', 'Perawatan/Perbaikan', 'Setor ke Yayasan', 'Lain-lain'];
+
+/* ---------- METODE PEMBAYARAN (untuk pembayaran SPP & Tagihan Lain) ---------- */
+var METODE_PEMBAYARAN_DEFAULT = ['Tunai', 'BSI', 'BRI', 'BCA', 'Mandiri/Livin', 'BNI', 'QRIS', 'Lainnya'];
+
+function getMetodePembayaranList() {
+    var saved = localStorage.getItem('bendaharaku_metode_pembayaran');
+    if (saved) { try { var arr = JSON.parse(saved); if (arr && arr.length) return arr; } catch(e) {} }
+    return METODE_PEMBAYARAN_DEFAULT.slice();
+}
+
+function saveMetodePembayaranList(list) {
+    localStorage.setItem('bendaharaku_metode_pembayaran', JSON.stringify(list));
+}
+
+function isiDropdownMetodePembayaran(selectId, nilaiTerpilih) {
+    var sel = document.getElementById(selectId);
+    if (!sel) return;
+    var list = getMetodePembayaranList();
+    sel.innerHTML = list.map(function(m){ return '<option value="' + m + '">' + m + '</option>'; }).join('');
+    if (nilaiTerpilih && list.indexOf(nilaiTerpilih) !== -1) sel.value = nilaiTerpilih;
+}
+
+async function tambahMetodePembayaranBaru(selectId) {
+    var nama = await customPrompt('Nama metode pembayaran baru:', '', { title: '💳 Metode Baru' });
+    if (!nama) return;
+    nama = nama.trim();
+    if (!nama) return;
+    var list = getMetodePembayaranList();
+    if (list.indexOf(nama) === -1) {
+        list.splice(list.length - 1, 0, nama); // sisipkan sebelum "Lainnya"
+        saveMetodePembayaranList(list);
+    }
+    isiDropdownMetodePembayaran(selectId, nama);
+    showToast('✅ Metode "' + nama + '" ditambahkan');
+}
 
 async function loadKasData() {
     var saved = await idbGet(STORE_KAS, 'kas_data');
     dataKas = saved || [];
     var savedKategori = await idbGet(STORE_KAS, 'kategori_list');
     kategoriKasList = (savedKategori && savedKategori.length) ? savedKategori : KATEGORI_KAS_DEFAULT.slice();
+    // Migrasi ringan: tambahkan kategori baru yang mungkin belum ada di data lama (mis. "Setor ke Yayasan")
+    if (kategoriKasList.indexOf('Setor ke Yayasan') === -1) {
+        kategoriKasList.push('Setor ke Yayasan');
+        saveKategoriKasList();
+    }
     isiDropdownKategoriKas();
     renderKasTable();
     updateHomeSaldoRingkasan();
@@ -3003,6 +3086,8 @@ function showBayarSppModal(siswaId, bulan) {
     document.getElementById('bayarSppBulan').value = bulan;
     document.getElementById('inputBayarSpp').value = '';
     document.getElementById('inputKetBayarSpp').value = '';
+    document.getElementById('inputRefBayarSpp').value = '';
+    isiDropdownMetodePembayaran('inputMetodeBayarSpp');
     var namaBulan = new Date(bulan + '-01').toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
     document.getElementById('bayarSppInfo').innerHTML =
         '<b>' + escapeHtmlKas(s.nama) + '</b> · ' + escapeHtmlKas(getNamaKelas(s.kelasId)) + '<br>' +
@@ -3015,7 +3100,7 @@ function showBayarSppModal(siswaId, bulan) {
         riwayatWrap.innerHTML = '<div class="txt-muted mb-8">Riwayat pembayaran bulan ini:</div>' +
             riwayat.map(function(p) {
                 return '<div class="flex items-center justify-between" style="font-size:12px;padding:6px 0;border-bottom:1px solid var(--border);">' +
-                    '<span>' + p.tgl + (p.ket ? ' · ' + escapeHtmlKas(p.ket) : '') + '</span>' +
+                    '<span>' + p.tgl + (p.metode ? ' · ' + escapeHtmlKas(p.metode) : '') + (p.ket ? ' · ' + escapeHtmlKas(p.ket) : '') + '</span>' +
                     '<span class="flex items-center gap-8"><span style="font-weight:700;">Rp ' + p.nominal.toLocaleString('id-ID') + '</span>' +
                     '<button onclick="cetakKuitansiPdf(' + p.id + ')" style="background:none;border:none;color:var(--blue);cursor:pointer;padding:2px;"><i class="fas fa-print"></i></button>' +
                     '<button onclick="shareKuitansiSpp(' + p.id + ')" style="background:none;border:none;color:var(--wa);cursor:pointer;padding:2px;"><i class="fas fa-share-alt"></i></button></span></div>';
@@ -3031,10 +3116,13 @@ async function simpanPembayaranSpp() {
     var bulan = document.getElementById('bayarSppBulan').value;
     var nominal = parseNominal(document.getElementById('inputBayarSpp').value);
     var ket = document.getElementById('inputKetBayarSpp').value.trim();
+    var metode = document.getElementById('inputMetodeBayarSpp').value;
+    var noRef = document.getElementById('inputRefBayarSpp').value.trim();
     if (nominal <= 0) return showToast('Isi nominal pembayaran yang benar!');
     var noKuitansi = await generateNomorKuitansi();
     pembayaranSppList.unshift({
         id: Date.now(), siswaId: siswaId, bulan: bulan, nominal: nominal, ket: ket,
+        metode: metode, noRef: noRef,
         noKuitansi: noKuitansi,
         tgl: new Date().toLocaleDateString('id-ID'), tglIso: new Date().toISOString().slice(0,10)
     });
@@ -3334,6 +3422,15 @@ function renderLaporanKeuangan() {
     document.getElementById('lapTotalMasuk').textContent = 'Rp ' + totalMasuk.toLocaleString('id-ID');
     document.getElementById('lapTotalKeluar').textContent = 'Rp ' + totalKeluar.toLocaleString('id-ID');
     document.getElementById('lapSaldo').textContent = 'Rp ' + saldo.toLocaleString('id-ID');
+
+    var totalSetoranYayasan = (perKategori['Setor ke Yayasan'] && perKategori['Setor ke Yayasan'].keluar) || 0;
+    var setoranCard = document.getElementById('lapSetoranYayasanCard');
+    if (totalSetoranYayasan > 0) {
+        document.getElementById('lapTotalSetoranYayasan').textContent = 'Rp ' + totalSetoranYayasan.toLocaleString('id-ID');
+        setoranCard.style.display = 'block';
+    } else {
+        setoranCard.style.display = 'none';
+    }
 
     var kasWrap = document.getElementById('lapKasKategori');
     var katKeys = Object.keys(perKategori);
@@ -4028,6 +4125,46 @@ function getStatusTagihanLain(assignment) {
     if (sisa <= 0) return { status: 'LUNAS', warna: 'var(--green)', sisa: 0, terbayar: terbayar };
     if (terbayar > 0) return { status: 'CICIL', warna: 'var(--orange)', sisa: sisa, terbayar: terbayar };
     return { status: 'BELUM BAYAR', warna: 'var(--red)', sisa: sisa, terbayar: terbayar };
+}
+
+/* ---------- TAMBAH CEPAT: Komponen Umum Pondok (siap pakai, tinggal centang & isi nominal) ---------- */
+var KOMPONEN_TAGIHAN_UMUM_PONDOK = [
+    'UAS 1', 'UAS 2', 'TO Kenaikan', 'Muadalah', 'Kelas Muadalah', 'Kitab Muadalah',
+    'Erlangga Angsuran 1', 'Erlangga Angsuran 2', 'LKS', 'Buku TOEFL', 'Sampul Rapot',
+    'Foto, Cetak & KTP', 'Iuran OSIS', 'Kalender', 'Jubah Pondok'
+];
+
+function showTambahJenisTagihanCepatModal() {
+    var wrap = document.getElementById('jenisTagihanCepatListWrap');
+    wrap.innerHTML = '';
+    KOMPONEN_TAGIHAN_UMUM_PONDOK.forEach(function(nama, idx) {
+        var sudahAda = jenisTagihanList.some(function(jt){ return jt.nama.toLowerCase() === nama.toLowerCase(); });
+        wrap.innerHTML += '<div class="flex items-center justify-between" style="padding:8px 0;border-bottom:1px solid var(--border);' + (sudahAda ? 'opacity:0.45;' : '') + '">' +
+            '<label class="flex items-center gap-8" style="font-size:13px;flex:1;">' +
+                '<input type="checkbox" class="cepat-jt-check" data-idx="' + idx + '" ' + (sudahAda ? 'disabled' : '') + ' style="width:auto;">' +
+                '<span>' + escapeHtmlKas(nama) + (sudahAda ? ' <span class="txt-muted">(sudah ada)</span>' : '') + '</span></label>' +
+            '<input type="text" class="cepat-jt-nominal" data-idx="' + idx + '" placeholder="0" inputmode="numeric" oninput="formatNominalInput(this)" ' + (sudahAda ? 'disabled' : '') + ' style="width:100px;font-size:12px;padding:6px;">' +
+        '</div>';
+    });
+    document.getElementById('modalTambahJenisTagihanCepat').style.display = 'flex';
+}
+
+function prosesTambahJenisTagihanCepat() {
+    var jumlahDitambah = 0;
+    document.querySelectorAll('.cepat-jt-check').forEach(function(chk) {
+        if (!chk.checked || chk.disabled) return;
+        var idx = chk.dataset.idx;
+        var nama = KOMPONEN_TAGIHAN_UMUM_PONDOK[idx];
+        var nomInput = document.querySelector('.cepat-jt-nominal[data-idx="' + idx + '"]');
+        var nominalDefault = parseNominal(nomInput.value);
+        jenisTagihanList.push({ id: Date.now() + Math.floor(Math.random()*1000), nama: nama, nominalDefault: nominalDefault });
+        jumlahDitambah++;
+    });
+    if (jumlahDitambah === 0) return showToast('Tidak ada yang dicentang!');
+    saveJenisTagihanList();
+    renderJenisTagihanList();
+    document.getElementById('modalTambahJenisTagihanCepat').style.display = 'none';
+    showToast('✅ ' + jumlahDitambah + ' jenis tagihan ditambahkan — tinggal assign ke siswa & isi nominal kalau belum');
 }
 
 function tambahJenisTagihanBaru() {

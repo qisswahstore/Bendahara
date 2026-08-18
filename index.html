@@ -799,6 +799,12 @@
             <button class="btn btn-primary w-full" onclick="showAturWajibSppMassalModal()"><i class="fas fa-calendar-check"></i> Atur untuk Banyak Siswa Sekaligus</button>
         </div>
 
+        <div class="card" style="background:#FFFBEB;border:1px solid #FDE68A;">
+            <div style="font-weight:700;margin-bottom:6px;">🎓 Kenaikan Kelas &amp; Kelulusan</div>
+            <div class="txt-muted mb-8">Pindahkan semua siswa 1 kelas ke kelas baru sekaligus (naik kelas), atau tandai lulus/keluar — siswa yang tidak aktif otomatis tidak muncul lagi di daftar tunggakan.</div>
+            <button class="btn btn-primary w-full" onclick="showKenaikanKelasModal()"><i class="fas fa-arrow-up-right-dots"></i> Proses Kenaikan Kelas / Kelulusan</button>
+        </div>
+
         <div class="card">
             <div class="flex items-center justify-between mb-8">
                 <div style="font-weight:700;">🏷️ Kelas</div>
@@ -847,6 +853,16 @@
         <input type="text" id="inputNamaSiswa" placeholder="Nama lengkap">
         <label class="mt-16">Kelas</label>
         <select id="inputKelasSiswa"></select>
+        <label class="mt-16">Status</label>
+        <select id="inputStatusSiswa">
+            <option value="aktif">Aktif</option>
+            <option value="lulus">Lulus</option>
+            <option value="keluar">Keluar</option>
+            <option value="pindah">Pindah Sekolah</option>
+        </select>
+        <div class="txt-muted mt-8">Siswa selain "Aktif" otomatis tidak muncul lagi di daftar tunggakan/tagihan.</div>
+        <label class="mt-16">No. HP/WA Wali (opsional)</label>
+        <input type="text" id="inputHpWaliSiswa" placeholder="cth: 081234567890" inputmode="tel">
         <label class="mt-16">Nominal SPP Khusus (opsional)</label>
         <input type="text" id="inputSppSiswa" placeholder="Kosongkan jika ikut nominal kelas" inputmode="numeric" oninput="formatNominalInput(this)">
         <label class="mt-16">Mulai Wajib SPP Sejak (opsional)</label>
@@ -855,6 +871,34 @@
         <div class="row mt-16">
             <button class="btn btn-primary" style="flex:1" onclick="simpanFormSiswa()">Simpan</button>
             <button class="btn btn-gray" style="flex:1" onclick="document.getElementById('modalFormSiswa').style.display='none'">Batal</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Kenaikan Kelas / Kelulusan -->
+<div id="modalKenaikanKelas" class="modal">
+    <div class="modal-content" style="max-width:420px;">
+        <h3 style="color:var(--primary);margin-bottom:14px;">🎓 Kenaikan Kelas / Kelulusan</h3>
+        <label>Kelas Asal</label>
+        <select id="kenaikanKelasAsal" onchange="updateKenaikanKelasInfo()"></select>
+        <div id="kenaikanKelasInfo" class="txt-muted mt-8"></div>
+
+        <label class="mt-16">Aksi</label>
+        <select id="kenaikanKelasAksi" onchange="onKenaikanKelasAksiChange()">
+            <option value="pindah">Pindahkan ke Kelas Lain (naik kelas)</option>
+            <option value="lulus">Tandai Lulus</option>
+            <option value="keluar">Tandai Keluar</option>
+        </select>
+
+        <div id="kenaikanKelasTujuanWrap" class="mt-16">
+            <label>Kelas Tujuan</label>
+            <select id="kenaikanKelasTujuan"></select>
+            <div class="txt-muted mt-8">Belum ada kelasnya? Buat dulu lewat "+ Kelas" di halaman ini, baru kembali ke sini.</div>
+        </div>
+
+        <div class="row mt-16">
+            <button class="btn btn-primary" style="flex:1" onclick="prosesKenaikanKelas()">Proses</button>
+            <button class="btn btn-gray" style="flex:1" onclick="document.getElementById('modalKenaikanKelas').style.display='none'">Batal</button>
         </div>
     </div>
 </div>
@@ -2269,23 +2313,26 @@ function getTunggakanSppKumulatifSiswa(siswa) {
 function renderRingkasanBerandaLengkap() {
     var elTotalSiswa = document.getElementById('statTotalSiswa');
     if (!elTotalSiswa) return; // elemen cuma ada di halaman Beranda
+    var siswaAktif = getSiswaAktif();
 
     // ---------- Statistik SPP: akumulasi dari "Wajib SPP Sejak" per siswa sampai sekarang ----------
     var sppLunas = 0, sppBelum = 0, totalTunggakanSpp = 0;
-    siswaList.forEach(function(s) {
+    siswaAktif.forEach(function(s) {
         var hasil = getTunggakanSppKumulatifSiswa(s);
         if (hasil.totalTagihan <= 0) return; // nominal SPP belum diatur, jangan ikut dihitung lunas/belum
         if (hasil.totalSisa <= 0) sppLunas++; else sppBelum++;
         totalTunggakanSpp += Math.max(0, hasil.totalSisa);
     });
 
-    // ---------- Tunggakan Tagihan Lain (semua, tidak terikat bulan) ----------
+    // ---------- Tunggakan Tagihan Lain (cuma siswa aktif, tidak terikat bulan) ----------
+    var idSiswaAktif = siswaAktif.map(function(s){ return String(s.id); });
     var totalTunggakanTL = 0;
     tagihanAssignList.forEach(function(a) {
+        if (idSiswaAktif.indexOf(String(a.siswaId)) === -1) return;
         totalTunggakanTL += getStatusTagihanLain(a).sisa;
     });
 
-    elTotalSiswa.textContent = siswaList.length;
+    elTotalSiswa.textContent = siswaAktif.length;
     document.getElementById('statSppLunas').textContent = sppLunas;
     document.getElementById('statSppBelum').textContent = sppBelum;
     document.getElementById('statTotalTunggakan').textContent = 'Rp ' + (totalTunggakanSpp + totalTunggakanTL).toLocaleString('id-ID');
@@ -2296,9 +2343,9 @@ function renderRingkasanBerandaLengkap() {
     if (!cfg.nama || cfg.nama === 'BendaharaKu') poin.push('Nama sekolah belum diisi di <b>Konfigurasi Instansi</b>');
     if (kelasList.length === 0) poin.push('Belum ada <b>Kelas</b> dibuat');
     if (siswaList.length === 0) poin.push('Belum ada <b>Siswa</b> ditambahkan');
-    var siswaTanpaKelas = siswaList.filter(function(s){ return !s.kelasId; }).length;
+    var siswaTanpaKelas = siswaAktif.filter(function(s){ return !s.kelasId; }).length;
     if (siswaTanpaKelas > 0) poin.push(siswaTanpaKelas + ' siswa belum punya <b>Kelas</b>');
-    var siswaTanpaNominalSpp = siswaList.filter(function(s){ return getNominalSppSiswa(s) <= 0; }).length;
+    var siswaTanpaNominalSpp = siswaAktif.filter(function(s){ return getNominalSppSiswa(s) <= 0; }).length;
     if (siswaTanpaNominalSpp > 0) poin.push(siswaTanpaNominalSpp + ' siswa belum ada <b>Nominal SPP</b> (lihat halaman SPP)');
     if (sppBelum > 0) poin.push(sppBelum + ' siswa belum lunas SPP (akumulasi Tahun Ajaran berjalan, total Rp ' + totalTunggakanSpp.toLocaleString('id-ID') + ')');
     if (totalTunggakanTL > 0) poin.push('Ada tunggakan Tagihan Lain sebesar Rp ' + totalTunggakanTL.toLocaleString('id-ID'));
@@ -2319,13 +2366,14 @@ function renderRingkasanBerandaLengkap() {
         perhatianCard.style.display = 'none';
     }
 
-    // ---------- Tunggakan Terbesar (akumulasi SPP tahun ajaran berjalan + Tagihan Lain, top 5) ----------
+    // ---------- Tunggakan Terbesar (akumulasi SPP tahun ajaran berjalan + Tagihan Lain, top 5, siswa aktif saja) ----------
     var perSiswaTunggakan = {};
-    siswaList.forEach(function(s) {
+    siswaAktif.forEach(function(s) {
         var sisa = getTunggakanSppKumulatifSiswa(s).totalSisa;
         if (sisa > 0) perSiswaTunggakan[s.id] = (perSiswaTunggakan[s.id] || 0) + sisa;
     });
     tagihanAssignList.forEach(function(a) {
+        if (idSiswaAktif.indexOf(String(a.siswaId)) === -1) return;
         var sisa = getStatusTagihanLain(a).sisa;
         if (sisa > 0) perSiswaTunggakan[a.siswaId] = (perSiswaTunggakan[a.siswaId] || 0) + sisa;
     });
@@ -2604,6 +2652,8 @@ function tambahSiswaBaru() {
     document.getElementById('editSiswaId').value = '';
     document.getElementById('inputNamaSiswa').value = '';
     document.getElementById('inputKelasSiswa').value = '';
+    document.getElementById('inputStatusSiswa').value = 'aktif';
+    document.getElementById('inputHpWaliSiswa').value = '';
     document.getElementById('inputSppSiswa').value = '';
     document.getElementById('inputBulanMulaiSpp').value = new Date().toISOString().slice(0,7); // default: bulan ini, tinggal diubah kalau perlu
     document.getElementById('modalFormSiswa').style.display = 'flex';
@@ -2616,6 +2666,8 @@ function editSiswa(id) {
     document.getElementById('editSiswaId').value = s.id;
     document.getElementById('inputNamaSiswa').value = s.nama;
     document.getElementById('inputKelasSiswa').value = s.kelasId || '';
+    document.getElementById('inputStatusSiswa').value = s.status || 'aktif';
+    document.getElementById('inputHpWaliSiswa').value = s.hpWali || '';
     document.getElementById('inputSppSiswa').value = s.sppNominal ? s.sppNominal.toLocaleString('id-ID') : '';
     document.getElementById('inputBulanMulaiSpp').value = s.bulanMulaiSpp || '';
     document.getElementById('modalFormSiswa').style.display = 'flex';
@@ -2625,14 +2677,16 @@ function simpanFormSiswa() {
     var nama = document.getElementById('inputNamaSiswa').value.trim();
     if (!nama) return showToast('Nama siswa tidak boleh kosong!');
     var kelasId = document.getElementById('inputKelasSiswa').value;
+    var status = document.getElementById('inputStatusSiswa').value;
+    var hpWali = document.getElementById('inputHpWaliSiswa').value.trim();
     var sppNominal = parseNominal(document.getElementById('inputSppSiswa').value) || null;
     var bulanMulaiSpp = document.getElementById('inputBulanMulaiSpp').value || null;
     var editId = document.getElementById('editSiswaId').value;
     if (editId) {
         var s = siswaList.find(function(x){ return String(x.id) === String(editId); });
-        if (s) { s.nama = nama; s.kelasId = kelasId; s.sppNominal = sppNominal; s.bulanMulaiSpp = bulanMulaiSpp; }
+        if (s) { s.nama = nama; s.kelasId = kelasId; s.status = status; s.hpWali = hpWali; s.sppNominal = sppNominal; s.bulanMulaiSpp = bulanMulaiSpp; }
     } else {
-        siswaList.push({ id: Date.now(), nama: nama, kelasId: kelasId, sppNominal: sppNominal, bulanMulaiSpp: bulanMulaiSpp });
+        siswaList.push({ id: Date.now(), nama: nama, kelasId: kelasId, status: status, hpWali: hpWali, sppNominal: sppNominal, bulanMulaiSpp: bulanMulaiSpp });
     }
     saveSiswaList();
     renderListKelas();
@@ -2658,8 +2712,13 @@ function renderListSiswa() {
     var list = filterKelas ? siswaList.filter(function(s){ return String(s.kelasId) === String(filterKelas); }) : siswaList;
     wrap.innerHTML = '';
     list.forEach(function(s) {
-        wrap.innerHTML += '<div class="setting-card flex items-center justify-between">' +
-            '<div><div style="font-weight:700;font-size:13.5px;">' + escapeHtmlKas(s.nama) + '</div>' +
+        var statusBadge = '';
+        if (s.status && s.status !== 'aktif') {
+            var labelStatus = { lulus: 'LULUS', keluar: 'KELUAR', pindah: 'PINDAH' }[s.status] || s.status.toUpperCase();
+            statusBadge = ' <span style="background:var(--gray-400);color:white;padding:1px 7px;border-radius:8px;font-size:9.5px;font-weight:700;">' + labelStatus + '</span>';
+        }
+        wrap.innerHTML += '<div class="setting-card flex items-center justify-between" style="' + (s.status && s.status !== 'aktif' ? 'opacity:0.6;' : '') + '">' +
+            '<div><div style="font-weight:700;font-size:13.5px;">' + escapeHtmlKas(s.nama) + statusBadge + '</div>' +
             '<div class="txt-muted">' + escapeHtmlKas(getNamaKelas(s.kelasId)) + (s.sppNominal ? ' · SPP khusus Rp ' + s.sppNominal.toLocaleString('id-ID') : '') + '</div></div>' +
             '<div>' +
                 '<button onclick="editSiswa(' + s.id + ')" style="background:none;border:none;color:var(--blue);font-size:14px;cursor:pointer;padding:4px;"><i class="fas fa-edit"></i></button>' +
@@ -2667,6 +2726,71 @@ function renderListSiswa() {
             '</div></div>';
     });
     document.getElementById('siswaEmptyState').style.display = list.length === 0 ? 'block' : 'none';
+}
+
+/* ---------- KENAIKAN KELAS / KELULUSAN (massal) ---------- */
+function getSiswaAktif() {
+    return siswaList.filter(function(s){ return !s.status || s.status === 'aktif'; });
+}
+
+function showKenaikanKelasModal() {
+    var selAsal = document.getElementById('kenaikanKelasAsal');
+    selAsal.innerHTML = kelasList.map(function(k){ return '<option value="' + k.id + '">' + escapeHtmlKas(k.nama) + '</option>'; }).join('');
+    var selTujuan = document.getElementById('kenaikanKelasTujuan');
+    selTujuan.innerHTML = kelasList.map(function(k){ return '<option value="' + k.id + '">' + escapeHtmlKas(k.nama) + '</option>'; }).join('');
+    document.getElementById('kenaikanKelasAksi').value = 'pindah';
+    onKenaikanKelasAksiChange();
+    updateKenaikanKelasInfo();
+    document.getElementById('modalKenaikanKelas').style.display = 'flex';
+}
+
+function updateKenaikanKelasInfo() {
+    var kelasId = document.getElementById('kenaikanKelasAsal').value;
+    var jumlah = getSiswaAktif().filter(function(s){ return String(s.kelasId) === String(kelasId); }).length;
+    document.getElementById('kenaikanKelasInfo').textContent = jumlah + ' siswa aktif di kelas ini akan terdampak';
+}
+
+function onKenaikanKelasAksiChange() {
+    var aksi = document.getElementById('kenaikanKelasAksi').value;
+    document.getElementById('kenaikanKelasTujuanWrap').classList.toggle('hidden', aksi !== 'pindah');
+}
+
+async function prosesKenaikanKelas() {
+    var kelasAsalId = document.getElementById('kenaikanKelasAsal').value;
+    var aksi = document.getElementById('kenaikanKelasAksi').value;
+    var target = getSiswaAktif().filter(function(s){ return String(s.kelasId) === String(kelasAsalId); });
+    if (target.length === 0) return showToast('Tidak ada siswa aktif di kelas ini!');
+
+    var namaKelasAsal = getNamaKelas(kelasAsalId);
+    var pesanKonfirmasi, labelAksi;
+    if (aksi === 'pindah') {
+        var kelasTujuanId = document.getElementById('kenaikanKelasTujuan').value;
+        if (!kelasTujuanId) return showToast('Pilih kelas tujuan!');
+        if (String(kelasTujuanId) === String(kelasAsalId)) return showToast('Kelas tujuan harus beda dari kelas asal!');
+        var namaKelasTujuan = getNamaKelas(kelasTujuanId);
+        pesanKonfirmasi = 'Pindahkan ' + target.length + ' siswa dari "' + namaKelasAsal + '" ke "' + namaKelasTujuan + '"?';
+        labelAksi = 'pindah';
+    } else if (aksi === 'lulus') {
+        pesanKonfirmasi = 'Tandai LULUS untuk ' + target.length + ' siswa di kelas "' + namaKelasAsal + '"? Mereka tidak akan muncul lagi di daftar tunggakan.';
+        labelAksi = 'lulus';
+    } else {
+        pesanKonfirmasi = 'Tandai KELUAR untuk ' + target.length + ' siswa di kelas "' + namaKelasAsal + '"? Mereka tidak akan muncul lagi di daftar tunggakan.';
+        labelAksi = 'keluar';
+    }
+
+    if (!(await customConfirm(pesanKonfirmasi, { title: '🎓 Konfirmasi Kenaikan Kelas' }))) return;
+
+    if (labelAksi === 'pindah') {
+        target.forEach(function(s){ s.kelasId = kelasTujuanId; });
+    } else {
+        target.forEach(function(s){ s.status = labelAksi; });
+    }
+    saveSiswaList();
+    renderListKelas();
+    renderListSiswa();
+    document.getElementById('modalKenaikanKelas').style.display = 'none';
+    updateHomeSaldoRingkasan();
+    showToast('✅ ' + target.length + ' siswa berhasil diproses');
 }
 
 /* ---------- IMPOR DARI BACKUP JSON EDUKU ---------- */
@@ -2970,7 +3094,7 @@ function renderSppList() {
     var bulan = bulanEl ? bulanEl.value : new Date().toISOString().slice(0,7);
     if (bulanEl && !bulanEl.value) { bulan = new Date().toISOString().slice(0,7); bulanEl.value = bulan; }
     var filterKelas = (document.getElementById('sppFilterKelas') || {}).value || '';
-    var list = filterKelas ? siswaList.filter(function(s){ return String(s.kelasId) === String(filterKelas); }) : siswaList;
+    var list = filterKelas ? getSiswaAktif().filter(function(s){ return String(s.kelasId) === String(filterKelas); }) : getSiswaAktif();
 
     var lunas = 0, cicil = 0, belum = 0;
     wrap.innerHTML = '';
@@ -3023,6 +3147,14 @@ async function editHargaSppSiswa(siswaId) {
     showToast('✅ Nominal SPP ' + s.nama + ' diperbarui');
 }
 
+function bukaWhatsApp(hpWali, teks) {
+    var nomor = (hpWali || '').replace(/[^0-9]/g, '');
+    if (nomor.indexOf('0') === 0) nomor = '62' + nomor.slice(1);
+    else if (nomor && nomor.indexOf('62') !== 0) nomor = '62' + nomor;
+    var url = nomor ? 'https://wa.me/' + nomor + '?text=' + encodeURIComponent(teks) : 'https://wa.me/?text=' + encodeURIComponent(teks);
+    window.open(url, '_blank');
+}
+
 function kirimInvoiceSppWA(siswaId, bulan) {
     var s = siswaList.find(function(x){ return String(x.id) === String(siswaId); });
     if (!s) return;
@@ -3039,7 +3171,7 @@ function kirimInvoiceSppWA(siswaId, bulan) {
         '💸 *Sudah Dibayar:* Rp ' + st.terbayar.toLocaleString('id-ID') + '\n' +
         (st.sisa > 0 ? '⏳ *Sisa Tagihan:* Rp ' + st.sisa.toLocaleString('id-ID') + '\n' : '✅ *Status:* LUNAS\n') + garis + '\n' +
         'Terima kasih atas perhatiannya 🙏';
-    window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+    bukaWhatsApp(s.hpWali, text);
 }
 
 async function cetakTagihanSppSiswa(siswaId, bulan) {
@@ -3296,7 +3428,7 @@ async function shareKuitansiDokumen(opts) {
         }
     }
     // Fallback kalau Web Share API tidak tersedia (mis. browser desktop)
-    window.open('https://wa.me/?text=' + encodeURIComponent(teks), '_blank');
+    bukaWhatsApp(opts.hpWali, teks);
 }
 
 async function cetakKuitansiPdf(paymentId) {
@@ -3321,7 +3453,7 @@ async function shareKuitansiSpp(paymentId) {
     var namaBulan = new Date(p.bulan + '-01').toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
     shareKuitansiDokumen({
         noKuitansi: p.noKuitansi, namaSiswa: s.nama, namaKelas: getNamaKelas(s.kelasId),
-        uraian: 'SPP bulan ' + namaBulan, keterangan: p.ket, nominal: p.nominal, tgl: p.tgl
+        uraian: 'SPP bulan ' + namaBulan, keterangan: p.ket, nominal: p.nominal, tgl: p.tgl, hpWali: s.hpWali
     });
 }
 
@@ -4313,7 +4445,7 @@ function pilihModeAssign(mode) {
 function renderAssignManualList() {
     var wrap = document.getElementById('assignManualListWrap');
     var filterKelas = (document.getElementById('assignManualFilterKelas') || {}).value || '';
-    var list = filterKelas ? siswaList.filter(function(s){ return String(s.kelasId) === String(filterKelas); }) : siswaList;
+    var list = filterKelas ? getSiswaAktif().filter(function(s){ return String(s.kelasId) === String(filterKelas); }) : getSiswaAktif();
     var sudahAssignIds = tagihanAssignList.filter(function(a){ return String(a.jenisTagihanId) === String(tagihanDetailAktifId); }).map(function(a){ return String(a.siswaId); });
     wrap.innerHTML = '';
     list.forEach(function(s) {
@@ -4333,7 +4465,7 @@ function prosesAssignTagihan() {
     if (assignModeAktif === 'kelas') {
         var kelasId = document.getElementById('assignKelasSelect').value;
         if (!kelasId) return showToast('Pilih kelas dulu!');
-        var siswaKelas = siswaList.filter(function(s){ return String(s.kelasId) === String(kelasId) && sudahAssignIds.indexOf(String(s.id)) === -1; });
+        var siswaKelas = getSiswaAktif().filter(function(s){ return String(s.kelasId) === String(kelasId) && sudahAssignIds.indexOf(String(s.id)) === -1; });
         siswaKelas.forEach(function(s) {
             tagihanAssignList.push({ id: Date.now() + Math.floor(Math.random()*1000), jenisTagihanId: jt.id, siswaId: s.id, nominal: jt.nominalDefault });
             jumlahBaru++;
@@ -4399,7 +4531,7 @@ function kirimInvoiceTagihanLainWA(assignmentId) {
         '💸 *Sudah Dibayar:* Rp ' + st.terbayar.toLocaleString('id-ID') + '\n' +
         (st.sisa > 0 ? '⏳ *Sisa Tagihan:* Rp ' + st.sisa.toLocaleString('id-ID') + '\n' : '✅ *Status:* LUNAS\n') + garis + '\n' +
         'Terima kasih atas perhatiannya 🙏';
-    window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+    bukaWhatsApp(s ? s.hpWali : '', text);
 }
 
 function showBayarTagihanLainModal(assignmentId) {
@@ -4472,7 +4604,7 @@ function shareKuitansiTagihanLain(paymentId) {
     var jt = jenisTagihanList.find(function(x){ return String(x.id) === String(a.jenisTagihanId); });
     shareKuitansiDokumen({
         noKuitansi: p.noKuitansi, namaSiswa: s ? s.nama : '-', namaKelas: s ? getNamaKelas(s.kelasId) : '-',
-        uraian: jt ? jt.nama : 'Tagihan Lain', keterangan: p.ket, nominal: p.nominal, tgl: p.tgl
+        uraian: jt ? jt.nama : 'Tagihan Lain', keterangan: p.ket, nominal: p.nominal, tgl: p.tgl, hpWali: s ? s.hpWali : ''
     });
 }
 
@@ -4672,7 +4804,7 @@ function pilihModeTerapkanTemplate(mode) {
 function renderTerapkanManualList() {
     var wrap = document.getElementById('tplManualListWrap');
     var filterKelas = (document.getElementById('tplManualFilterKelas') || {}).value || '';
-    var list = filterKelas ? siswaList.filter(function(s){ return String(s.kelasId) === String(filterKelas); }) : siswaList;
+    var list = filterKelas ? getSiswaAktif().filter(function(s){ return String(s.kelasId) === String(filterKelas); }) : getSiswaAktif();
     wrap.innerHTML = '';
     list.forEach(function(s) {
         wrap.innerHTML += '<label class="flex items-center gap-8" style="padding:6px 0;font-size:13px;cursor:pointer;">' +
@@ -4689,9 +4821,9 @@ function prosesTerapkanTemplate() {
     if (tplTerapkanMode === 'kelas') {
         var kelasId = document.getElementById('tplKelasSelect').value;
         if (!kelasId) return showToast('Pilih kelas dulu!');
-        targetSiswa = siswaList.filter(function(s){ return String(s.kelasId) === String(kelasId); });
+        targetSiswa = getSiswaAktif().filter(function(s){ return String(s.kelasId) === String(kelasId); });
     } else {
-        targetSiswa = siswaList.filter(function(s){ return tplManualChecked[String(s.id)]; });
+        targetSiswa = getSiswaAktif().filter(function(s){ return tplManualChecked[String(s.id)]; });
     }
     if (targetSiswa.length === 0) return showToast('Tidak ada siswa dipilih!');
 
@@ -4733,7 +4865,7 @@ function isiDropdownKartuSiswa() {
     var cari = (document.getElementById('kartuCariSiswa') || {}).value || '';
     cari = cari.trim().toLowerCase();
 
-    var list = siswaList.filter(function(s) {
+    var list = getSiswaAktif().filter(function(s) {
         if (filterKelas && String(s.kelasId) !== String(filterKelas)) return false;
         if (cari && s.nama.toLowerCase().indexOf(cari) === -1) return false;
         return true;
@@ -4980,7 +5112,7 @@ function shareWaKartuTagihan() {
     if (!siswaId) return;
     var data = getRincianTagihanSiswa(siswaId);
     var teks = buildTeksKartuTagihan(data);
-    window.open('https://wa.me/?text=' + encodeURIComponent(teks), '_blank');
+    bukaWhatsApp(data.siswa.hpWali, teks);
 }
 
 async function cetakKartuTagihanSiswa() {

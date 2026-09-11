@@ -83,7 +83,7 @@
             transition: background 0.3s ease, color 0.3s ease;
         }
 
-        .container { max-width: 480px; margin: 0 auto; padding: 0 16px; }
+        .container { max-width: none; width: 100%; margin: 0 auto; padding: 0 16px; box-sizing: border-box; }
 
         /* ---------- UTILITY CLASSES ---------- */
         .flex { display: flex; }
@@ -236,20 +236,12 @@
         @keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.05);} }
 
         /* ---------- LAYAR BESAR (KOMPUTER/DESKTOP) ---------- */
-        @media (min-width: 900px) {
+        @media (min-width: 700px) {
             body { background: var(--gray-light); padding-bottom: 90px; }
-            .container { max-width: 900px; }
-            .header-premium, .header-premium-small { max-width: 900px; margin: 0 auto; }
-            .bottom-nav-premium {
-                left: 50%; right: auto; transform: translateX(-50%);
-                width: 900px; max-width: calc(100vw - 24px);
-                border-radius: 20px 20px 0 0; box-shadow: 0 -4px 24px rgba(0,0,0,0.1);
-                bottom: 12px; border-top: none;
-            }
-            .menu-grid-home { grid-template-columns: repeat(4, 1fr) !important; }
             .card, .setting-card { border: 1px solid var(--border); }
+            .menu-grid-home { grid-template-columns: repeat(4, 1fr) !important; }
             /* Kartu Ringkasan Bulan Ini: 4 kolom sejajar di layar lebar, biar tidak renggang aneh
-               (di HP tetap 2x2 seperti biasa, ini cuma berlaku di atas 900px) */
+               (di HP tetap 2x2 seperti biasa, ini cuma berlaku di atas 700px lebar layar) */
             .ringkasan-grid { grid-template-columns: repeat(4, 1fr) !important; }
             .ringkasan-item { border-bottom: none !important; }
             .ringkasan-item:not(:last-child) { border-right: 1px solid var(--border) !important; }

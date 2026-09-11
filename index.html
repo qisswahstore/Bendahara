@@ -248,6 +248,11 @@
             }
             .menu-grid-home { grid-template-columns: repeat(4, 1fr) !important; }
             .card, .setting-card { border: 1px solid var(--border); }
+            /* Kartu Ringkasan Bulan Ini: 4 kolom sejajar di layar lebar, biar tidak renggang aneh
+               (di HP tetap 2x2 seperti biasa, ini cuma berlaku di atas 900px) */
+            .ringkasan-grid { grid-template-columns: repeat(4, 1fr) !important; }
+            .ringkasan-item { border-bottom: none !important; }
+            .ringkasan-item:not(:last-child) { border-right: 1px solid var(--border) !important; }
         }
 
         /* ---------- PRINT ---------- */
@@ -336,23 +341,23 @@
 
         <div class="card">
             <div style="font-weight:700;margin-bottom:10px;">📊 Ringkasan Bulan Ini</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
-                <div class="text-center" style="padding:8px 4px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);">
+            <div class="ringkasan-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
+                <div class="text-center ringkasan-item" style="padding:8px 4px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);">
                     <div style="font-size:18px;">🎓</div>
                     <div class="txt-muted" style="font-size:11px;margin-top:2px;">Total Siswa</div>
                     <div id="statTotalSiswa" style="font-size:17px;font-weight:800;color:var(--primary);">0</div>
                 </div>
-                <div class="text-center" style="padding:8px 4px;border-bottom:1px solid var(--border);">
+                <div class="text-center ringkasan-item" style="padding:8px 4px;border-bottom:1px solid var(--border);">
                     <div style="font-size:18px;">✅</div>
                     <div class="txt-muted" style="font-size:11px;margin-top:2px;">SPP Lunas</div>
                     <div id="statSppLunas" style="font-size:17px;font-weight:800;color:var(--green);">0</div>
                 </div>
-                <div class="text-center" style="padding:8px 4px;border-right:1px solid var(--border);">
+                <div class="text-center ringkasan-item" style="padding:8px 4px;border-right:1px solid var(--border);">
                     <div style="font-size:18px;">⏳</div>
                     <div class="txt-muted" style="font-size:11px;margin-top:2px;">Belum Bayar</div>
                     <div id="statSppBelum" style="font-size:17px;font-weight:800;color:var(--red);">0</div>
                 </div>
-                <div class="text-center" style="padding:8px 4px;">
+                <div class="text-center ringkasan-item" style="padding:8px 4px;">
                     <div style="font-size:18px;">📌</div>
                     <div class="txt-muted" style="font-size:11px;margin-top:2px;">Total Tunggakan</div>
                     <div id="statTotalTunggakan" style="font-size:13.5px;font-weight:800;color:var(--orange);">Rp 0</div>

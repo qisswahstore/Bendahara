@@ -660,6 +660,20 @@
     </div>
 </div>
 
+<!-- Modal Gambar Tanda Tangan di Layar -->
+<div id="modalKanvasTtd" class="modal">
+    <div class="modal-content" style="max-width:420px;">
+        <h3 style="color:var(--primary);margin-bottom:10px;">✍️ Gambar Tanda Tangan</h3>
+        <div class="txt-muted mb-8">Gambar pakai jari di kotak putih di bawah ini.</div>
+        <canvas id="kanvasTtd" style="width:100%;height:180px;background:white;border:2px dashed var(--border);border-radius:12px;touch-action:none;cursor:crosshair;"></canvas>
+        <div class="row mt-16">
+            <button class="btn btn-gray" style="flex:1" onclick="bersihkanKanvasTtd()"><i class="fas fa-eraser"></i> Bersihkan</button>
+            <button class="btn btn-primary" style="flex:1" onclick="simpanKanvasTtd()"><i class="fas fa-check"></i> Simpan</button>
+        </div>
+        <button class="btn btn-gray w-full mt-8" onclick="document.getElementById('modalKanvasTtd').style.display='none'">Batal</button>
+    </div>
+</div>
+
 <!-- Modal Pilih Lembaga -->
 <div id="modalPilihLembaga" class="modal">
     <div class="modal-content" style="max-width:420px;">
@@ -843,9 +857,16 @@
             <label class="mt-16">Nama Bendahara</label>
             <input type="text" id="cfgBendahara" placeholder="Nama bendahara">
             <label class="mt-16">Tanda Tangan Bendahara (opsional)</label>
-            <input type="file" id="cfgTtdBendaharaFile" accept="image/*" onchange="previewTtdBendahara(this)">
-            <img id="previewTtdBendahara" style="max-width:140px;max-height:60px;margin-top:8px;display:none;object-fit:contain;">
-            <div class="txt-muted mt-8">Foto tanda tangan di kertas putih, upload di sini — otomatis muncul di kuitansi & dokumen cetak, tidak perlu tanda tangan manual tiap kali.</div>
+            <div class="row">
+                <button type="button" class="btn btn-primary btn-small" style="flex:1" onclick="bukaKanvasTtd()"><i class="fas fa-signature"></i> Gambar di Layar</button>
+                <button type="button" class="btn btn-gray btn-small" style="flex:1" onclick="document.getElementById('cfgTtdBendaharaFile').click()"><i class="fas fa-upload"></i> Upload Foto</button>
+            </div>
+            <input type="file" id="cfgTtdBendaharaFile" accept="image/*" style="display:none" onchange="previewTtdBendahara(this)">
+            <div class="flex items-center gap-8 mt-8">
+                <img id="previewTtdBendahara" style="max-width:140px;max-height:60px;display:none;object-fit:contain;background:white;border:1px solid var(--border);border-radius:6px;">
+                <button type="button" id="btnHapusTtdBendahara" style="display:none;background:#FEF2F2;color:var(--red);border:none;padding:6px 12px;border-radius:8px;font-size:12px;" onclick="hapusTtdBendahara()">🗑️ Hapus</button>
+            </div>
+            <div class="txt-muted mt-8">Gambar langsung pakai jari (paling bersih, disarankan), atau foto tanda tangan di kertas putih POLOS (bukan KTP/kartu apapun). Otomatis muncul di kuitansi & dokumen cetak.</div>
             <label class="mt-16">Kota (untuk tanda tangan)</label>
             <input type="text" id="cfgKota" placeholder="cth: Surabaya">
         </div>
@@ -2366,8 +2387,81 @@ function previewTtdBendahara(input) {
         img.src = kompres || e.target.result;
         img.style.display = 'block';
         img.dataset.pending = kompres || e.target.result;
+        document.getElementById('btnHapusTtdBendahara').style.display = 'inline-block';
     };
     reader.readAsDataURL(input.files[0]);
+}
+
+function hapusTtdBendahara() {
+    var img = document.getElementById('previewTtdBendahara');
+    img.src = ''; img.style.display = 'none'; img.dataset.pending = 'HAPUS';
+    document.getElementById('cfgTtdBendaharaFile').value = '';
+    document.getElementById('btnHapusTtdBendahara').style.display = 'none';
+}
+
+/* ---------- Kanvas Gambar Tanda Tangan (pakai jari/mouse, hasil pasti bersih) ---------- */
+var _ktxTtd = null, _menggambarTtd = false;
+
+function bukaKanvasTtd() {
+    document.getElementById('modalKanvasTtd').style.display = 'flex';
+    setTimeout(function() {
+        var canvas = document.getElementById('kanvasTtd');
+        var rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width * 2; // skala 2x biar goresan halus (retina-friendly)
+        canvas.height = rect.height * 2;
+        _ktxTtd = canvas.getContext('2d');
+        _ktxTtd.scale(2, 2);
+        _ktxTtd.fillStyle = '#ffffff';
+        _ktxTtd.fillRect(0, 0, rect.width, rect.height);
+        _ktxTtd.strokeStyle = '#1a1a2e';
+        _ktxTtd.lineWidth = 2.5;
+        _ktxTtd.lineCap = 'round';
+        _ktxTtd.lineJoin = 'round';
+
+        function posisiDari(e) {
+            var r = canvas.getBoundingClientRect();
+            var titik = e.touches ? e.touches[0] : e;
+            return { x: titik.clientX - r.left, y: titik.clientY - r.top };
+        }
+        function mulai(e) {
+            e.preventDefault();
+            _menggambarTtd = true;
+            var p = posisiDari(e);
+            _ktxTtd.beginPath();
+            _ktxTtd.moveTo(p.x, p.y);
+        }
+        function gambar(e) {
+            if (!_menggambarTtd) return;
+            e.preventDefault();
+            var p = posisiDari(e);
+            _ktxTtd.lineTo(p.x, p.y);
+            _ktxTtd.stroke();
+        }
+        function selesai() { _menggambarTtd = false; }
+
+        canvas.onmousedown = mulai; canvas.onmousemove = gambar; canvas.onmouseup = selesai; canvas.onmouseleave = selesai;
+        canvas.ontouchstart = mulai; canvas.ontouchmove = gambar; canvas.ontouchend = selesai;
+    }, 100);
+}
+
+function bersihkanKanvasTtd() {
+    if (!_ktxTtd) return;
+    var canvas = document.getElementById('kanvasTtd');
+    var rect = canvas.getBoundingClientRect();
+    _ktxTtd.fillStyle = '#ffffff';
+    _ktxTtd.fillRect(0, 0, rect.width, rect.height);
+}
+
+function simpanKanvasTtd() {
+    var canvas = document.getElementById('kanvasTtd');
+    var dataUrl = canvas.toDataURL('image/png');
+    var img = document.getElementById('previewTtdBendahara');
+    img.src = dataUrl;
+    img.style.display = 'block';
+    img.dataset.pending = dataUrl;
+    document.getElementById('btnHapusTtdBendahara').style.display = 'inline-block';
+    document.getElementById('modalKanvasTtd').style.display = 'none';
+    showToast('✅ Tanda tangan siap — jangan lupa tap "Simpan Konfigurasi" di bawah');
 }
 
 function loadKonfigurasiInstansiForm() {
@@ -2388,8 +2482,8 @@ function loadKonfigurasiInstansiForm() {
     else { logoImg.style.display = 'none'; }
 
     var ttdImg = document.getElementById('previewTtdBendahara');
-    if (cfg.ttdBendahara) { ttdImg.src = cfg.ttdBendahara; ttdImg.style.display = 'block'; ttdImg.dataset.pending = ''; }
-    else { ttdImg.style.display = 'none'; ttdImg.dataset.pending = ''; }
+    if (cfg.ttdBendahara) { ttdImg.src = cfg.ttdBendahara; ttdImg.style.display = 'block'; ttdImg.dataset.pending = ''; document.getElementById('btnHapusTtdBendahara').style.display = 'inline-block'; }
+    else { ttdImg.style.display = 'none'; ttdImg.dataset.pending = ''; document.getElementById('btnHapusTtdBendahara').style.display = 'none'; }
 
     document.getElementById('cfgWatermarkEnabled').checked = !!cfg.watermark.enabled;
     document.getElementById('cfgWatermarkText').value = cfg.watermark.text || '';
@@ -2424,7 +2518,8 @@ function simpanKonfigurasiInstansi() {
     if (logoImg.dataset.pending) cfg.logo = logoImg.dataset.pending;
 
     var ttdImg = document.getElementById('previewTtdBendahara');
-    if (ttdImg.dataset.pending) cfg.ttdBendahara = ttdImg.dataset.pending;
+    if (ttdImg.dataset.pending === 'HAPUS') cfg.ttdBendahara = null;
+    else if (ttdImg.dataset.pending) cfg.ttdBendahara = ttdImg.dataset.pending;
 
     cfg.watermark = {
         enabled: document.getElementById('cfgWatermarkEnabled').checked,

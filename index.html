@@ -842,6 +842,10 @@
             </div>
             <label class="mt-16">Nama Bendahara</label>
             <input type="text" id="cfgBendahara" placeholder="Nama bendahara">
+            <label class="mt-16">Tanda Tangan Bendahara (opsional)</label>
+            <input type="file" id="cfgTtdBendaharaFile" accept="image/*" onchange="previewTtdBendahara(this)">
+            <img id="previewTtdBendahara" style="max-width:140px;max-height:60px;margin-top:8px;display:none;object-fit:contain;">
+            <div class="txt-muted mt-8">Foto tanda tangan di kertas putih, upload di sini — otomatis muncul di kuitansi & dokumen cetak, tidak perlu tanda tangan manual tiap kali.</div>
             <label class="mt-16">Kota (untuk tanda tangan)</label>
             <input type="text" id="cfgKota" placeholder="cth: Surabaya">
         </div>
@@ -2353,6 +2357,19 @@ function previewLogoInstansi(input) {
     reader.readAsDataURL(input.files[0]);
 }
 
+function previewTtdBendahara(input) {
+    if (!input.files || !input.files[0]) return;
+    var reader = new FileReader();
+    reader.onload = async function(e) {
+        var kompres = await kompresLogo(e.target.result, 260); // lebar lebih dari logo, TTD biasanya melebar
+        var img = document.getElementById('previewTtdBendahara');
+        img.src = kompres || e.target.result;
+        img.style.display = 'block';
+        img.dataset.pending = kompres || e.target.result;
+    };
+    reader.readAsDataURL(input.files[0]);
+}
+
 function loadKonfigurasiInstansiForm() {
     var cfg = getKonfigurasiInstansiData();
     document.getElementById('cfgNamaSekolah').value = cfg.nama || '';
@@ -2369,6 +2386,10 @@ function loadKonfigurasiInstansiForm() {
     var logoImg = document.getElementById('previewLogoInstansi');
     if (cfg.logo) { logoImg.src = cfg.logo; logoImg.style.display = 'block'; logoImg.dataset.pending = ''; }
     else { logoImg.style.display = 'none'; }
+
+    var ttdImg = document.getElementById('previewTtdBendahara');
+    if (cfg.ttdBendahara) { ttdImg.src = cfg.ttdBendahara; ttdImg.style.display = 'block'; ttdImg.dataset.pending = ''; }
+    else { ttdImg.style.display = 'none'; ttdImg.dataset.pending = ''; }
 
     document.getElementById('cfgWatermarkEnabled').checked = !!cfg.watermark.enabled;
     document.getElementById('cfgWatermarkText').value = cfg.watermark.text || '';
@@ -2401,6 +2422,9 @@ function simpanKonfigurasiInstansi() {
 
     var logoImg = document.getElementById('previewLogoInstansi');
     if (logoImg.dataset.pending) cfg.logo = logoImg.dataset.pending;
+
+    var ttdImg = document.getElementById('previewTtdBendahara');
+    if (ttdImg.dataset.pending) cfg.ttdBendahara = ttdImg.dataset.pending;
 
     cfg.watermark = {
         enabled: document.getElementById('cfgWatermarkEnabled').checked,
@@ -5879,10 +5903,15 @@ function buildPrintTandaTangan(cfg, tglCetak) {
             '<div style="font-size:11px;color:var(--gray-700);">' + (cfg.jabatan_pimpinan || '') + '</div>' +
         '</div>'
         : '';
-    // Tanda tangan Bendahara selalu tampil — dialah yang menerbitkan dokumennya
+    // Tanda tangan Bendahara selalu tampil — dialah yang menerbitkan dokumennya.
+    // Kalau sudah upload gambar TTD di Konfigurasi Instansi, tampilkan otomatis (tidak perlu tanda tangan manual tiap cetak).
+    var ttdHtml = cfg.ttdBendahara
+        ? '<img src="' + cfg.ttdBendahara + '" style="max-width:130px;max-height:55px;object-fit:contain;margin-bottom:4px;">'
+        : '<div style="margin-bottom:60px;"></div>';
     var blokBendahara = '<div style="text-align:center;flex:1;">' +
             '<div style="font-size:12px;color:#555;">' + lokasiTgl + '</div>' +
-            '<div style="font-size:12px;color:#555;margin-bottom:60px;">Bendahara,</div>' +
+            '<div style="font-size:12px;color:#555;">Bendahara,</div>' +
+            ttdHtml +
             '<div style="border-top:1px solid var(--gray-800);padding-top:6px;font-size:13px;font-weight:bold;">' + (cfg.bendahara || 'Bendahara') + '</div>' +
         '</div>';
     return '<div style="display:flex;justify-content:space-around;margin-top:40px;padding-top:20px;border-top:1px dashed var(--gray-300);">' +

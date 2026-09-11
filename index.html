@@ -191,6 +191,10 @@
         /* ---------- PAGES ---------- */
         .page { display: none; padding-top: 8px; }
         .page.active { display: block; }
+        .page.anim-in { animation: bkPageSlideIn 0.25s ease forwards; }
+        .page.anim-in-back { animation: bkPageSlideInBack 0.25s ease forwards; }
+        @keyframes bkPageSlideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes bkPageSlideInBack { from { transform: translateX(-20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
         /* ---------- TOAST ---------- */
         .toast-premium {
@@ -1612,10 +1616,14 @@
 /* ==============================================================
    SECTION: NAVIGASI ANTAR HALAMAN
    ============================================================== */
-function showPage(pageId) {
-    document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+function showPage(pageId, dariBack) {
+    document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active', 'anim-in', 'anim-in-back'); });
     var page = document.getElementById('page-' + pageId);
-    if (page) page.classList.add('active');
+    if (page) {
+        page.classList.add('active');
+        void page.offsetWidth; // paksa reflow supaya animasi selalu terpicu ulang, termasuk saat buka halaman yang sama lagi
+        page.classList.add(dariBack ? 'anim-in-back' : 'anim-in');
+    }
     document.querySelectorAll('.nav-item').forEach(function(n){
         n.classList.toggle('active', n.dataset.page === pageId);
     });
@@ -1637,7 +1645,31 @@ function showPage(pageId) {
     if (pageId === 'kartu-siswa') { isiDropdownKartuSiswa(); renderKartuTagihanSiswa(); }
     if (pageId === 'pengaturan') loadTahunAjaranForm();
     window.scrollTo(0, 0);
+
+    // Daftarkan perpindahan halaman ke history browser, supaya tombol/gesture back HP
+    // kembali ke halaman SEBELUMNYA di dalam app (bukan langsung menutup aplikasi).
+    // "dariBack" true berarti perpindahan ini dipicu oleh event popstate (back ditekan) —
+    // jangan push state baru lagi supaya tidak terjadi tumpukan riwayat.
+    if (!dariBack) {
+        history.pushState({ bkPage: pageId }, '', '');
+    }
 }
+
+// Saat tombol/gesture back ditekan: pindah ke halaman yang tercatat di history,
+// atau ke 'home' kalau tidak ada catatan (mis. baru buka app lalu langsung back).
+window.addEventListener('popstate', function(e) {
+    var pageId = (e.state && e.state.bkPage) ? e.state.bkPage : 'home';
+    // Kalau modal custom (confirm/prompt/alert) atau modal lain sedang terbuka, tutup itu
+    // dulu saja — jangan langsung pindah halaman, biar tidak kaget kehilangan konteks.
+    var modalTerbuka = Array.prototype.slice.call(document.querySelectorAll('.modal'))
+        .find(function(m){ return getComputedStyle(m).display !== 'none'; });
+    if (modalTerbuka) {
+        modalTerbuka.style.display = 'none';
+        history.pushState({ bkPage: pageId }, '', ''); // isi lagi slot history yang barusan "dipakai" utk nutup modal
+        return;
+    }
+    showPage(pageId, true);
+});
 
 /* ==============================================================
    SECTION: TOAST

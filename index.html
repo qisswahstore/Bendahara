@@ -121,6 +121,7 @@
             position: absolute; top: -40px; right: -40px;
             width: 140px; height: 140px; border-radius: 50%;
             background: rgba(255,255,255,0.06);
+            pointer-events: none;
         }
         .header-premium-home { padding-bottom: 24px; }
         .header-premium-small { padding: 16px; border-radius: 0 0 18px 18px; }
@@ -1752,6 +1753,7 @@ function showPage(pageId, dariBack) {
         void page.offsetWidth; // paksa reflow supaya animasi selalu terpicu ulang, termasuk saat buka halaman yang sama lagi
         page.classList.add(dariBack ? 'anim-in-back' : 'anim-in');
     }
+    sessionStorage.setItem('bendaharaku_halaman_terakhir', pageId); // biar refresh lanjut dari sini, bukan balik ke Beranda
     document.querySelectorAll('.nav-item').forEach(function(n){
         n.classList.toggle('active', n.dataset.page === pageId);
     });
@@ -6138,6 +6140,11 @@ window.addEventListener('DOMContentLoaded', function() {
     }).then(function(){
         // Render ulang setelah SEMUA data siap, supaya ringkasan Beranda (yang gabung data siswa+SPP+Tagihan Lain) akurat
         renderRingkasanBerandaLengkap();
+        // Lanjutkan dari halaman terakhir dibuka sebelum refresh, jangan selalu balik ke Beranda
+        var halamanTerakhir = sessionStorage.getItem('bendaharaku_halaman_terakhir');
+        if (halamanTerakhir && halamanTerakhir !== 'home' && document.getElementById('page-' + halamanTerakhir)) {
+            showPage(halamanTerakhir);
+        }
     }).catch(function(e){ console.error('Gagal buka IndexedDB:', e); });
     cekSessionAwal();
     pilihTipeKas('masuk');

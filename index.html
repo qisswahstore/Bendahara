@@ -111,7 +111,16 @@
             color: white;
             padding: 20px 16px 24px;
             border-radius: 0 0 24px 24px;
+            position: relative;
+            overflow: hidden;
         }
+        .header-premium::after {
+            content: '';
+            position: absolute; top: -40px; right: -40px;
+            width: 140px; height: 140px; border-radius: 50%;
+            background: rgba(255,255,255,0.06);
+        }
+        .header-premium-home { padding-bottom: 46px; }
         .header-premium-small { padding: 16px; border-radius: 0 0 18px 18px; }
         .back-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
         .back-header i { font-size: 18px; cursor: pointer; }
@@ -294,23 +303,26 @@
      HOME PAGE
      ========================================================== -->
 <div id="page-home" class="page active">
-    <div class="header-premium">
+    <div class="header-premium header-premium-home">
         <div class="flex items-center justify-between">
-            <div>
-                <div style="font-size:12px;opacity:0.85;">Selamat datang,</div>
-                <div style="font-size:19px;font-weight:800;">Bendahara Sekolah</div>
+            <div class="flex items-center gap-12">
+                <img id="homeLogo" src="" style="display:none;width:44px;height:44px;border-radius:12px;object-fit:contain;background:white;padding:3px;">
+                <div>
+                    <div style="font-size:12px;opacity:0.85;">Selamat datang,</div>
+                    <div style="font-size:19px;font-weight:800;">Bendahara Sekolah</div>
+                </div>
             </div>
-            <div onclick="toggleDarkMode()" style="width:38px;height:38px;background:rgba(255,255,255,0.15);border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+            <div onclick="toggleDarkMode()" style="width:38px;height:38px;background:rgba(255,255,255,0.15);border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
                 <i class="fas fa-moon" id="darkModeIcon"></i>
             </div>
         </div>
     </div>
 
     <div class="container" style="padding-top:18px;">
-        <div class="card" id="homeSaldoCard" style="background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;">
+        <div class="card" id="homeSaldoCard" style="background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;margin-top:-38px;box-shadow:0 8px 24px rgba(0,0,0,0.18);">
             <div style="font-size:12px;opacity:0.85;">Saldo Kas Saat Ini <span style="opacity:0.7;">(Kas + SPP + Tagihan Lain)</span></div>
             <div id="homeSaldoValue" style="font-size:26px;font-weight:800;margin-top:2px;">Rp 0</div>
-            <div class="row mt-16">
+            <div class="row mt-16" id="homeMasukKeluarWrap">
                 <div style="flex:1;">
                     <div style="font-size:11px;opacity:0.8;">Masuk Bulan Ini</div>
                     <div id="homeMasukValue" style="font-size:14px;font-weight:700;">Rp 0</div>
@@ -348,12 +360,23 @@
             </div>
         </div>
 
+        <div id="backupReminderCard" class="card" style="display:none;background:#FEF3F2;border:1.5px solid #FCA5A5;">
+            <div class="flex items-center justify-between gap-12">
+                <div class="flex items-center gap-8">
+                    <i class="fas fa-database" style="color:#DC2626;"></i>
+                    <div id="backupReminderText" style="font-size:12.5px;font-weight:700;color:#991B1B;">Belum pernah backup!</div>
+                </div>
+                <button class="btn btn-small" style="background:#DC2626;color:white;flex-shrink:0;" onclick="showPage('pengaturan')">Backup Sekarang</button>
+            </div>
+        </div>
+
         <div id="perluPerhatianCard" class="card" style="display:none;background:#FEF3F2;border:1.5px solid #FCA5A5;">
             <div class="flex items-center gap-8 mb-8">
                 <i class="fas fa-triangle-exclamation" style="color:#DC2626;"></i>
                 <div style="font-weight:700;color:#991B1B;">Perlu Perhatian</div>
             </div>
             <div id="perluPerhatianListWrap"></div>
+            <button class="btn btn-small w-full mt-8" style="background:#991B1B;color:white;" onclick="document.getElementById('perluDitagihCard').scrollIntoView({behavior:'smooth', block:'start'})"><i class="fas fa-arrow-down"></i> Lihat Tunggakan Terbesar</button>
         </div>
 
         <div id="perluDitagihCard" class="card" style="display:none;">
@@ -2301,6 +2324,18 @@ function updateHomeSaldoRingkasan() {
     });
     document.getElementById('homeMasukValue').textContent = 'Rp ' + masukBulan.toLocaleString('id-ID');
     document.getElementById('homeKeluarValue').textContent = 'Rp ' + keluarBulan.toLocaleString('id-ID');
+    // Sembunyikan baris Masuk/Keluar kalau dua-duanya nol — biar tidak kelihatan aneh/seperti error
+    // di samping saldo yang besar, padahal itu wajar kalau belum ada transaksi bulan ini.
+    document.getElementById('homeMasukKeluarWrap').style.display = (masukBulan === 0 && keluarBulan === 0) ? 'none' : 'flex';
+
+    // Tampilkan logo sekolah di header kalau sudah diisi di Konfigurasi Instansi
+    var cfg = getKonfigurasiInstansiData();
+    var logoEl = document.getElementById('homeLogo');
+    if (logoEl) {
+        if (cfg.logo) { logoEl.src = cfg.logo; logoEl.style.display = 'block'; }
+        else { logoEl.style.display = 'none'; }
+    }
+
     renderRingkasanBerandaLengkap();
 }
 
@@ -2396,6 +2431,21 @@ function renderRingkasanBerandaLengkap() {
         perhatianCard.style.display = 'block';
     } else {
         perhatianCard.style.display = 'none';
+    }
+
+    // ---------- Pengingat Backup ----------
+    var backupCard = document.getElementById('backupReminderCard');
+    if (backupCard) {
+        var lastBackupIso = localStorage.getItem('bendaharaku_last_backup');
+        var perluBackup = false, teksBackup = '';
+        if (!lastBackupIso) {
+            perluBackup = true; teksBackup = 'Belum pernah backup sama sekali!';
+        } else {
+            var hariSejakBackup = Math.floor((Date.now() - new Date(lastBackupIso).getTime()) / 86400000);
+            if (hariSejakBackup >= 14) { perluBackup = true; teksBackup = 'Sudah ' + hariSejakBackup + ' hari sejak backup terakhir'; }
+        }
+        document.getElementById('backupReminderText').textContent = teksBackup;
+        backupCard.style.display = perluBackup ? 'block' : 'none';
     }
 
     // ---------- Tunggakan Terbesar (akumulasi SPP tahun ajaran berjalan + Tagihan Lain, top 5, siswa aktif saja) ----------
@@ -5296,6 +5346,7 @@ async function backupJsonKeClipboard() {
     try {
         var backupData = await buildBackupJsonData();
         var json = JSON.stringify(backupData);
+        localStorage.setItem('bendaharaku_last_backup', new Date().toISOString());
         showJsonBackupModal(json);
     } catch(err) {
         showToast('❌ Gagal: ' + err.message);
@@ -5430,6 +5481,8 @@ async function backupZipData() {
         zip.file('data.json', JSON.stringify(backupData, null, 2));
         var blob = await zip.generateAsync({ type: 'blob' });
         saveAs(blob, 'BendaharaKu_Backup_' + new Date().toISOString().slice(0,10) + '.zip');
+        localStorage.setItem('bendaharaku_last_backup', new Date().toISOString());
+        updateHomeSaldoRingkasan();
         showToast('✅ Backup ZIP berhasil diunduh');
     } catch(err) {
         showToast('❌ Gagal backup: ' + err.message);

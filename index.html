@@ -315,6 +315,16 @@
                 <i class="fas fa-moon" id="darkModeIcon"></i>
             </div>
         </div>
+        <div onclick="showPilihLembagaModal()" style="margin-top:14px;background:rgba(255,255,255,0.12);border-radius:12px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;">
+            <div class="flex items-center gap-8">
+                <div style="width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0;"></div>
+                <div>
+                    <div style="font-size:10px;opacity:0.8;">LEMBAGA AKTIF</div>
+                    <div id="homeLembagaAktifNama" style="font-size:13px;font-weight:700;">📁 Lembaga 1</div>
+                </div>
+            </div>
+            <div style="font-size:11.5px;opacity:0.9;">▾ Ganti</div>
+        </div>
     </div>
 
     <div class="container" style="padding-top:18px;">
@@ -444,6 +454,11 @@
                     <div class="menu-icon-circle" style="background:#EC4899;"><i class="fas fa-file-invoice"></i></div>
                     <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Log Kuitansi</div>
                 </div>
+                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('pengingat-wa')">
+                    <div class="menu-icon-circle" style="background:#22C55E;"><i class="fab fa-whatsapp"></i></div>
+                    <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Pengingat WA Massal</div>
+                    <div class="txt-muted" style="font-size:10px;margin-top:2px;">Kirim tagihan ke banyak wali sekaligus</div>
+                </div>
             </div>
         </div>
 
@@ -491,6 +506,48 @@
         </div>
         <div class="txt-muted mb-8" style="font-size:11.5px;">Cuma mencatat EDIT dan HAPUS data — operasi normal (bayar SPP, tambah transaksi) sudah punya riwayatnya sendiri di masing-masing halaman.</div>
         <div id="riwayatPerubahanListWrap"></div>
+    </div>
+</div>
+
+<div id="page-pengingat-wa" class="page">
+    <div class="header-premium header-premium-small">
+        <div class="back-header">
+            <i class="fas fa-arrow-left" onclick="showPage('lainnya')"></i>
+            <h2>📲 Pengingat WA Massal</h2>
+            <div style="width:18px;"></div>
+        </div>
+    </div>
+    <div class="container" style="padding-top:16px;">
+        <div class="card">
+            <label>Pesan Pengingat</label>
+            <textarea id="pengingatWaPesan" rows="5" placeholder="Contoh: Assalamu'alaikum, Bapak/Ibu wali [nama] kelas [kelas]. Sisa tagihan saat ini: Rp [sisa]. Mohon segera dilunasi. Terima kasih."></textarea>
+            <div class="txt-muted mt-8">Variabel otomatis: <b>[nama]</b>, <b>[kelas]</b>, <b>[sisa]</b> (total tunggakan SPP + Tagihan Lain siswa itu)</div>
+        </div>
+
+        <div class="card">
+            <div class="row mb-8">
+                <select id="pengingatWaFilterKelas" onchange="renderPengingatWaList()" style="flex:1;"></select>
+            </div>
+            <input type="text" id="pengingatWaCari" placeholder="🔍 Cari nama siswa..." oninput="renderPengingatWaList()" class="mb-8">
+            <div class="row mb-8">
+                <button class="btn btn-gray btn-small" style="flex:1" onclick="pengingatWaPilihSemua(true)">✅ Pilih Semua</button>
+                <button class="btn btn-gray btn-small" style="flex:1" onclick="pengingatWaPilihSemua(false)">❌ Hapus Pilihan</button>
+            </div>
+            <div id="pengingatWaListWrap" style="max-height:320px;overflow-y:auto;border:1px solid var(--border);border-radius:10px;padding:8px;"></div>
+            <div id="pengingatWaJumlahDipilih" class="txt-muted mt-8" style="font-weight:700;"></div>
+        </div>
+
+        <button class="btn w-full mb-16" style="background:var(--wa);color:white;" onclick="showKirimPengingatWaModal()"><i class="fab fa-whatsapp"></i> Kirim Pengingat</button>
+    </div>
+</div>
+
+<!-- Modal Kirim Pengingat WA satu-per-satu -->
+<div id="modalKirimPengingatWa" class="modal">
+    <div class="modal-content" style="max-width:440px;">
+        <h3 style="color:var(--primary);margin-bottom:4px;">📲 Kirim Pengingat WA</h3>
+        <div class="txt-muted mb-16" style="font-size:11px;">WhatsApp tidak mengizinkan kirim otomatis ke banyak nomor sekaligus — tap "Kirim" satu per satu di bawah ini.</div>
+        <div id="kirimPengingatWaListWrap" style="max-height:380px;overflow-y:auto;margin-bottom:12px;"></div>
+        <button class="btn btn-gray w-full" onclick="document.getElementById('modalKirimPengingatWa').style.display='none'">Tutup</button>
     </div>
 </div>
 
@@ -599,6 +656,16 @@
             <button class="btn btn-primary" style="flex:1" onclick="simpanKategoriBaru()">Simpan</button>
             <button class="btn btn-gray" style="flex:1" onclick="document.getElementById('modalKategoriKas').style.display='none'">Batal</button>
         </div>
+    </div>
+</div>
+
+<!-- Modal Pilih Lembaga -->
+<div id="modalPilihLembaga" class="modal">
+    <div class="modal-content" style="max-width:420px;">
+        <h3 style="color:var(--primary);margin-bottom:14px;">📁 Pilih Lembaga</h3>
+        <div id="daftarPilihLembaga" style="max-height:340px;overflow-y:auto;"></div>
+        <button class="btn btn-primary w-full mt-8" onclick="tambahLembagaBaru()"><i class="fas fa-plus"></i> Tambah Lembaga Baru</button>
+        <button class="btn btn-gray w-full mt-8" onclick="document.getElementById('modalPilihLembaga').style.display='none'">Tutup</button>
     </div>
 </div>
 
@@ -1700,6 +1767,7 @@ function showPage(pageId, dariBack) {
     if (pageId === 'gaji') renderGajiList();
     if (pageId === 'jurnal') renderJurnal();
     if (pageId === 'riwayat-perubahan') renderRiwayatPerubahan();
+    if (pageId === 'pengingat-wa') { pengingatWaChecked = {}; renderPengingatWaList(); }
     if (pageId === 'tagihan-lain') renderJenisTagihanList();
     if (pageId === 'tagihan-detail') renderTagihanDetail();
     if (pageId === 'template-paket') renderTemplatePaketList();
@@ -1848,6 +1916,117 @@ var DB_NAME = 'BendaharaKuDB', DB_VERSION = 3,
     STORE_TAGIHAN_LAIN = 'tagihanLainData',
     STORE_AUDIT = 'auditLogData';
 
+/* ==============================================================
+   SECTION: MULTI-LEMBAGA (1 aplikasi, banyak lembaga terpisah total)
+   Lembaga "default" (yang sudah ada sebelum fitur ini) TETAP pakai kunci
+   penyimpanan LAMA tanpa awalan — supaya data yang sudah ada sekarang
+   tidak perlu dipindah/dimigrasi sama sekali, otomatis tetap utuh.
+   Lembaga BARU yang ditambahkan dapat awalan kunci sendiri, jadi datanya
+   benar-benar kotak terpisah, tidak bisa tercampur dengan lembaga lain.
+   ============================================================== */
+var LEMBAGA_ID_DEFAULT = 'default';
+var lembagaList = [];
+var lembagaAktifId = LEMBAGA_ID_DEFAULT;
+
+function loadLembagaState() {
+    try { lembagaList = JSON.parse(localStorage.getItem('bendaharaku_lembaga_list') || '[]'); } catch(e) { lembagaList = []; }
+    if (lembagaList.length === 0) {
+        lembagaList = [{ id: LEMBAGA_ID_DEFAULT, nama: 'Lembaga 1' }];
+        localStorage.setItem('bendaharaku_lembaga_list', JSON.stringify(lembagaList));
+    }
+    lembagaAktifId = localStorage.getItem('bendaharaku_lembaga_aktif') || LEMBAGA_ID_DEFAULT;
+    if (!lembagaList.some(function(l){ return l.id === lembagaAktifId; })) lembagaAktifId = lembagaList[0].id;
+}
+
+// Bungkus SEMUA kunci penyimpanan (IndexedDB & localStorage) dengan ini,
+// supaya otomatis kepisah per lembaga aktif. Lembaga default = kunci polos (kompatibel data lama).
+function k(key) {
+    return lembagaAktifId === LEMBAGA_ID_DEFAULT ? key : (lembagaAktifId + '_' + key);
+}
+
+function getNamaLembagaAktif() {
+    var l = lembagaList.find(function(x){ return x.id === lembagaAktifId; });
+    return l ? l.nama : 'Lembaga';
+}
+
+function showPilihLembagaModal() {
+    var wrap = document.getElementById('daftarPilihLembaga');
+    wrap.innerHTML = lembagaList.map(function(l) {
+        var aktif = l.id === lembagaAktifId;
+        return '<div class="flex items-center justify-between" style="padding:10px;border:1.5px solid ' + (aktif ? 'var(--primary)' : 'var(--border)') + ';border-radius:12px;margin-bottom:8px;">' +
+            '<div class="flex items-center gap-8" style="cursor:pointer;flex:1;" onclick="pilihLembaga(\'' + l.id + '\')">' +
+                '<div style="width:12px;height:12px;border-radius:50%;background:' + (aktif ? 'var(--green)' : 'var(--gray-300)') + ';flex-shrink:0;"></div>' +
+                '<div style="font-weight:700;font-size:13.5px;">📁 ' + escapeHtmlKas(l.nama) + '</div>' +
+            '</div>' +
+            '<div class="flex gap-8">' +
+                '<button onclick="editNamaLembaga(\'' + l.id + '\')" style="background:#EFF6FF;border:none;color:#3B82F6;width:32px;height:32px;border-radius:8px;"><i class="fas fa-edit"></i></button>' +
+                (lembagaList.length > 1 ? '<button onclick="hapusLembaga(\'' + l.id + '\')" style="background:#FEF2F2;border:none;color:var(--red);width:32px;height:32px;border-radius:8px;"><i class="fas fa-trash"></i></button>' : '') +
+            '</div></div>';
+    }).join('');
+    document.getElementById('modalPilihLembaga').style.display = 'flex';
+}
+
+async function pilihLembaga(id) {
+    if (id === lembagaAktifId) { document.getElementById('modalPilihLembaga').style.display = 'none'; return; }
+    lembagaAktifId = id;
+    localStorage.setItem('bendaharaku_lembaga_aktif', id);
+    showToast('⏳ Membuka data lembaga...');
+    setTimeout(function(){ location.reload(); }, 400); // reload penuh = cara paling aman muat ulang semua data lembaga baru
+}
+
+async function tambahLembagaBaru() {
+    var nama = await customPrompt('Nama lembaga baru:', '', { title: '📁 Tambah Lembaga' });
+    if (!nama || !nama.trim()) return;
+    var id = 'lbg' + Date.now();
+    lembagaList.push({ id: id, nama: nama.trim() });
+    localStorage.setItem('bendaharaku_lembaga_list', JSON.stringify(lembagaList));
+    showPilihLembagaModal();
+    showToast('✅ Lembaga "' + nama.trim() + '" ditambahkan — tap untuk membuka');
+}
+
+async function editNamaLembaga(id) {
+    var l = lembagaList.find(function(x){ return x.id === id; });
+    if (!l) return;
+    var nama = await customPrompt('Ubah nama lembaga:', l.nama, { title: '✏️ Edit Nama Lembaga' });
+    if (!nama || !nama.trim()) return;
+    l.nama = nama.trim();
+    localStorage.setItem('bendaharaku_lembaga_list', JSON.stringify(lembagaList));
+    showPilihLembagaModal();
+    if (id === lembagaAktifId) updateHomeSaldoRingkasan();
+    showToast('✅ Nama lembaga diperbarui');
+}
+
+async function hapusLembaga(id) {
+    if (lembagaList.length <= 1) return showToast('Tidak bisa menghapus, minimal harus ada 1 lembaga!');
+    if (id === lembagaAktifId) return showToast('Tidak bisa menghapus lembaga yang sedang aktif. Pindah ke lembaga lain dulu.');
+    var l = lembagaList.find(function(x){ return x.id === id; });
+    if (!(await customConfirm('Hapus lembaga "' + (l?l.nama:'') + '"? SEMUA datanya (siswa, kas, SPP, dst) akan terhapus permanen dan TIDAK BISA dikembalikan.', { danger: true, yaText: 'Ya, Hapus Permanen' }))) return;
+    await hapusSemuaDataLembaga(id);
+    lembagaList = lembagaList.filter(function(x){ return x.id !== id; });
+    localStorage.setItem('bendaharaku_lembaga_list', JSON.stringify(lembagaList));
+    showPilihLembagaModal();
+    showToast('🗑️ Lembaga dihapus');
+}
+
+async function hapusSemuaDataLembaga(lembagaId) {
+    var prefix = lembagaId + '_';
+    var kunciIdb = ['kas_data','kategori_list','kelas_list','siswa_list','pembayaran_spp_list','spp_config',
+        'kuitansi_counter','rkas_list','guru_list','gaji_pembayaran','tagihan_assign_list','jenis_tagihan_list',
+        'pembayaran_tagihan_lain_list','template_paket_list','audit_log_list'];
+    var storePerKunci = { kas_data: STORE_KAS, kategori_list: STORE_KAS, kelas_list: STORE_KELAS, siswa_list: STORE_SISWA,
+        pembayaran_spp_list: STORE_PEMBAYARAN, spp_config: STORE_SPP, kuitansi_counter: STORE_KONFIGURASI,
+        rkas_list: STORE_RKAS, guru_list: STORE_GAJI, gaji_pembayaran: STORE_GAJI, tagihan_assign_list: STORE_TAGIHAN_LAIN,
+        jenis_tagihan_list: STORE_TAGIHAN_LAIN, pembayaran_tagihan_lain_list: STORE_TAGIHAN_LAIN,
+        template_paket_list: STORE_TAGIHAN_LAIN, audit_log_list: STORE_AUDIT };
+    for (var i = 0; i < kunciIdb.length; i++) {
+        await idbDelete(storePerKunci[kunciIdb[i]], prefix + kunciIdb[i]);
+    }
+    ['bendaharaku_konfigurasi_instansi','bendaharaku_metode_pembayaran','bendaharaku_saldo_awal_nominal',
+     'bendaharaku_saldo_awal_tanggal','bendaharaku_tahun_ajaran_aktif','bendaharaku_last_backup'].forEach(function(lk) {
+        localStorage.removeItem(prefix + lk);
+    });
+}
+
 var _dbInstance = null;
 
 function openIndexedDB() {
@@ -1908,13 +2087,13 @@ var auditLogList = [];
 var AUDIT_LOG_MAKS = 500; // biar tidak membengkak selamanya, simpan yang terbaru saja
 
 async function loadAuditLogData() {
-    var saved = await idbGet(STORE_AUDIT, 'audit_log_list');
+    var saved = await idbGet(STORE_AUDIT, k('audit_log_list'));
     auditLogList = saved || [];
 }
 
 async function saveAuditLogList() {
     if (auditLogList.length > AUDIT_LOG_MAKS) auditLogList = auditLogList.slice(0, AUDIT_LOG_MAKS);
-    await idbSet(STORE_AUDIT, 'audit_log_list', auditLogList);
+    await idbSet(STORE_AUDIT, k('audit_log_list'), auditLogList);
 }
 
 function catatAuditLog(aksi, detail) {
@@ -1953,6 +2132,98 @@ function renderRiwayatPerubahan() {
         '</div>';
     }).join('');
 }
+
+/* ==============================================================
+   SECTION: PENGINGAT WA MASSAL
+   WhatsApp tidak izinkan kirim otomatis ke banyak nomor sekaligus dari web —
+   jadi ini bantu siapkan pesannya (dengan variabel otomatis) + daftar siswa
+   terpilih, lalu bendahara tap "Kirim" satu-satu dari situ (jujur, bukan pura-pura otomatis).
+   ============================================================== */
+var pengingatWaChecked = {};
+
+function getTotalTunggakanSiswa(s) {
+    var sisaSpp = getTunggakanSppKumulatifSiswa(s).totalSisa;
+    var sisaTl = tagihanAssignList.filter(function(a){ return String(a.siswaId) === String(s.id); })
+        .reduce(function(sum,a){ return sum + getStatusTagihanLain(a).sisa; }, 0);
+    return sisaSpp + sisaTl;
+}
+
+function renderPengingatWaList() {
+    var selKelas = document.getElementById('pengingatWaFilterKelas');
+    if (selKelas && selKelas.options.length === 0) {
+        selKelas.innerHTML = '<option value="">Semua Kelas</option>' + kelasList.map(function(k){ return '<option value="' + k.id + '">' + escapeHtmlKas(k.nama) + '</option>'; }).join('');
+    }
+    var filterKelas = selKelas ? selKelas.value : '';
+    var cari = (document.getElementById('pengingatWaCari') || {}).value || '';
+    cari = cari.trim().toLowerCase();
+
+    var list = getSiswaAktif().filter(function(s) {
+        if (getTotalTunggakanSiswa(s) <= 0) return false; // cuma tampilkan yang beneran nunggak
+        if (filterKelas && String(s.kelasId) !== String(filterKelas)) return false;
+        if (cari && s.nama.toLowerCase().indexOf(cari) === -1) return false;
+        return true;
+    });
+
+    var wrap = document.getElementById('pengingatWaListWrap');
+    if (list.length === 0) {
+        wrap.innerHTML = '<div class="text-center txt-muted" style="padding:16px 0;">Tidak ada siswa dengan tunggakan.</div>';
+    } else {
+        wrap.innerHTML = list.map(function(s) {
+            var checked = pengingatWaChecked[String(s.id)] ? 'checked' : '';
+            return '<label class="flex items-center justify-between gap-8" style="padding:7px 0;border-bottom:1px solid var(--border);font-size:13px;cursor:pointer;">' +
+                '<span class="flex items-center gap-8"><input type="checkbox" ' + checked + ' onchange="pengingatWaChecked[\'' + s.id + '\']=this.checked; updateJumlahDipilihPengingatWa();" style="width:auto;">' +
+                escapeHtmlKas(s.nama) + ' <span class="txt-muted">(' + escapeHtmlKas(getNamaKelas(s.kelasId)) + ')</span></span>' +
+                '<span style="color:var(--red);font-weight:700;">Rp ' + getTotalTunggakanSiswa(s).toLocaleString('id-ID') + '</span></label>';
+        }).join('');
+    }
+    updateJumlahDipilihPengingatWa();
+}
+
+function updateJumlahDipilihPengingatWa() {
+    var jumlah = Object.keys(pengingatWaChecked).filter(function(k){ return pengingatWaChecked[k]; }).length;
+    document.getElementById('pengingatWaJumlahDipilih').textContent = jumlah > 0 ? jumlah + ' siswa dipilih' : '';
+}
+
+function pengingatWaPilihSemua(pilih) {
+    document.querySelectorAll('#pengingatWaListWrap input[type=checkbox]').forEach(function(cb) {
+        cb.checked = pilih;
+        cb.dispatchEvent(new Event('change'));
+    });
+}
+
+function isiTemplatePengingatWa(template, s) {
+    return template
+        .replace(/\[nama\]/gi, s.nama)
+        .replace(/\[kelas\]/gi, getNamaKelas(s.kelasId))
+        .replace(/\[sisa\]/gi, getTotalTunggakanSiswa(s).toLocaleString('id-ID'));
+}
+
+function showKirimPengingatWaModal() {
+    var pesan = document.getElementById('pengingatWaPesan').value.trim();
+    if (!pesan) return showToast('Isi pesan pengingat dulu!');
+    var idTerpilih = Object.keys(pengingatWaChecked).filter(function(k){ return pengingatWaChecked[k]; });
+    if (idTerpilih.length === 0) return showToast('Pilih siswa dulu!');
+    var siswaTerpilih = idTerpilih.map(function(id){ return siswaList.find(function(s){ return String(s.id) === id; }); }).filter(Boolean);
+
+    document.getElementById('kirimPengingatWaListWrap').innerHTML = siswaTerpilih.map(function(s) {
+        return '<div class="flex items-center justify-between gap-8" style="padding:10px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px;">' +
+            '<div style="overflow:hidden;"><div style="font-weight:700;font-size:13px;">' + escapeHtmlKas(s.nama) + '</div>' +
+            '<div class="txt-muted" style="font-size:11px;">' + (s.hpWali ? '📱 ' + escapeHtmlKas(s.hpWali) : '⚠️ No. HP wali belum diisi') + '</div></div>' +
+            '<button onclick="kirimPengingatWaSatuOrang(' + s.id + ')" style="background:var(--wa);color:white;border:none;border-radius:20px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0;">📲 Kirim</button>' +
+        '</div>';
+    }).join('');
+    document.getElementById('modalKirimPengingatWa').dataset.pesan = pesan;
+    document.getElementById('modalKirimPengingatWa').style.display = 'flex';
+}
+
+function kirimPengingatWaSatuOrang(siswaId) {
+    var s = siswaList.find(function(x){ return String(x.id) === String(siswaId); });
+    if (!s) return;
+    var pesan = document.getElementById('modalKirimPengingatWa').dataset.pesan || '';
+    var teks = isiTemplatePengingatWa(pesan, s);
+    bukaWhatsApp(s.hpWali, teks);
+}
+
 
 /* ==============================================================
    SECTION: LOGIN BENDAHARA (single-role, tanpa sistem lisensi)
@@ -2025,7 +2296,7 @@ function cekSessionAwal() {
    SECTION: KONFIGURASI INSTANSI
    ============================================================== */
 function getKonfigurasiInstansiData() {
-    var saved = localStorage.getItem('bendaharaku_konfigurasi_instansi');
+    var saved = localStorage.getItem(k('bendaharaku_konfigurasi_instansi'));
     var data = null;
     if (saved) { try { data = JSON.parse(saved); } catch(e) {} }
     if (!data) data = {
@@ -2147,7 +2418,7 @@ function simpanKonfigurasiInstansi() {
         invoice_prefix: document.getElementById('cfgInvoicePrefix').value.trim() || 'KWT'
     };
 
-    localStorage.setItem('bendaharaku_konfigurasi_instansi', JSON.stringify(cfg));
+    localStorage.setItem(k('bendaharaku_konfigurasi_instansi'), JSON.stringify(cfg));
     showToast('✅ Konfigurasi tersimpan');
 }
 
@@ -2163,13 +2434,13 @@ var KATEGORI_KAS_DEFAULT = ['Dana BOS', 'Donasi/Sumbangan', 'ATK', 'Listrik/Air'
 var METODE_PEMBAYARAN_DEFAULT = ['Tunai', 'BSI', 'BRI', 'BCA', 'Mandiri/Livin', 'BNI', 'QRIS', 'Lainnya'];
 
 function getMetodePembayaranList() {
-    var saved = localStorage.getItem('bendaharaku_metode_pembayaran');
+    var saved = localStorage.getItem(k('bendaharaku_metode_pembayaran'));
     if (saved) { try { var arr = JSON.parse(saved); if (arr && arr.length) return arr; } catch(e) {} }
     return METODE_PEMBAYARAN_DEFAULT.slice();
 }
 
 function saveMetodePembayaranList(list) {
-    localStorage.setItem('bendaharaku_metode_pembayaran', JSON.stringify(list));
+    localStorage.setItem(k('bendaharaku_metode_pembayaran'), JSON.stringify(list));
 }
 
 function isiDropdownMetodePembayaran(selectId, nilaiTerpilih) {
@@ -2195,9 +2466,9 @@ async function tambahMetodePembayaranBaru(selectId) {
 }
 
 async function loadKasData() {
-    var saved = await idbGet(STORE_KAS, 'kas_data');
+    var saved = await idbGet(STORE_KAS, k('kas_data'));
     dataKas = saved || [];
-    var savedKategori = await idbGet(STORE_KAS, 'kategori_list');
+    var savedKategori = await idbGet(STORE_KAS, k('kategori_list'));
     kategoriKasList = (savedKategori && savedKategori.length) ? savedKategori : KATEGORI_KAS_DEFAULT.slice();
     // Migrasi ringan: tambahkan kategori baru yang mungkin belum ada di data lama (mis. "Setor ke Yayasan")
     if (kategoriKasList.indexOf('Setor ke Yayasan') === -1) {
@@ -2210,13 +2481,13 @@ async function loadKasData() {
 }
 
 async function saveKasData() {
-    await idbSet(STORE_KAS, 'kas_data', dataKas);
+    await idbSet(STORE_KAS, k('kas_data'), dataKas);
     renderKasTable();
     updateHomeSaldoRingkasan();
 }
 
 async function saveKategoriKasList() {
-    await idbSet(STORE_KAS, 'kategori_list', kategoriKasList);
+    await idbSet(STORE_KAS, k('kategori_list'), kategoriKasList);
     isiDropdownKategoriKas();
 }
 
@@ -2376,8 +2647,8 @@ function renderKasTable() {
 }
 
 function getSaldoAwalKasData() {
-    var nominal = parseInt(localStorage.getItem('bendaharaku_saldo_awal_nominal')) || 0;
-    var tanggal = localStorage.getItem('bendaharaku_saldo_awal_tanggal') || null;
+    var nominal = parseInt(localStorage.getItem(k('bendaharaku_saldo_awal_nominal'))) || 0;
+    var tanggal = localStorage.getItem(k('bendaharaku_saldo_awal_tanggal')) || null;
     return { nominal: nominal, tanggal: tanggal };
 }
 
@@ -2409,6 +2680,8 @@ function getSaldoKeseluruhan() {
 function updateHomeSaldoRingkasan() {
     var saldoEl = document.getElementById('homeSaldoValue');
     if (!saldoEl) return;
+    var lembagaNamaEl = document.getElementById('homeLembagaAktifNama');
+    if (lembagaNamaEl) lembagaNamaEl.textContent = '📁 ' + getNamaLembagaAktif();
     saldoEl.textContent = 'Rp ' + getSaldoKeseluruhan().toLocaleString('id-ID');
     var bulanIni = new Date().toISOString().slice(0,7);
     var masukBulan = 0, keluarBulan = 0;
@@ -2537,7 +2810,7 @@ function renderRingkasanBerandaLengkap() {
     // ---------- Pengingat Backup ----------
     var backupCard = document.getElementById('backupReminderCard');
     if (backupCard) {
-        var lastBackupIso = localStorage.getItem('bendaharaku_last_backup');
+        var lastBackupIso = localStorage.getItem(k('bendaharaku_last_backup'));
         var perluBackup = false, teksBackup = '';
         if (!lastBackupIso) {
             perluBackup = true; teksBackup = 'Belum pernah backup sama sekali!';
@@ -2736,15 +3009,15 @@ var kelasList = [];
 var siswaList = [];
 
 async function loadKelasSiswaData() {
-    var savedKelas = await idbGet(STORE_KELAS, 'kelas_list');
+    var savedKelas = await idbGet(STORE_KELAS, k('kelas_list'));
     kelasList = savedKelas || [];
-    var savedSiswa = await idbGet(STORE_SISWA, 'siswa_list');
+    var savedSiswa = await idbGet(STORE_SISWA, k('siswa_list'));
     siswaList = savedSiswa || [];
     isiDropdownKelas();
 }
 
-async function saveKelasList() { await idbSet(STORE_KELAS, 'kelas_list', kelasList); isiDropdownKelas(); }
-async function saveSiswaList() { await idbSet(STORE_SISWA, 'siswa_list', siswaList); }
+async function saveKelasList() { await idbSet(STORE_KELAS, k('kelas_list'), kelasList); isiDropdownKelas(); }
+async function saveSiswaList() { await idbSet(STORE_SISWA, k('siswa_list'), siswaList); }
 
 function isiDropdownKelas() {
     var opts = '<option value="">- Pilih Kelas -</option>' + kelasList.map(function(k){
@@ -3362,16 +3635,16 @@ var pembayaranSppList = [];
 var sppConfig = { default: 0 };
 
 async function loadSppData() {
-    var savedConfig = await idbGet(STORE_SPP, 'spp_config');
+    var savedConfig = await idbGet(STORE_SPP, k('spp_config'));
     sppConfig = savedConfig || { default: 0 };
-    var savedBayar = await idbGet(STORE_PEMBAYARAN, 'pembayaran_spp_list');
+    var savedBayar = await idbGet(STORE_PEMBAYARAN, k('pembayaran_spp_list'));
     pembayaranSppList = savedBayar || [];
     var bulanInput = document.getElementById('sppBulanAktif');
     if (bulanInput && !bulanInput.value) bulanInput.value = new Date().toISOString().slice(0,7);
 }
 
-async function saveSppConfig() { await idbSet(STORE_SPP, 'spp_config', sppConfig); }
-async function savePembayaranSppList() { await idbSet(STORE_PEMBAYARAN, 'pembayaran_spp_list', pembayaranSppList); }
+async function saveSppConfig() { await idbSet(STORE_SPP, k('spp_config'), sppConfig); }
+async function savePembayaranSppList() { await idbSet(STORE_PEMBAYARAN, k('pembayaran_spp_list'), pembayaranSppList); }
 
 function getNominalSppSiswa(siswa) {
     if (siswa.sppNominal) return siswa.sppNominal;
@@ -3656,9 +3929,9 @@ async function cetakRekapTunggakan() {
    SECTION: KUITANSI (Nomor Urut + Cetak PDF)
    ============================================================== */
 async function generateNomorKuitansi() {
-    var counter = await idbGet(STORE_KONFIGURASI, 'kuitansi_counter');
+    var counter = await idbGet(STORE_KONFIGURASI, k('kuitansi_counter'));
     var urut = (counter || 0) + 1;
-    await idbSet(STORE_KONFIGURASI, 'kuitansi_counter', urut);
+    await idbSet(STORE_KONFIGURASI, k('kuitansi_counter'), urut);
     var cfg = getKonfigurasiInstansiData();
     var prefix = (cfg.settings && cfg.settings.invoice_prefix) ? cfg.settings.invoice_prefix : 'KWT';
     var romawiBulan = ['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'][new Date().getMonth()];
@@ -4112,7 +4385,7 @@ function exportLaporanKeuanganExcel() {
    SECTION: TAHUN AJARAN (Multi Tahun Ajaran)
    ============================================================== */
 function getTahunAjaranAktif() {
-    var saved = localStorage.getItem('bendaharaku_tahun_ajaran_aktif');
+    var saved = localStorage.getItem(k('bendaharaku_tahun_ajaran_aktif'));
     if (saved) return saved;
     var now = new Date();
     var y = now.getFullYear();
@@ -4132,9 +4405,9 @@ function loadTahunAjaranForm() {
 function simpanSaldoAwalKas() {
     var tanggal = document.getElementById('inputSaldoAwalTanggal').value;
     var nominal = parseNominal(document.getElementById('inputSaldoAwalNominal').value);
-    if (tanggal) localStorage.setItem('bendaharaku_saldo_awal_tanggal', tanggal);
-    else localStorage.removeItem('bendaharaku_saldo_awal_tanggal');
-    localStorage.setItem('bendaharaku_saldo_awal_nominal', nominal);
+    if (tanggal) localStorage.setItem(k('bendaharaku_saldo_awal_tanggal'), tanggal);
+    else localStorage.removeItem(k('bendaharaku_saldo_awal_tanggal'));
+    localStorage.setItem(k('bendaharaku_saldo_awal_nominal'), nominal);
     showToast('✅ Saldo Awal tersimpan');
     updateHomeSaldoRingkasan();
 }
@@ -4142,7 +4415,7 @@ function simpanSaldoAwalKas() {
 function simpanTahunAjaranAktif() {
     var val = document.getElementById('inputTahunAjaranAktif').value.trim();
     if (!/^\d{4}\/\d{4}$/.test(val)) return showToast('Format harus: 2026/2027');
-    localStorage.setItem('bendaharaku_tahun_ajaran_aktif', val);
+    localStorage.setItem(k('bendaharaku_tahun_ajaran_aktif'), val);
     showToast('✅ Tahun Ajaran Aktif: ' + val);
     updateHomeSaldoRingkasan();
 }
@@ -4231,11 +4504,11 @@ function renderChartTren() {
 var rkasList = [];
 
 async function loadRkasData() {
-    var saved = await idbGet(STORE_RKAS, 'rkas_list');
+    var saved = await idbGet(STORE_RKAS, k('rkas_list'));
     rkasList = saved || [];
     isiDropdownKategoriRkas();
 }
-async function saveRkasList() { await idbSet(STORE_RKAS, 'rkas_list', rkasList); }
+async function saveRkasList() { await idbSet(STORE_RKAS, k('rkas_list'), rkasList); }
 
 function isiDropdownKategoriRkas() {
     var sel = document.getElementById('rkasKategori');
@@ -4348,13 +4621,13 @@ var guruList = [];
 var gajiPembayaranList = [];
 
 async function loadGajiData() {
-    var savedGuru = await idbGet(STORE_GAJI, 'guru_list');
+    var savedGuru = await idbGet(STORE_GAJI, k('guru_list'));
     guruList = savedGuru || [];
-    var savedBayar = await idbGet(STORE_GAJI, 'gaji_pembayaran');
+    var savedBayar = await idbGet(STORE_GAJI, k('gaji_pembayaran'));
     gajiPembayaranList = savedBayar || [];
 }
-async function saveGuruList() { await idbSet(STORE_GAJI, 'guru_list', guruList); }
-async function saveGajiPembayaranList() { await idbSet(STORE_GAJI, 'gaji_pembayaran', gajiPembayaranList); }
+async function saveGuruList() { await idbSet(STORE_GAJI, k('guru_list'), guruList); }
+async function saveGajiPembayaranList() { await idbSet(STORE_GAJI, k('gaji_pembayaran'), gajiPembayaranList); }
 
 function tambahGuruBaru() {
     document.getElementById('titleModalGuru').textContent = '👩‍🏫 Guru Baru';
@@ -4629,16 +4902,16 @@ var assignModeAktif = 'kelas';
 var assignManualChecked = {};
 
 async function loadTagihanLainData() {
-    var jt = await idbGet(STORE_TAGIHAN_LAIN, 'jenis_tagihan_list');
+    var jt = await idbGet(STORE_TAGIHAN_LAIN, k('jenis_tagihan_list'));
     jenisTagihanList = jt || [];
-    var ta = await idbGet(STORE_TAGIHAN_LAIN, 'tagihan_assign_list');
+    var ta = await idbGet(STORE_TAGIHAN_LAIN, k('tagihan_assign_list'));
     tagihanAssignList = ta || [];
-    var pb = await idbGet(STORE_TAGIHAN_LAIN, 'pembayaran_tagihan_lain_list');
+    var pb = await idbGet(STORE_TAGIHAN_LAIN, k('pembayaran_tagihan_lain_list'));
     pembayaranTagihanLainList = pb || [];
 }
-async function saveJenisTagihanList() { await idbSet(STORE_TAGIHAN_LAIN, 'jenis_tagihan_list', jenisTagihanList); }
-async function saveTagihanAssignList() { await idbSet(STORE_TAGIHAN_LAIN, 'tagihan_assign_list', tagihanAssignList); }
-async function savePembayaranTagihanLainList() { await idbSet(STORE_TAGIHAN_LAIN, 'pembayaran_tagihan_lain_list', pembayaranTagihanLainList); }
+async function saveJenisTagihanList() { await idbSet(STORE_TAGIHAN_LAIN, k('jenis_tagihan_list'), jenisTagihanList); }
+async function saveTagihanAssignList() { await idbSet(STORE_TAGIHAN_LAIN, k('tagihan_assign_list'), tagihanAssignList); }
+async function savePembayaranTagihanLainList() { await idbSet(STORE_TAGIHAN_LAIN, k('pembayaran_tagihan_lain_list'), pembayaranTagihanLainList); }
 
 function getTotalBayarTagihanLain(assignmentId) {
     return pembayaranTagihanLainList.filter(function(p){ return String(p.assignmentId) === String(assignmentId); })
@@ -5069,10 +5342,10 @@ var tplTerapkanMode = 'kelas';
 var tplManualChecked = {};
 
 async function loadTemplatePaketData() {
-    var saved = await idbGet(STORE_TAGIHAN_LAIN, 'template_paket_list');
+    var saved = await idbGet(STORE_TAGIHAN_LAIN, k('template_paket_list'));
     templatePaketList = saved || [];
 }
-async function saveTemplatePaketList() { await idbSet(STORE_TAGIHAN_LAIN, 'template_paket_list', templatePaketList); }
+async function saveTemplatePaketList() { await idbSet(STORE_TAGIHAN_LAIN, k('template_paket_list'), templatePaketList); }
 
 function hitungTotalTemplate(tpl) {
     var total = tpl.sertakanSpp ? (tpl.sppNominal || 0) : 0;
@@ -5639,7 +5912,7 @@ function injectWatermarkToPrintWin(win) {
    ditambahkan ke buildBackupJsonData() begitu dibuat di fase berikutnya.
    ============================================================== */
 async function buildBackupJsonData() {
-    var kuitansiCounter = await idbGet(STORE_KONFIGURASI, 'kuitansi_counter');
+    var kuitansiCounter = await idbGet(STORE_KONFIGURASI, k('kuitansi_counter'));
     return {
         app: 'BendaharaKu',
         version: '1.0',
@@ -5664,7 +5937,7 @@ async function backupJsonKeClipboard() {
     try {
         var backupData = await buildBackupJsonData();
         var json = JSON.stringify(backupData);
-        localStorage.setItem('bendaharaku_last_backup', new Date().toISOString());
+        localStorage.setItem(k('bendaharaku_last_backup'), new Date().toISOString());
         showJsonBackupModal(json);
     } catch(err) {
         showToast('❌ Gagal: ' + err.message);
@@ -5748,42 +6021,42 @@ async function processRestoreJsonText() {
 
 async function applyRestoreBackupData(backup) {
     if (backup.konfigurasi_instansi) {
-        localStorage.setItem('bendaharaku_konfigurasi_instansi', JSON.stringify(backup.konfigurasi_instansi));
+        localStorage.setItem(k('bendaharaku_konfigurasi_instansi'), JSON.stringify(backup.konfigurasi_instansi));
     }
     if (backup.kas) {
         dataKas = backup.kas.data || [];
         kategoriKasList = (backup.kas.kategori && backup.kas.kategori.length) ? backup.kas.kategori : KATEGORI_KAS_DEFAULT.slice();
-        await idbSet(STORE_KAS, 'kas_data', dataKas);
-        await idbSet(STORE_KAS, 'kategori_list', kategoriKasList);
+        await idbSet(STORE_KAS, k('kas_data'), dataKas);
+        await idbSet(STORE_KAS, k('kategori_list'), kategoriKasList);
     }
-    if (backup.kelas) { kelasList = backup.kelas; await idbSet(STORE_KELAS, 'kelas_list', kelasList); }
-    if (backup.siswa) { siswaList = backup.siswa; await idbSet(STORE_SISWA, 'siswa_list', siswaList); }
+    if (backup.kelas) { kelasList = backup.kelas; await idbSet(STORE_KELAS, k('kelas_list'), kelasList); }
+    if (backup.siswa) { siswaList = backup.siswa; await idbSet(STORE_SISWA, k('siswa_list'), siswaList); }
     if (backup.spp) {
         sppConfig = backup.spp.config || { default: 0 };
         pembayaranSppList = backup.spp.pembayaran || [];
-        await idbSet(STORE_SPP, 'spp_config', sppConfig);
-        await idbSet(STORE_PEMBAYARAN, 'pembayaran_spp_list', pembayaranSppList);
+        await idbSet(STORE_SPP, k('spp_config'), sppConfig);
+        await idbSet(STORE_PEMBAYARAN, k('pembayaran_spp_list'), pembayaranSppList);
     }
     if (typeof backup.kuitansi_counter === 'number') {
-        await idbSet(STORE_KONFIGURASI, 'kuitansi_counter', backup.kuitansi_counter);
+        await idbSet(STORE_KONFIGURASI, k('kuitansi_counter'), backup.kuitansi_counter);
     }
     if (backup.tahun_ajaran_aktif) {
-        localStorage.setItem('bendaharaku_tahun_ajaran_aktif', backup.tahun_ajaran_aktif);
+        localStorage.setItem(k('bendaharaku_tahun_ajaran_aktif'), backup.tahun_ajaran_aktif);
     }
-    if (backup.rkas) { rkasList = backup.rkas; await idbSet(STORE_RKAS, 'rkas_list', rkasList); }
-    if (backup.guru) { guruList = backup.guru; await idbSet(STORE_GAJI, 'guru_list', guruList); }
-    if (backup.gaji_pembayaran) { gajiPembayaranList = backup.gaji_pembayaran; await idbSet(STORE_GAJI, 'gaji_pembayaran', gajiPembayaranList); }
+    if (backup.rkas) { rkasList = backup.rkas; await idbSet(STORE_RKAS, k('rkas_list'), rkasList); }
+    if (backup.guru) { guruList = backup.guru; await idbSet(STORE_GAJI, k('guru_list'), guruList); }
+    if (backup.gaji_pembayaran) { gajiPembayaranList = backup.gaji_pembayaran; await idbSet(STORE_GAJI, k('gaji_pembayaran'), gajiPembayaranList); }
     if (backup.tagihan_lain) {
         jenisTagihanList = backup.tagihan_lain.jenis || [];
         tagihanAssignList = backup.tagihan_lain.assign || [];
         pembayaranTagihanLainList = backup.tagihan_lain.pembayaran || [];
-        await idbSet(STORE_TAGIHAN_LAIN, 'jenis_tagihan_list', jenisTagihanList);
-        await idbSet(STORE_TAGIHAN_LAIN, 'tagihan_assign_list', tagihanAssignList);
-        await idbSet(STORE_TAGIHAN_LAIN, 'pembayaran_tagihan_lain_list', pembayaranTagihanLainList);
+        await idbSet(STORE_TAGIHAN_LAIN, k('jenis_tagihan_list'), jenisTagihanList);
+        await idbSet(STORE_TAGIHAN_LAIN, k('tagihan_assign_list'), tagihanAssignList);
+        await idbSet(STORE_TAGIHAN_LAIN, k('pembayaran_tagihan_lain_list'), pembayaranTagihanLainList);
     }
     if (backup.template_paket) {
         templatePaketList = backup.template_paket;
-        await idbSet(STORE_TAGIHAN_LAIN, 'template_paket_list', templatePaketList);
+        await idbSet(STORE_TAGIHAN_LAIN, k('template_paket_list'), templatePaketList);
     }
     // Catat di Riwayat Perubahan setelah data lama ditimpa, biar ada jejak kapan restore terjadi
     await loadAuditLogData(); // muat ulang dulu (kalau ada log sebelum restore, tetap dipertahankan, tidak ikut ditimpa restore)
@@ -5802,7 +6075,7 @@ async function backupZipData() {
         zip.file('data.json', JSON.stringify(backupData, null, 2));
         var blob = await zip.generateAsync({ type: 'blob' });
         saveAs(blob, 'BendaharaKu_Backup_' + new Date().toISOString().slice(0,10) + '.zip');
-        localStorage.setItem('bendaharaku_last_backup', new Date().toISOString());
+        localStorage.setItem(k('bendaharaku_last_backup'), new Date().toISOString());
         updateHomeSaldoRingkasan();
         showToast('✅ Backup ZIP berhasil diunduh');
     } catch(err) {
@@ -5850,6 +6123,7 @@ if ('serviceWorker' in navigator && (location.protocol === 'http:' || location.p
    ============================================================== */
 window.addEventListener('DOMContentLoaded', function() {
     applyDarkModeFromStorage();
+    loadLembagaState();
     openIndexedDB().then(function(){
         return Promise.all([
             loadKasData(),

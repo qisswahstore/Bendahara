@@ -151,6 +151,12 @@
             margin: 0 auto; color: white; font-size: 18px;
             box-shadow: 0 2px 6px rgba(0,0,0,0.15);
         }
+        .menu-pill {
+            display: inline-block; background: var(--gray-200); color: var(--gray-700);
+            font-size: 10px; font-weight: 600; padding: 3px 11px; border-radius: 12px; margin-top: 7px;
+        }
+        .menu-grid-home { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .menu-grid-home .setting-card { min-height: 118px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 
         /* ---------- BUTTONS ---------- */
         .btn {
@@ -439,21 +445,21 @@
 
         <div class="card">
             <div style="font-weight:700;margin-bottom:2px;color:var(--gray-700);font-size:12.5px;">📋 KERJAAN HARIAN</div>
-            <div class="menu-grid-home mt-8" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div class="menu-grid-home mt-8">
                 <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('tagihan-lain')">
                     <div class="menu-icon-circle" style="background:#F59E0B;"><i class="fas fa-receipt"></i></div>
                     <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Tagihan Lain-lain</div>
-                    <div class="txt-muted" style="font-size:10px;margin-top:2px;">Biaya di luar SPP: buku, seragam, UAS, dll</div>
+                    <div class="menu-pill">Non-SPP</div>
                 </div>
                 <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('kartu-siswa')">
                     <div class="menu-icon-circle" style="background:#3B82F6;"><i class="fas fa-id-card"></i></div>
                     <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Kartu Tagihan Siswa</div>
-                    <div class="txt-muted" style="font-size:10px;margin-top:2px;">Lihat & bayar semua tagihan 1 siswa sekaligus</div>
+                    <div class="menu-pill">Per Siswa</div>
                 </div>
-                <div class="setting-card text-center" style="cursor:pointer;grid-column:1 / -1;" onclick="showPage('kelas-siswa')">
+                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('kelas-siswa')">
                     <div class="menu-icon-circle" style="background:#8B5CF6;"><i class="fas fa-users-cog"></i></div>
                     <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Kelas &amp; Siswa</div>
-                    <div class="txt-muted" style="font-size:10px;margin-top:2px;">Tambah/edit siswa & kelas, kenaikan kelas, import data</div>
+                    <div class="menu-pill">Data Induk</div>
                 </div>
             </div>
         </div>
@@ -491,53 +497,58 @@
 
         <div class="card">
             <div style="font-weight:700;margin-bottom:2px;color:var(--gray-700);font-size:12.5px;">📄 DOKUMEN &amp; KOMUNIKASI</div>
-            <div class="menu-grid-home mt-8" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div class="menu-grid-home mt-8">
                 <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('template-paket')">
                     <div class="menu-icon-circle" style="background:#8B5CF6;"><i class="fas fa-boxes-stacked"></i></div>
                     <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Template Paket Biaya</div>
+                    <div class="menu-pill">Paket</div>
                 </div>
                 <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('kuitansi')">
                     <div class="menu-icon-circle" style="background:#EC4899;"><i class="fas fa-file-invoice"></i></div>
                     <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Log Kuitansi</div>
+                    <div class="menu-pill">Riwayat</div>
                 </div>
-                <div class="setting-card text-center" style="cursor:pointer;grid-column:1 / -1;" onclick="showPage('pengingat-wa')">
+                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('pengingat-wa')">
                     <div class="menu-icon-circle" style="background:#22C55E;"><i class="fab fa-whatsapp"></i></div>
-                    <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Pengingat WA Massal</div>
-                    <div class="txt-muted" style="font-size:10px;margin-top:2px;">Kirim tagihan ke banyak wali sekaligus</div>
+                    <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Pengingat WA</div>
+                    <div class="menu-pill">Massal</div>
                 </div>
             </div>
         </div>
 
         <div class="card">
             <div style="font-weight:700;margin-bottom:2px;color:var(--gray-700);font-size:12.5px;">📊 ANALISIS &amp; PERENCANAAN</div>
-            <div class="menu-grid-home mt-8" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div class="menu-grid-home mt-8">
                 <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('dashboard')">
                     <div class="menu-icon-circle" style="background:var(--primary);"><i class="fas fa-chart-line"></i></div>
                     <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Dashboard</div>
+                    <div class="menu-pill">Grafik</div>
                 </div>
                 <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('rkas')">
                     <div class="menu-icon-circle" style="background:#D97706;"><i class="fas fa-sitemap"></i></div>
                     <div style="font-size:12.5px;font-weight:600;margin-top:6px;">RKAS</div>
+                    <div class="menu-pill">Anggaran</div>
                 </div>
             </div>
         </div>
 
         <div class="card">
             <div style="font-weight:700;margin-bottom:2px;color:var(--gray-700);font-size:12.5px;">🔁 RUTIN &amp; RIWAYAT</div>
-            <div class="menu-grid-home mt-8" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div class="menu-grid-home mt-8">
                 <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('gaji')">
                     <div class="menu-icon-circle" style="background:#6366F1;"><i class="fas fa-chalkboard-teacher"></i></div>
                     <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Gaji/Honor Guru</div>
-                    <div class="txt-muted" style="font-size:10px;margin-top:2px;">Bayar tiap bulan — akan diingatkan di Beranda kalau lupa</div>
+                    <div class="menu-pill">Bulanan</div>
                 </div>
                 <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('jurnal')">
                     <div class="menu-icon-circle" style="background:#57534E;"><i class="fas fa-book"></i></div>
                     <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Jurnal Harian</div>
+                    <div class="menu-pill">Harian</div>
                 </div>
-                <div class="setting-card text-center" style="cursor:pointer;grid-column:1 / -1;" onclick="showPage('riwayat-perubahan')">
+                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('riwayat-perubahan')">
                     <div class="menu-icon-circle" style="background:#0F766E;"><i class="fas fa-clock-rotate-left"></i></div>
                     <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Riwayat Perubahan</div>
-                    <div class="txt-muted" style="font-size:10px;margin-top:2px;">Jejak edit & hapus data, buat pertanggungjawaban</div>
+                    <div class="menu-pill">Audit</div>
                 </div>
             </div>
         </div>

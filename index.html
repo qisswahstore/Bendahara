@@ -1386,7 +1386,9 @@
                 <button class="btn btn-orange btn-small" style="flex:1" onclick="exportLaporanKeuanganExcel()"><i class="fas fa-file-excel"></i> Excel</button>
             </div>
             <button class="btn btn-gray w-full mb-8" onclick="cetakLaporanBos()"><i class="fas fa-file-invoice-dollar"></i> Cetak Laporan Dana BOS (Sederhana)</button>
-            <button class="btn w-full" style="background:var(--wa);color:white;" onclick="shareRingkasanBulananWA()"><i class="fab fa-whatsapp"></i> Kirim Ringkasan ke Yayasan</button>
+            <button class="btn w-full mb-8" style="background:var(--wa);color:white;" onclick="shareRingkasanBulananWA()"><i class="fab fa-whatsapp"></i> Kirim Ringkasan ke Yayasan</button>
+            <button class="btn btn-primary w-full" onclick="cetakLaporanFormal()"><i class="fas fa-file-contract"></i> Cetak Laporan Formal (Posisi Keuangan &amp; Aktivitas)</button>
+            <div class="txt-muted mt-8" style="font-size:11px;">Format sesuai standar laporan yayasan/nonprofit (ISAK 35) — Laporan Posisi Keuangan (Aset) & Laporan Aktivitas (Penerimaan-Beban) periode ini.</div>
         </div>
     </div>
 </div>
@@ -4764,6 +4766,106 @@ async function shareRingkasanBulananWA() {
         catch(e) { if (e.name === 'AbortError') return; }
     }
     window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+}
+
+/* ---------- Laporan Formal (Posisi Keuangan & Aktivitas) — format ISAK 35 (nonprofit/yayasan) ---------- */
+async function cetakLaporanFormal() {
+    var bulan = document.getElementById('laporanBulanAktif').value || new Date().toISOString().slice(0,7);
+    var namaBulan = new Date(bulan + '-01').toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+    var cfg = getKonfigurasiInstansiData();
+    var tglCetak = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+
+    // ===== 1. LAPORAN POSISI KEUANGAN (per tanggal cetak, snapshot saat ini) =====
+    var kasSetaraKas = getSaldoKeseluruhan();
+    var siswaAktif = getSiswaAktif();
+    var piutangSpp = 0;
+    siswaAktif.forEach(function(s) { piutangSpp += Math.max(0, getTunggakanSppKumulatifSiswa(s).totalSisa); });
+    var idAktif = siswaAktif.map(function(s){ return String(s.id); });
+    var piutangTagihanLain = 0;
+    tagihanAssignList.forEach(function(a) {
+        if (idAktif.indexOf(String(a.siswaId)) === -1) return;
+        piutangTagihanLain += Math.max(0, getStatusTagihanLain(a).sisa);
+    });
+    var totalAset = kasSetaraKas + piutangSpp + piutangTagihanLain;
+
+    // ===== 2. LAPORAN AKTIVITAS (periode bulan yang dipilih) =====
+    var kasPeriode = dataKas.filter(function(i){ return i.tglIso && i.tglIso.slice(0,7) === bulan; });
+    var perKategoriMasuk = {}, perKategoriKeluar = {};
+    kasPeriode.forEach(function(i) {
+        var bucket = i.tipe === 'masuk' ? perKategoriMasuk : perKategoriKeluar;
+        bucket[i.kategori] = (bucket[i.kategori] || 0) + i.nom;
+    });
+    var sppTotal = pembayaranSppList.filter(function(p){ return p.bulan === bulan; }).reduce(function(s,p){ return s + p.nominal; }, 0);
+    var tlTotal = pembayaranTagihanLainList.filter(function(p){ return p.tglIso && p.tglIso.slice(0,7) === bulan; }).reduce(function(s,p){ return s + p.nominal; }, 0);
+
+    var penerimaanRows = '<tr><td style="padding:6px 8px;">SPP Siswa</td><td style="padding:6px 8px;text-align:right;">Rp ' + sppTotal.toLocaleString('id-ID') + '</td></tr>';
+    penerimaanRows += '<tr><td style="padding:6px 8px;">Tagihan Lain-lain</td><td style="padding:6px 8px;text-align:right;">Rp ' + tlTotal.toLocaleString('id-ID') + '</td></tr>';
+    var totalPenerimaan = sppTotal + tlTotal;
+    Object.keys(perKategoriMasuk).forEach(function(k) {
+        penerimaanRows += '<tr><td style="padding:6px 8px;">' + k + '</td><td style="padding:6px 8px;text-align:right;">Rp ' + perKategoriMasuk[k].toLocaleString('id-ID') + '</td></tr>';
+        totalPenerimaan += perKategoriMasuk[k];
+    });
+
+    var bebanRows = '';
+    var totalBeban = 0;
+    var kategoriKeluarKeys = Object.keys(perKategoriKeluar);
+    if (kategoriKeluarKeys.length === 0) {
+        bebanRows = '<tr><td colspan="2" style="padding:6px 8px;color:#999;">Tidak ada beban periode ini</td></tr>';
+    } else {
+        kategoriKeluarKeys.forEach(function(k) {
+            bebanRows += '<tr><td style="padding:6px 8px;">' + k + '</td><td style="padding:6px 8px;text-align:right;">Rp ' + perKategoriKeluar[k].toLocaleString('id-ID') + '</td></tr>';
+            totalBeban += perKategoriKeluar[k];
+        });
+    }
+    var kenaikanAsetNeto = totalPenerimaan - totalBeban;
+
+    var headerHtml = buildPrintHeader(cfg, tglCetak);
+    var watermarkHtml = buildPrintWatermark(cfg);
+    var ttdHtml = buildPrintTandaTangan(cfg, tglCetak);
+
+    var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Laporan Formal</title><style>' +
+        '*{margin:0;padding:0;box-sizing:border-box;}body{font-family:Arial,sans-serif;background:#f0f0f0;padding:20px;}' +
+        '.box{background:white;max-width:800px;margin:0 auto;border-radius:16px;padding:30px;box-shadow:0 2px 16px rgba(0,0,0,0.1);}' +
+        'h2{color:#0D5C4A;font-size:17px;margin-bottom:2px;margin-top:22px;}h2:first-of-type{margin-top:0;}.tgl{color:#aaa;font-size:11px;margin-bottom:14px;}' +
+        'table{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:6px;}' +
+        'td{border-bottom:1px solid #eee;}' +
+        '.baris-total{font-weight:bold;background:#f0fdf4;-webkit-print-color-adjust:exact;print-color-adjust:exact;}' +
+        '.baris-total td{border-bottom:2px solid #0D5C4A;border-top:1px solid #0D5C4A;}' +
+        '.judul-grup{font-weight:bold;color:#0D5C4A;padding:8px 8px 4px;font-size:11.5px;letter-spacing:0.5px;}' +
+        '.no-print{text-align:center;margin-top:24px;}.no-print button{padding:12px 32px;margin:0 8px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;}' +
+        '@page{size:A4 portrait;margin:10mm 12mm;}@media print{*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}html{width:210mm;}body{background:white;padding:0;margin:0;width:210mm;}.box{box-shadow:none;border-radius:0;max-width:none;width:100%;}.no-print{display:none!important;}}' +
+        '</style></head><body><div class="box">' + headerHtml +
+
+        '<h2>LAPORAN POSISI KEUANGAN</h2><div class="tgl">Per Tanggal: ' + tglCetak + '</div>' +
+        '<table><tbody>' +
+            '<tr><td colspan="2" class="judul-grup">ASET</td></tr>' +
+            '<tr><td style="padding:6px 8px;">Kas &amp; Setara Kas</td><td style="padding:6px 8px;text-align:right;">Rp ' + kasSetaraKas.toLocaleString('id-ID') + '</td></tr>' +
+            '<tr><td style="padding:6px 8px;">Piutang SPP</td><td style="padding:6px 8px;text-align:right;">Rp ' + piutangSpp.toLocaleString('id-ID') + '</td></tr>' +
+            '<tr><td style="padding:6px 8px;">Piutang Tagihan Lain-lain</td><td style="padding:6px 8px;text-align:right;">Rp ' + piutangTagihanLain.toLocaleString('id-ID') + '</td></tr>' +
+            '<tr class="baris-total"><td style="padding:8px;">TOTAL ASET</td><td style="padding:8px;text-align:right;">Rp ' + totalAset.toLocaleString('id-ID') + '</td></tr>' +
+            '<tr class="baris-total"><td style="padding:8px;">ASET NETO</td><td style="padding:8px;text-align:right;">Rp ' + totalAset.toLocaleString('id-ID') + '</td></tr>' +
+        '</tbody></table>' +
+        '<div style="font-size:10px;color:#999;margin-bottom:10px;">*Piutang dihitung dari tunggakan siswa aktif. Belum mencakup kewajiban/utang (belum ada fitur pencatatan utang di aplikasi).</div>' +
+
+        '<h2>LAPORAN AKTIVITAS</h2><div class="tgl">Periode: ' + namaBulan + '</div>' +
+        '<table><tbody>' +
+            '<tr><td colspan="2" class="judul-grup">PENERIMAAN</td></tr>' +
+            penerimaanRows +
+            '<tr class="baris-total"><td style="padding:8px;">TOTAL PENERIMAAN</td><td style="padding:8px;text-align:right;">Rp ' + totalPenerimaan.toLocaleString('id-ID') + '</td></tr>' +
+            '<tr><td colspan="2" class="judul-grup" style="padding-top:14px;">BEBAN</td></tr>' +
+            bebanRows +
+            '<tr class="baris-total"><td style="padding:8px;">TOTAL BEBAN</td><td style="padding:8px;text-align:right;">Rp ' + totalBeban.toLocaleString('id-ID') + '</td></tr>' +
+            '<tr class="baris-total" style="background:#fef9c3;"><td style="padding:8px;">' + (kenaikanAsetNeto >= 0 ? 'KENAIKAN' : 'PENURUNAN') + ' ASET NETO</td><td style="padding:8px;text-align:right;">Rp ' + Math.abs(kenaikanAsetNeto).toLocaleString('id-ID') + '</td></tr>' +
+        '</tbody></table>' +
+        ttdHtml +
+        '</div><div class="no-print"><button onclick="window.print()" style="background:#0D5C4A;color:white;">🖨️ CETAK</button>' +
+        '<button onclick="window.close()" style="background:#E2E8F0;color:#1E293B;">✕ TUTUP</button></div>' +
+        watermarkHtml + '</body></html>';
+    var win = window.open('', '_blank');
+    if (!win) return showToast('Izinkan popup untuk cetak!');
+    win.document.write(html);
+    injectWatermarkToPrintWin(win);
+    win.document.close();
 }
 
 async function cetakLaporanKeuangan() {

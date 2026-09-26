@@ -155,6 +155,7 @@
         details.lap-rincian > summary::-webkit-details-marker { display: none; }
         details.lap-rincian > summary::after { content: '▾'; color: var(--gray-400); transition: transform 0.2s; }
         details.lap-rincian[open] > summary::after { transform: rotate(180deg); }
+        body.ada-fab { padding-bottom: 150px; }
         .menu-pill {
             display: inline-block; background: var(--gray-200); color: var(--gray-700);
             font-size: 9px; font-weight: 600; padding: 2px 8px; border-radius: 12px; margin-top: 6px;
@@ -299,7 +300,7 @@
 </div>
 
 <!-- Tombol mengambang "+" — 1 pintu masuk buat catat transaksi apapun, nempel terus di beberapa halaman utama -->
-<div id="fabCatatTransaksi" onclick="showModalCatatTransaksi()" style="display:none;position:fixed;bottom:78px;right:16px;width:56px;height:56px;border-radius:50%;background:var(--primary);color:white;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,0.3);z-index:400;cursor:pointer;font-size:24px;">
+<div id="fabCatatTransaksi" onclick="showModalCatatTransaksi()" style="display:none;position:fixed;bottom:78px;right:16px;width:52px;height:52px;transition:transform 0.25s ease, opacity 0.25s ease;border-radius:50%;background:var(--primary);color:white;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,0.3);z-index:400;cursor:pointer;font-size:24px;">
     <i class="fas fa-plus"></i>
 </div>
 
@@ -406,6 +407,7 @@
         <div class="card" id="homeSaldoCard" style="background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;box-shadow:0 8px 24px rgba(0,0,0,0.18);margin-top:-30px;">
             <div style="font-size:12px;opacity:0.85;">Saldo Kas Saat Ini <span style="opacity:0.7;">(Kas + SPP + Tagihan Lain)</span></div>
             <div id="homeSaldoValue" style="font-size:26px;font-weight:800;margin-top:2px;">Rp 0</div>
+            <div id="homeSaldoKet" onclick="showPage('pengaturan')" style="display:none;font-size:11px;opacity:0.85;margin-top:4px;cursor:pointer;line-height:1.4;"></div>
             <div class="row mt-16" id="homeMasukKeluarWrap">
                 <div style="flex:1;">
                     <div style="font-size:11px;opacity:0.8;">Masuk Bulan Ini</div>
@@ -442,6 +444,7 @@
                     <div id="statTotalTunggakan" style="font-size:11px;font-weight:800;color:var(--orange);">Rp 0</div>
                 </div>
             </div>
+            <div id="ringkasanKetBelumDiatur" onclick="showPage('spp')" class="txt-muted" style="display:none;font-size:11px;margin-top:8px;padding-top:8px;border-top:1px dashed var(--border);cursor:pointer;line-height:1.5;"></div>
         </div>
 
         <div id="backupReminderCard" class="card" style="display:none;background:#FEF3F2;border:1.5px solid #FCA5A5;">
@@ -450,7 +453,7 @@
                     <i class="fas fa-database" style="color:#DC2626;"></i>
                     <div id="backupReminderText" style="font-size:12.5px;font-weight:700;color:#991B1B;">Belum pernah backup!</div>
                 </div>
-                <button class="btn btn-small" style="background:#DC2626;color:white;flex-shrink:0;" onclick="showPage('pengaturan')">Backup Sekarang</button>
+                <button class="btn btn-small" style="background:#DC2626;color:white;flex-shrink:0;" onclick="backupZipData()">Backup Sekarang</button>
             </div>
         </div>
 
@@ -834,7 +837,9 @@
         </div>
 
         <div class="card">
-            <div style="font-weight:700;margin-bottom:10px;">💾 Backup &amp; Restore</div>
+            <div style="font-weight:700;margin-bottom:6px;">💾 Backup &amp; Restore</div>
+            <div id="infoBackupTerakhir" class="txt-muted" style="font-size:11.5px;"></div>
+            <div id="infoPenyimpananPermanen" class="txt-muted mb-8" style="font-size:11.5px;"></div>
             <div class="row mb-8">
                 <button class="btn btn-blue btn-small" style="flex:1" onclick="backupZipData()"><i class="fas fa-file-archive"></i> Backup ZIP</button>
                 <button class="btn btn-orange btn-small" style="flex:1" onclick="document.getElementById('restoreZipFile').click()"><i class="fas fa-upload"></i> Restore ZIP</button>
@@ -1900,7 +1905,9 @@ function showPage(pageId, dariBack) {
     }
     sessionStorage.setItem('bendaharaku_halaman_terakhir', pageId); // biar refresh lanjut dari sini, bukan balik ke Beranda
     var fab = document.getElementById('fabCatatTransaksi');
-    if (fab) fab.style.display = ['home','kas','siswa','spp','tagihan-lain','gaji'].indexOf(pageId) !== -1 ? 'flex' : 'none';
+    var adaFab = ['home','kas','siswa','spp','tagihan-lain','gaji'].indexOf(pageId) !== -1;
+    if (fab) { fab.style.display = adaFab ? 'flex' : 'none'; fab.style.transform = ''; fab.style.opacity = ''; }
+    document.body.classList.toggle('ada-fab', adaFab); // ruang ekstra di bawah supaya isi terakhir tidak tertutup tombol "+" 
     document.querySelectorAll('.nav-item').forEach(function(n){
         n.classList.toggle('active', n.dataset.page === pageId || (n.dataset.page === 'siswa' && ['spp','kartu-siswa'].indexOf(pageId) !== -1));
     });
@@ -1926,7 +1933,7 @@ function showPage(pageId, dariBack) {
     if (pageId === 'template-paket') renderTemplatePaketList();
     if (pageId === 'template-detail') renderTemplateDetail();
     if (pageId === 'kartu-siswa') { isiDropdownKartuSiswa(); renderKartuTagihanSiswa(); }
-    if (pageId === 'pengaturan') loadTahunAjaranForm();
+    if (pageId === 'pengaturan') { loadTahunAjaranForm(); renderInfoKeselamatanData(); }
     window.scrollTo(0, 0);
 
     // Daftarkan perpindahan halaman ke history browser, supaya tombol/gesture back HP
@@ -1957,6 +1964,23 @@ window.addEventListener('popstate', function(e) {
 /* ==============================================================
    SECTION: TOAST
    ============================================================== */
+/* ==============================================================
+   SECTION: TANGGAL LOKAL
+   Semua tanggal transaksi WAJIB pakai fungsi ini, BUKAN toISOString().
+   toISOString() memakai jam UTC: di WIB (UTC+7), transaksi pukul 00.00–06.59
+   tercatat sebagai hari sebelumnya, dan tanggal 1 pagi bisa masuk bulan lalu.
+   ============================================================== */
+function _pad2(n) { return (n < 10 ? '0' : '') + n; }
+function tglLokalIso(d) {
+    d = d || new Date();
+    return d.getFullYear() + '-' + _pad2(d.getMonth() + 1) + '-' + _pad2(d.getDate());
+}
+function bulanLokalIso(d) { return tglLokalIso(d).slice(0, 7); }
+function tambahBulanIso(bulanIso, n) {
+    var y = parseInt(bulanIso.slice(0, 4), 10), m = parseInt(bulanIso.slice(5, 7), 10) - 1 + n;
+    return bulanLokalIso(new Date(y, m, 1));
+}
+
 function showToast(msg) {
     var toast = document.getElementById('toastPremium');
     toast.textContent = msg;
@@ -1974,6 +1998,19 @@ function tampilkanAnimasiSukses(teks) {
 }
 
 /* ---------- Tombol Mengambang "+ Catat Transaksi" — 1 pintu masuk buat semua jenis transaksi ---------- */
+/* ---------- Tombol "+" menyingkir saat gulir ke bawah (tidak menutupi isi), muncul lagi saat gulir ke atas ---------- */
+(function() {
+    var posTerakhir = 0;
+    window.addEventListener('scroll', function() {
+        var fab = document.getElementById('fabCatatTransaksi');
+        if (!fab || fab.style.display === 'none') return;
+        var pos = window.scrollY || document.documentElement.scrollTop;
+        if (pos > posTerakhir + 8 && pos > 120) { fab.style.transform = 'translateY(140px)'; fab.style.opacity = '0'; }
+        else if (pos < posTerakhir - 8) { fab.style.transform = ''; fab.style.opacity = ''; }
+        posTerakhir = pos;
+    }, { passive: true });
+})();
+
 function showModalCatatTransaksi() {
     document.getElementById('modalCatatTransaksi').style.display = 'flex';
 }
@@ -2258,7 +2295,7 @@ function onboardingLanjutStep2() {
 function onboardingSelesai() {
     var nama = document.getElementById('onbNamaSiswa').value.trim();
     if (nama) {
-        siswaList.push({ id: Date.now(), nama: nama, kelasId: onboardingData.kelasIdBaru, status: 'aktif', bulanMulaiSpp: new Date().toISOString().slice(0,7) });
+        siswaList.push({ id: Date.now(), nama: nama, kelasId: onboardingData.kelasIdBaru, status: 'aktif', bulanMulaiSpp: bulanLokalIso() });
         saveSiswaList();
     }
     document.getElementById('modalOnboarding').style.display = 'none';
@@ -3104,7 +3141,7 @@ async function tambahTransaksiKas() {
     dataKas.unshift({
         id: Date.now(),
         tgl: new Date().toLocaleDateString('id-ID'),
-        tglIso: new Date().toISOString().slice(0,10),
+        tglIso: tglLokalIso(),
         kategori: kategori,
         ket: ket,
         nom: nom,
@@ -3201,7 +3238,7 @@ function renderKasTable() {
     var wrap = document.getElementById('bukuKasListWrap');
     if (!wrap) return;
     var bulanEl = document.getElementById('filterBulanKas');
-    if (!bulanEl.value) bulanEl.value = new Date().toISOString().slice(0,7);
+    if (!bulanEl.value) bulanEl.value = bulanLokalIso();
     var semua = getBukuKasEntries(bulanEl.value);
 
     var masuk = 0, keluar = 0;
@@ -3251,7 +3288,7 @@ function renderKasTable() {
 }
 
 function cetakBukuKas() {
-    var bulan = document.getElementById('filterBulanKas').value || new Date().toISOString().slice(0,7);
+    var bulan = document.getElementById('filterBulanKas').value || bulanLokalIso();
     var j = document.getElementById('jurnalBulanAktif');
     if (j) j.value = bulan;
     cetakJurnal(); // format cetak Jurnal sudah menggabungkan Kas + SPP + Tagihan Lain dengan saldo berjalan
@@ -3371,7 +3408,24 @@ function updateHomeSaldoRingkasan() {
     var lembagaNamaEl = document.getElementById('homeLembagaAktifNama');
     if (lembagaNamaEl) lembagaNamaEl.textContent = '📁 ' + getNamaLembagaAktif();
     saldoEl.textContent = 'Rp ' + getSaldoKeseluruhan().toLocaleString('id-ID');
-    var bulanIni = new Date().toISOString().slice(0,7);
+    // #3: jelaskan kalau saldo dipengaruhi pengaturan Saldo Awal (supaya "Rp 0" tidak membingungkan)
+    var ketSaldo = document.getElementById('homeSaldoKet');
+    if (ketSaldo) {
+        var sa = getSaldoAwalKasData();
+        if (sa.tanggal) {
+            var cut = sa.tanggal;
+            var tdkDihitung = pembayaranSppList.filter(function(p){ return p.tglIso && p.tglIso < cut; }).length
+                + pembayaranTagihanLainList.filter(function(p){ return p.tglIso && p.tglIso < cut; }).length
+                + dataKas.filter(function(i){ return i.tglIso && i.tglIso < cut; }).length;
+            var tglTeks = new Date(cut + 'T00:00:00').toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+            ketSaldo.innerHTML = 'ℹ️ Dihitung dari Saldo Awal Rp ' + (sa.nominal || 0).toLocaleString('id-ID') + ' per ' + tglTeks +
+                (tdkDihitung > 0 ? ' · ' + tdkDihitung + ' transaksi sebelum tanggal itu tidak dihitung' : '') + ' ›';
+            ketSaldo.style.display = 'block';
+        } else {
+            ketSaldo.style.display = 'none';
+        }
+    }
+    var bulanIni = bulanLokalIso();
     var masukBulan = 0, keluarBulan = 0;
     dataKas.forEach(function(i) {
         if (i.tglIso && i.tglIso.slice(0,7) === bulanIni) {
@@ -3413,16 +3467,14 @@ function updateHomeSaldoRingkasan() {
    sebagai default aman — bendahara bisa isi manual kapan saja lewat Edit Siswa, atau pakai
    tombol "Atur Wajib SPP untuk Semua Siswa" di halaman Data Kelas & Siswa untuk isi massal. */
 function getDaftarBulanUntukSiswa(siswa) {
-    var bulanSekarang = new Date().toISOString().slice(0,7);
+    var bulanSekarang = bulanLokalIso();
     var mulai = siswa.bulanMulaiSpp || getRentangTahunAjaran(getTahunAjaranAktif()).start.slice(0,7);
     var daftar = [];
     var cursor = mulai;
     var pengaman = 0;
     while (cursor <= bulanSekarang && pengaman < 36) {
         daftar.push(cursor);
-        var d = new Date(cursor + '-01');
-        d.setMonth(d.getMonth() + 1);
-        cursor = d.toISOString().slice(0,7);
+        cursor = tambahBulanIso(cursor, 1);
         pengaman++;
     }
     return daftar;
@@ -3466,58 +3518,58 @@ function renderRingkasanBerandaLengkap() {
     document.getElementById('statSppBelum').textContent = sppBelum;
     document.getElementById('statTotalTunggakan').textContent = 'Rp ' + (totalTunggakanSpp + totalTunggakanTL).toLocaleString('id-ID');
 
-    // ---------- Perlu Perhatian (checklist kelengkapan data) ----------
+    // ---------- Perlu Perhatian: tiap poin bisa ditekan & langsung ke tempat perbaikannya ----------
+    // Pengingat backup ikut digabung di sini (dulu kotak terpisah) & selalu jadi poin pertama.
     var cfg = getKonfigurasiInstansiData();
     var poin = [];
-    if (!cfg.nama || cfg.nama === 'BendaharaKu') poin.push('Nama sekolah belum diisi di <b>Konfigurasi Instansi</b>');
-    if (kelasList.length === 0) poin.push('Belum ada <b>Kelas</b> dibuat');
-    if (siswaList.length === 0) poin.push('Belum ada <b>Siswa</b> ditambahkan');
+    var lastBackupIso = localStorage.getItem(k('bendaharaku_last_backup'));
+    if (!lastBackupIso) {
+        poin.push({ teks: '<b>Belum pernah backup data</b> — tap untuk backup sekarang', aksi: 'backupZipData()', merah: true });
+    } else {
+        var hariSejakBackup = Math.floor((Date.now() - new Date(lastBackupIso).getTime()) / 86400000);
+        if (hariSejakBackup >= 7) poin.push({ teks: '<b>Sudah ' + hariSejakBackup + ' hari tidak backup</b> — tap untuk backup sekarang', aksi: 'backupZipData()', merah: true });
+    }
+    if (!cfg.nama || cfg.nama === 'BendaharaKu') poin.push({ teks: 'Nama sekolah belum diisi di <b>Konfigurasi Instansi</b>', aksi: "showPage('konfigurasi-instansi')" });
+    if (kelasList.length === 0) poin.push({ teks: 'Belum ada <b>Kelas</b> dibuat', aksi: "showPage('kelas-siswa')" });
+    if (siswaList.length === 0) poin.push({ teks: 'Belum ada <b>Siswa</b> ditambahkan', aksi: "showPage('kelas-siswa')" });
     var siswaTanpaKelas = siswaAktif.filter(function(s){ return !s.kelasId; }).length;
-    if (siswaTanpaKelas > 0) poin.push(siswaTanpaKelas + ' siswa belum punya <b>Kelas</b>');
+    if (siswaTanpaKelas > 0) poin.push({ teks: siswaTanpaKelas + ' siswa belum punya <b>Kelas</b>', aksi: "showPage('kelas-siswa')" });
     var siswaTanpaNominalSpp = siswaAktif.filter(function(s){ return getNominalSppSiswa(s) <= 0; }).length;
-    if (siswaTanpaNominalSpp > 0) poin.push(siswaTanpaNominalSpp + ' siswa belum ada <b>Nominal SPP</b> (lihat halaman SPP)');
-    if (sppBelum > 0) poin.push(sppBelum + ' siswa belum lunas SPP (akumulasi Tahun Ajaran berjalan, total Rp ' + totalTunggakanSpp.toLocaleString('id-ID') + ')');
-    if (totalTunggakanTL > 0) poin.push('Ada tunggakan Tagihan Lain sebesar Rp ' + totalTunggakanTL.toLocaleString('id-ID'));
-
-    // Cek juga hal yang perlu dikerjakan di "Menu Lainnya" (RKAS/Gaji/dll) — supaya tidak
-    // ketinggalan cuma karena menunya tidak kelihatan langsung di Beranda
-    var bulanIniCek = new Date().toISOString().slice(0,7);
+    if (siswaTanpaNominalSpp > 0) poin.push({ teks: siswaTanpaNominalSpp + ' siswa belum diatur <b>Nominal SPP</b>', aksi: "showPage('spp')" });
+    if (sppBelum > 0) poin.push({ teks: sppBelum + ' siswa belum lunas SPP (total Rp ' + totalTunggakanSpp.toLocaleString('id-ID') + ')', aksi: 'bukaSiswaFilterNunggak()' });
+    if (totalTunggakanTL > 0) poin.push({ teks: 'Tunggakan Tagihan Lain Rp ' + totalTunggakanTL.toLocaleString('id-ID'), aksi: 'bukaSiswaFilterNunggak()' });
+    var bulanIniCek = bulanLokalIso();
     var guruBelumDibayar = guruList.filter(function(g){ return !getStatusHonor(g.id, bulanIniCek); }).length;
-    if (guruBelumDibayar > 0) poin.push(guruBelumDibayar + ' guru belum dibayar honornya bulan ini (menu Honor Guru)');
+    if (guruBelumDibayar > 0) poin.push({ teks: guruBelumDibayar + ' guru belum dibayar honornya bulan ini', aksi: "showPage('gaji')" });
+
+    function barisPoin(p) {
+        var warna = p.merah ? '#B91C1C' : '#92400E';
+        return '<div onclick="' + p.aksi + '" style="display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12.5px;color:' + warna + ';padding:7px 0;border-bottom:1px dashed #FDE68A;cursor:pointer;">' +
+            '<span>' + (p.merah ? '💾 ' : '• ') + p.teks + '</span><i class="fas fa-chevron-right" style="font-size:10px;opacity:0.6;"></i></div>';
+    }
 
     var perhatianCard = document.getElementById('perluPerhatianCard');
     if (poin.length > 0) {
-        var maksTampil = 2;
-        var poinTampil = poin.slice(0, maksTampil);
+        var maksTampil = 3;
         var sisa = poin.length - maksTampil;
-        var html = poinTampil.map(function(p) {
-            return '<div style="font-size:12.5px;color:#92400E;padding:3px 0;">• ' + p + '</div>';
-        }).join('');
+        var html = poin.slice(0, maksTampil).map(barisPoin).join('');
         if (sisa > 0) {
-            html += '<div id="perluPerhatianSisaWrap" style="display:none;">' +
-                poin.slice(maksTampil).map(function(p){ return '<div style="font-size:12.5px;color:#92400E;padding:3px 0;">• ' + p + '</div>'; }).join('') +
-            '</div>' +
-            '<div onclick="document.getElementById(\'perluPerhatianSisaWrap\').style.display=\'block\';this.style.display=\'none\';" style="font-size:11.5px;font-weight:700;color:#B45309;padding:4px 0;cursor:pointer;">▾ +' + sisa + ' lainnya</div>';
+            html += '<div id="perluPerhatianSisaWrap" style="display:none;">' + poin.slice(maksTampil).map(barisPoin).join('') + '</div>' +
+                '<div onclick="document.getElementById(\'perluPerhatianSisaWrap\').style.display=\'block\';this.style.display=\'none\';" style="font-size:11.5px;font-weight:700;color:#B45309;padding:6px 0 2px;cursor:pointer;">▾ Lihat ' + sisa + ' lainnya</div>';
         }
         document.getElementById('perluPerhatianListWrap').innerHTML = html;
         perhatianCard.style.display = 'block';
     } else {
         perhatianCard.style.display = 'none';
     }
+    var backupCardLama = document.getElementById('backupReminderCard');
+    if (backupCardLama) backupCardLama.style.display = 'none'; // sudah digabung ke Perlu Perhatian
 
-    // ---------- Pengingat Backup ----------
-    var backupCard = document.getElementById('backupReminderCard');
-    if (backupCard) {
-        var lastBackupIso = localStorage.getItem(k('bendaharaku_last_backup'));
-        var perluBackup = false, teksBackup = '';
-        if (!lastBackupIso) {
-            perluBackup = true; teksBackup = 'Belum pernah backup sama sekali!';
-        } else {
-            var hariSejakBackup = Math.floor((Date.now() - new Date(lastBackupIso).getTime()) / 86400000);
-            if (hariSejakBackup >= 14) { perluBackup = true; teksBackup = 'Sudah ' + hariSejakBackup + ' hari sejak backup terakhir'; }
-        }
-        document.getElementById('backupReminderText').textContent = teksBackup;
-        backupCard.style.display = perluBackup ? 'block' : 'none';
+    // ---------- #2: keterangan ringkasan kalau ada siswa yang belum diatur nominal SPP ----------
+    var ketRingkasan = document.getElementById('ringkasanKetBelumDiatur');
+    if (ketRingkasan) {
+        ketRingkasan.style.display = siswaTanpaNominalSpp > 0 ? 'block' : 'none';
+        ketRingkasan.innerHTML = siswaTanpaNominalSpp + ' siswa belum diatur nominal SPP-nya, jadi belum masuk hitungan Lunas/Belum. <b style="color:var(--primary);">Atur ›</b>';
     }
 
     // ---------- Tunggakan Terbesar (akumulasi SPP tahun ajaran berjalan + Tagihan Lain, top 5, siswa aktif saja) ----------
@@ -3692,7 +3744,7 @@ function exportKasExcel() {
             wsData.push({ Tanggal: '', Kategori: '', Keterangan: 'SALDO', Tipe: '', Nominal: masuk - keluar });
             var wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(wsData), 'Kas');
-            XLSX.writeFile(wb, 'Laporan_Kas_' + new Date().toISOString().slice(0,10) + '.xlsx');
+            XLSX.writeFile(wb, 'Laporan_Kas_' + tglLokalIso() + '.xlsx');
             showToast('✅ Excel berhasil diunduh');
         } catch(e) {
             showToast('❌ Gagal export Excel: ' + e.message);
@@ -3811,7 +3863,7 @@ function tambahSiswaBaru() {
     document.getElementById('inputStatusSiswa').value = 'aktif';
     document.getElementById('inputHpWaliSiswa').value = '';
     document.getElementById('inputSppSiswa').value = '';
-    document.getElementById('inputBulanMulaiSpp').value = new Date().toISOString().slice(0,7); // default: bulan ini, tinggal diubah kalau perlu
+    document.getElementById('inputBulanMulaiSpp').value = bulanLokalIso(); // default: bulan ini, tinggal diubah kalau perlu
     document.getElementById('modalFormSiswa').style.display = 'flex';
 }
 
@@ -4023,7 +4075,7 @@ function prosesImportEduKu() {
 var aturSppManualChecked = {};
 
 function showAturWajibSppMassalModal() {
-    document.getElementById('inputAturSppBulan').value = new Date().toISOString().slice(0,7);
+    document.getElementById('inputAturSppBulan').value = bulanLokalIso();
     document.getElementById('aturSppTargetMode').value = 'semua';
     document.getElementById('aturSppTimpaSemua').checked = false;
     aturSppManualChecked = {};
@@ -4135,7 +4187,7 @@ function downloadTemplateSiswaExcel() {
 function downloadTemplateHistoriSppExcel() {
     var headers = ['Nama Siswa (persis)', 'Bulan Bayar (YYYY-MM)', 'Nominal Dibayar', 'Tanggal Bayar (YYYY-MM-DD, opsional)', 'Keterangan (opsional)'];
     var contohSiswa = siswaList.length > 0 ? siswaList[0].nama : 'MOHAMMAD SUPRIYADI';
-    var bulanContoh = new Date().toISOString().slice(0,7);
+    var bulanContoh = bulanLokalIso();
     var contohRow = [contohSiswa, bulanContoh, '250000', '', 'Bayar tunai sebelum pakai app'];
     var emptyRows = Array(19).fill(null).map(function(){ return Array(headers.length).fill(''); });
 
@@ -4219,7 +4271,7 @@ async function importHistoriSppFromExcel(input) {
                 var s = siswaList.find(function(x){ return x.nama.toLowerCase() === namaBersih.toLowerCase(); });
                 if (!s) { siswaTidakDitemukan[namaBersih] = (siswaTidakDitemukan[namaBersih] || 0) + 1; continue; }
 
-                var tglIso = /^\d{4}-\d{2}-\d{2}$/.test(tglBayar) ? tglBayar : new Date().toISOString().slice(0,10);
+                var tglIso = /^\d{4}-\d{2}-\d{2}$/.test(tglBayar) ? tglBayar : tglLokalIso();
                 pembayaranSppList.unshift({
                     id: Date.now() + i, siswaId: s.id, bulan: bulan, nominal: nominal, ket: ket,
                     tgl: new Date(tglIso).toLocaleDateString('id-ID'), tglIso: tglIso
@@ -4338,7 +4390,7 @@ async function loadSppData() {
     var savedBayar = await idbGet(STORE_PEMBAYARAN, k('pembayaran_spp_list'));
     pembayaranSppList = savedBayar || [];
     var bulanInput = document.getElementById('sppBulanAktif');
-    if (bulanInput && !bulanInput.value) bulanInput.value = new Date().toISOString().slice(0,7);
+    if (bulanInput && !bulanInput.value) bulanInput.value = bulanLokalIso();
 }
 
 async function saveSppConfig() { await idbSet(STORE_SPP, k('spp_config'), sppConfig); }
@@ -4384,8 +4436,8 @@ function renderSppList() {
     var wrap = document.getElementById('sppListWrap');
     if (!wrap) return;
     var bulanEl = document.getElementById('sppBulanAktif');
-    var bulan = bulanEl ? bulanEl.value : new Date().toISOString().slice(0,7);
-    if (bulanEl && !bulanEl.value) { bulan = new Date().toISOString().slice(0,7); bulanEl.value = bulan; }
+    var bulan = bulanEl ? bulanEl.value : bulanLokalIso();
+    if (bulanEl && !bulanEl.value) { bulan = bulanLokalIso(); bulanEl.value = bulan; }
     var filterKelas = (document.getElementById('sppFilterKelas') || {}).value || '';
     var list = filterKelas ? getSiswaAktif().filter(function(s){ return String(s.kelasId) === String(filterKelas); }) : getSiswaAktif();
 
@@ -4551,7 +4603,7 @@ async function simpanPembayaranSpp() {
         id: Date.now(), siswaId: siswaId, bulan: bulan, nominal: nominal, ket: ket,
         metode: metode, noRef: noRef,
         noKuitansi: noKuitansi,
-        tgl: new Date().toLocaleDateString('id-ID'), tglIso: new Date().toISOString().slice(0,10)
+        tgl: new Date().toLocaleDateString('id-ID'), tglIso: tglLokalIso()
     });
     savePembayaranSppList();
     document.getElementById('modalBayarSpp').style.display = 'none';
@@ -4563,7 +4615,7 @@ async function simpanPembayaranSpp() {
 
 async function cetakRekapTunggakan() {
     var bulanEl = document.getElementById('sppBulanAktif');
-    var bulan = bulanEl && bulanEl.value ? bulanEl.value : new Date().toISOString().slice(0,7);
+    var bulan = bulanEl && bulanEl.value ? bulanEl.value : bulanLokalIso();
     var namaBulan = new Date(bulan + '-01').toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
     var cfg = getKonfigurasiInstansiData();
     var tglCetak = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
@@ -4812,8 +4864,8 @@ function renderRiwayatKuitansi() {
    ============================================================== */
 function renderLaporanKeuangan() {
     var bulanEl = document.getElementById('laporanBulanAktif');
-    if (bulanEl && !bulanEl.value) bulanEl.value = new Date().toISOString().slice(0,7);
-    var bulan = bulanEl ? bulanEl.value : new Date().toISOString().slice(0,7);
+    if (bulanEl && !bulanEl.value) bulanEl.value = bulanLokalIso();
+    var bulan = bulanEl ? bulanEl.value : bulanLokalIso();
 
     var kasPeriode = dataKas.filter(function(i){ return i.tglIso && i.tglIso.slice(0,7) === bulan; });
     var kasMasuk = 0, kasKeluar = 0;
@@ -4954,7 +5006,7 @@ function buildTeksLaporanBulanan(bulan) {
 }
 
 async function shareRingkasanBulananWA() {
-    var bulan = document.getElementById('laporanBulanAktif').value || new Date().toISOString().slice(0,7);
+    var bulan = document.getElementById('laporanBulanAktif').value || bulanLokalIso();
     var text = buildTeksLaporanBulanan(bulan);
     if (navigator.share) {
         try { await navigator.share({ title: 'Laporan Keuangan Bulanan', text: text }); return; }
@@ -4965,7 +5017,7 @@ async function shareRingkasanBulananWA() {
 
 /* ---------- Laporan Formal (Posisi Keuangan & Aktivitas) — format ISAK 35 (nonprofit/yayasan) ---------- */
 async function cetakLaporanFormal() {
-    var bulan = document.getElementById('laporanBulanAktif').value || new Date().toISOString().slice(0,7);
+    var bulan = document.getElementById('laporanBulanAktif').value || bulanLokalIso();
     var namaBulan = new Date(bulan + '-01').toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
     var cfg = getKonfigurasiInstansiData();
     var tglCetak = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
@@ -5064,7 +5116,7 @@ async function cetakLaporanFormal() {
 }
 
 async function cetakLaporanKeuangan() {
-    var bulan = document.getElementById('laporanBulanAktif').value || new Date().toISOString().slice(0,7);
+    var bulan = document.getElementById('laporanBulanAktif').value || bulanLokalIso();
     var namaBulan = new Date(bulan + '-01').toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
     var cfg = getKonfigurasiInstansiData();
     var tglCetak = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
@@ -5134,7 +5186,7 @@ async function cetakLaporanKeuangan() {
 }
 
 function exportLaporanKeuanganExcel() {
-    var bulan = document.getElementById('laporanBulanAktif').value || new Date().toISOString().slice(0,7);
+    var bulan = document.getElementById('laporanBulanAktif').value || bulanLokalIso();
     var kasPeriode = dataKas.filter(function(i){ return i.tglIso && i.tglIso.slice(0,7) === bulan; });
     var sppPeriode = pembayaranSppList.filter(function(p){ return p.bulan === bulan; });
     var tlPeriode = pembayaranTagihanLainList.filter(function(p){ return p.tglIso && p.tglIso.slice(0,7) === bulan; });
@@ -5277,14 +5329,14 @@ function jalankanPilihanLaporan(namaFn) {
 }
 
 function cetakBukuKasDariLaporan() {
-    var bulan = document.getElementById('laporanBulanAktif').value || new Date().toISOString().slice(0,7);
+    var bulan = document.getElementById('laporanBulanAktif').value || bulanLokalIso();
     var j = document.getElementById('jurnalBulanAktif');
     if (j) j.value = bulan;
     cetakJurnal();
 }
 
 function renderDashboard() {
-    var hariIni = new Date().toISOString().slice(0,10);
+    var hariIni = tglLokalIso();
     var totHari = hitungTotalPeriode(hariIni, hariIni);
     document.getElementById('dbHariMasuk').textContent = 'Rp ' + totHari.masuk.toLocaleString('id-ID');
     document.getElementById('dbHariKeluar').textContent = 'Rp ' + totHari.keluar.toLocaleString('id-ID');
@@ -5311,7 +5363,7 @@ function renderChartTren() {
     var now = new Date();
     for (var i = 5; i >= 0; i--) {
         var d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-        var bulanKey = d.toISOString().slice(0,7);
+        var bulanKey = bulanLokalIso(d);
         var tot = hitungTotalPeriode(bulanKey + '-01', bulanKey + '-31');
         labels.push(d.toLocaleDateString('id-ID', { month: 'short', year: '2-digit' }));
         dataMasuk.push(tot.masuk);
@@ -5520,8 +5572,8 @@ function getStatusHonor(guruId, bulan) {
 
 function renderGajiList() {
     var bulanEl = document.getElementById('gajiBulanAktif');
-    if (bulanEl && !bulanEl.value) bulanEl.value = new Date().toISOString().slice(0,7);
-    var bulan = bulanEl ? bulanEl.value : new Date().toISOString().slice(0,7);
+    if (bulanEl && !bulanEl.value) bulanEl.value = bulanLokalIso();
+    var bulan = bulanEl ? bulanEl.value : bulanLokalIso();
     var wrap = document.getElementById('gajiListWrap');
     wrap.innerHTML = '';
     guruList.forEach(function(g) {
@@ -5567,7 +5619,7 @@ function simpanBayarHonor() {
     if (kategoriKasList.indexOf('Gaji/Honor') === -1) { kategoriKasList.push('Gaji/Honor'); saveKategoriKasList(); }
     var kasId = Date.now();
     dataKas.unshift({
-        id: kasId, tgl: new Date().toLocaleDateString('id-ID'), tglIso: new Date().toISOString().slice(0,10),
+        id: kasId, tgl: new Date().toLocaleDateString('id-ID'), tglIso: tglLokalIso(),
         kategori: 'Gaji/Honor', ket: 'Honor ' + g.nama + ' - ' + namaBulan, nom: nominal, tipe: 'keluar'
     });
     saveKasData();
@@ -5620,8 +5672,8 @@ function getJurnalEntries(bulan) {
 
 function renderJurnal() {
     var bulanEl = document.getElementById('jurnalBulanAktif');
-    if (bulanEl && !bulanEl.value) bulanEl.value = new Date().toISOString().slice(0,7);
-    var bulan = bulanEl ? bulanEl.value : new Date().toISOString().slice(0,7);
+    if (bulanEl && !bulanEl.value) bulanEl.value = bulanLokalIso();
+    var bulan = bulanEl ? bulanEl.value : bulanLokalIso();
     var entries = getJurnalEntries(bulan);
     var body = document.getElementById('bodyJurnal');
     body.innerHTML = '';
@@ -5639,7 +5691,7 @@ function renderJurnal() {
 
 async function cetakJurnal() {
     var bulanEl = document.getElementById('jurnalBulanAktif');
-    var bulan = bulanEl && bulanEl.value ? bulanEl.value : new Date().toISOString().slice(0,7);
+    var bulan = bulanEl && bulanEl.value ? bulanEl.value : bulanLokalIso();
     var entries = getJurnalEntries(bulan);
     if (entries.length === 0) return showToast('Tidak ada transaksi bulan ini!');
     var namaBulan = new Date(bulan + '-01').toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
@@ -5678,7 +5730,7 @@ async function cetakJurnal() {
    SECTION: LAPORAN DANA BOS (Sederhana)
    ============================================================== */
 async function cetakLaporanBos() {
-    var bulan = document.getElementById('laporanBulanAktif').value || new Date().toISOString().slice(0,7);
+    var bulan = document.getElementById('laporanBulanAktif').value || bulanLokalIso();
     var namaBulan = new Date(bulan + '-01').toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
     var cfg = getKonfigurasiInstansiData();
     var tglCetak = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
@@ -6082,7 +6134,7 @@ async function simpanPembayaranTagihanLain() {
     var noKuitansi = await generateNomorKuitansi();
     pembayaranTagihanLainList.unshift({
         id: Date.now(), assignmentId: assignmentId, nominal: nominal, ket: ket, noKuitansi: noKuitansi,
-        tgl: new Date().toLocaleDateString('id-ID'), tglIso: new Date().toISOString().slice(0,10)
+        tgl: new Date().toLocaleDateString('id-ID'), tglIso: tglLokalIso()
     });
     savePembayaranTagihanLainList();
     document.getElementById('modalBayarTagihanLain').style.display = 'none';
@@ -6399,7 +6451,7 @@ function isiDropdownKartuSiswa() {
 function getRincianTagihanSiswa(siswaId) {
     var s = siswaList.find(function(x){ return String(x.id) === String(siswaId); });
     if (!s) return null;
-    var bulanIni = new Date().toISOString().slice(0,7);
+    var bulanIni = bulanLokalIso();
     var stSpp = getStatusSppSiswa(s, bulanIni);
     var rows = [{
         tipe: 'spp', nama: 'SPP Bulan ' + new Date(bulanIni + '-01').toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }),
@@ -6543,7 +6595,7 @@ async function prosesBayarMultiBulan() {
         var entri = {
             id: Date.now() + idx, siswaId: bayarMultiBulanSiswaIdAktif, bulan: a.bulan, nominal: a.dibayar,
             ket: 'Bayar multi-bulan', noKuitansi: noKuitansi,
-            tgl: new Date().toLocaleDateString('id-ID'), tglIso: new Date().toISOString().slice(0,10)
+            tgl: new Date().toLocaleDateString('id-ID'), tglIso: tglLokalIso()
         };
         pembayaranSppList.unshift(entri);
         entriBaru.push(entri);
@@ -6765,6 +6817,61 @@ function injectWatermarkToPrintWin(win) {
    Fase 1: mengumpulkan konfigurasi. Modul Kas/SPP/dll akan
    ditambahkan ke buildBackupJsonData() begitu dibuat di fase berikutnya.
    ============================================================== */
+/* ==============================================================
+   SECTION: KESELAMATAN DATA
+   1. Minta browser menyimpan data secara PERMANEN — tanpa ini, browser boleh
+      menghapus data aplikasi sendiri saat memori HP penuh.
+   2. Pengingat backup: kartu di Beranda (>= 7 hari / belum pernah), plus popup
+      maksimal 1x sehari kalau sudah ada data tapi backup sudah lama/belum pernah.
+   ============================================================== */
+var statusPenyimpananPermanen = null; // true / false / null (browser tidak mendukung)
+
+async function mintaPenyimpananPermanen() {
+    try {
+        if (!navigator.storage || !navigator.storage.persist) { statusPenyimpananPermanen = null; return; }
+        var sudah = await navigator.storage.persisted();
+        statusPenyimpananPermanen = sudah ? true : await navigator.storage.persist();
+    } catch (e) { statusPenyimpananPermanen = null; }
+    renderInfoKeselamatanData();
+}
+
+function renderInfoKeselamatanData() {
+    var elB = document.getElementById('infoBackupTerakhir');
+    if (elB) {
+        var last = localStorage.getItem(k('bendaharaku_last_backup'));
+        if (!last) elB.innerHTML = '⚠️ <b style="color:var(--red);">Belum pernah backup</b> untuk lembaga ini.';
+        else {
+            var hari = Math.floor((Date.now() - new Date(last).getTime()) / 86400000);
+            elB.innerHTML = 'Backup terakhir: <b>' + new Date(last).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) + '</b>' +
+                (hari === 0 ? ' (hari ini)' : ' (' + hari + ' hari lalu)');
+        }
+    }
+    var elP = document.getElementById('infoPenyimpananPermanen');
+    if (elP) {
+        elP.innerHTML = statusPenyimpananPermanen === true
+            ? '🔒 Penyimpanan permanen: <b style="color:var(--green);">Aktif</b> — browser tidak akan menghapus data otomatis.'
+            : statusPenyimpananPermanen === false
+                ? '⚠️ Penyimpanan permanen: <b style="color:var(--orange);">Belum aktif</b> — browser masih bisa menghapus data saat memori penuh. Pasang aplikasi ke layar utama (Add to Home Screen) & rajin backup.'
+                : '';
+    }
+}
+
+async function cekPopupPengingatBackup() {
+    var adaData = siswaList.length > 0 || dataKas.length > 0;
+    if (!adaData) return;
+    var last = localStorage.getItem(k('bendaharaku_last_backup'));
+    var hari = last ? Math.floor((Date.now() - new Date(last).getTime()) / 86400000) : null;
+    if (last && hari < 7) return;
+    var kunciHariIni = k('bendaharaku_popup_backup_tgl');
+    if (localStorage.getItem(kunciHariIni) === tglLokalIso()) return; // sudah diingatkan hari ini
+    localStorage.setItem(kunciHariIni, tglLokalIso());
+    var pesan = last
+        ? 'Backup terakhir ' + hari + ' hari lalu. Kalau HP hilang/rusak atau data terhapus, transaksi sejak itu tidak bisa dikembalikan.'
+        : 'Data lembaga ini belum pernah di-backup. Kalau HP hilang/rusak atau data terhapus, semua data tidak bisa dikembalikan.';
+    var ya = await customConfirm(pesan + '\n\nBackup sekarang? (sekali tap, file tersimpan di HP)', { title: '💾 Waktunya Backup', yaText: 'Backup Sekarang' });
+    if (ya) backupZipData();
+}
+
 async function buildBackupJsonData() {
     var kuitansiCounter = await idbGet(STORE_KONFIGURASI, k('kuitansi_counter'));
     return {
@@ -6782,7 +6889,11 @@ async function buildBackupJsonData() {
         guru: guruList,
         gaji_pembayaran: gajiPembayaranList,
         tagihan_lain: { jenis: jenisTagihanList, assign: tagihanAssignList, pembayaran: pembayaranTagihanLainList },
-        template_paket: templatePaketList
+        template_paket: templatePaketList,
+        // Ditambahkan belakangan — sebelumnya TIDAK ikut ter-backup:
+        saldo_awal: getSaldoAwalKasData(),
+        metode_pembayaran: localStorage.getItem(k('bendaharaku_metode_pembayaran')),
+        audit_log: auditLogList
     };
 }
 
@@ -6912,8 +7023,23 @@ async function applyRestoreBackupData(backup) {
         templatePaketList = backup.template_paket;
         await idbSet(STORE_TAGIHAN_LAIN, k('template_paket_list'), templatePaketList);
     }
-    // Catat di Riwayat Perubahan setelah data lama ditimpa, biar ada jejak kapan restore terjadi
-    await loadAuditLogData(); // muat ulang dulu (kalau ada log sebelum restore, tetap dipertahankan, tidak ikut ditimpa restore)
+    if (backup.saldo_awal) {
+        if (backup.saldo_awal.tanggal) localStorage.setItem(k('bendaharaku_saldo_awal_tanggal'), backup.saldo_awal.tanggal);
+        else localStorage.removeItem(k('bendaharaku_saldo_awal_tanggal'));
+        localStorage.setItem(k('bendaharaku_saldo_awal_nominal'), backup.saldo_awal.nominal || 0);
+    }
+    if (backup.metode_pembayaran) {
+        localStorage.setItem(k('bendaharaku_metode_pembayaran'), backup.metode_pembayaran);
+    }
+    // Riwayat Perubahan: gabungkan log dari file backup dengan log yang sudah ada di HP ini (tanpa dobel),
+    // lalu catat bahwa restore terjadi — supaya jejak pertanggungjawaban tidak hilang karena restore.
+    await loadAuditLogData();
+    if (Array.isArray(backup.audit_log)) {
+        var idAda = {};
+        auditLogList.forEach(function(l){ idAda[l.id] = true; });
+        backup.audit_log.forEach(function(l){ if (!idAda[l.id]) auditLogList.push(l); });
+        auditLogList.sort(function(a,b){ return (b.tglIso || '').localeCompare(a.tglIso || ''); });
+    }
     catatAuditLog('Restore data dari backup', 'Seluruh data ditimpa dari file backup yang dipulihkan');
 }
 
@@ -6928,9 +7054,10 @@ async function backupZipData() {
         var backupData = await buildBackupJsonData();
         zip.file('data.json', JSON.stringify(backupData, null, 2));
         var blob = await zip.generateAsync({ type: 'blob' });
-        saveAs(blob, 'BendaharaKu_Backup_' + new Date().toISOString().slice(0,10) + '.zip');
+        saveAs(blob, 'BendaharaKu_Backup_' + tglLokalIso() + '.zip');
         localStorage.setItem(k('bendaharaku_last_backup'), new Date().toISOString());
         updateHomeSaldoRingkasan();
+        renderInfoKeselamatanData();
         showToast('✅ Backup ZIP berhasil diunduh');
     } catch(err) {
         showToast('❌ Gagal backup: ' + err.message);
@@ -6994,13 +7121,15 @@ window.addEventListener('DOMContentLoaded', function() {
         renderRingkasanBerandaLengkap();
         var skel = document.getElementById('skeletonBeranda');
         if (skel) skel.style.display = 'none';
+        mintaPenyimpananPermanen();
+        setTimeout(function(){ if (!perluOnboarding()) cekPopupPengingatBackup(); }, 1500);
         // Lanjutkan dari halaman terakhir dibuka sebelum refresh, jangan selalu balik ke Beranda
         var halamanTerakhir = sessionStorage.getItem('bendaharaku_halaman_terakhir');
         if (halamanTerakhir && halamanTerakhir !== 'home' && document.getElementById('page-' + halamanTerakhir)) {
             showPage(halamanTerakhir);
         } else {
             var fab = document.getElementById('fabCatatTransaksi');
-            if (fab) fab.style.display = 'flex'; // Beranda aktif dari awal (bukan lewat showPage), jadi FAB perlu ditampilkan manual di sini
+            if (fab) fab.style.display = 'flex'; document.body.classList.add('ada-fab'); // Beranda aktif dari awal (bukan lewat showPage), jadi FAB perlu ditampilkan manual di sini
             if (perluOnboarding()) setTimeout(mulaiOnboarding, 600); // beri jeda dikit biar splash sempat tertutup dulu
         }
     }).catch(function(e){

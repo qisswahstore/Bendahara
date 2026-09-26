@@ -146,17 +146,22 @@
             box-shadow: 0 1px 6px rgba(0,0,0,0.05);
         }
         .menu-icon-circle {
-            width: 46px; height: 46px; border-radius: 50%;
+            width: 38px; height: 38px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            margin: 0 auto; color: white; font-size: 18px;
+            margin: 0 auto; color: white; font-size: 15px;
             box-shadow: 0 2px 6px rgba(0,0,0,0.15);
         }
+        details.lap-rincian > summary { font-weight: 700; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+        details.lap-rincian > summary::-webkit-details-marker { display: none; }
+        details.lap-rincian > summary::after { content: '▾'; color: var(--gray-400); transition: transform 0.2s; }
+        details.lap-rincian[open] > summary::after { transform: rotate(180deg); }
         .menu-pill {
             display: inline-block; background: var(--gray-200); color: var(--gray-700);
-            font-size: 10px; font-weight: 600; padding: 3px 11px; border-radius: 12px; margin-top: 7px;
+            font-size: 9px; font-weight: 600; padding: 2px 8px; border-radius: 12px; margin-top: 6px;
         }
-        .menu-grid-home { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .menu-grid-home .setting-card { min-height: 118px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .menu-grid-home { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .menu-grid-home .setting-card { min-height: 96px; padding: 10px 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .menu-grid-home .setting-card > div:nth-child(2) { font-size: 11px !important; line-height: 1.25; }
 
         /* ---------- BUTTONS ---------- */
         .btn {
@@ -258,9 +263,7 @@
             body { background: var(--gray-light); padding-bottom: 90px; }
             .card, .setting-card { border: 1px solid var(--border); }
             .menu-grid-home { grid-template-columns: repeat(4, 1fr) !important; }
-            /* Kartu Ringkasan Bulan Ini: 4 kolom sejajar di layar lebar, biar tidak renggang aneh
-               (di HP tetap 2x2 seperti biasa, ini cuma berlaku di atas 700px lebar layar) */
-            .ringkasan-grid { grid-template-columns: repeat(4, 1fr) !important; }
+            /* Ringkasan Bulan Ini sudah 1 baris 4 kolom dari HP juga sekarang — ini cuma jaga-jaga konsistensi border di layar lebar */
             .ringkasan-item { border-bottom: none !important; }
             .ringkasan-item:not(:last-child) { border-right: 1px solid var(--border) !important; }
         }
@@ -292,6 +295,37 @@
             <i class="fas fa-check" style="color:white;font-size:30px;"></i>
         </div>
         <div id="animasiSuksesTeks" style="font-weight:700;font-size:15px;color:var(--dark);">Berhasil!</div>
+    </div>
+</div>
+
+<!-- Tombol mengambang "+" — 1 pintu masuk buat catat transaksi apapun, nempel terus di beberapa halaman utama -->
+<div id="fabCatatTransaksi" onclick="showModalCatatTransaksi()" style="display:none;position:fixed;bottom:78px;right:16px;width:56px;height:56px;border-radius:50%;background:var(--primary);color:white;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,0.3);z-index:400;cursor:pointer;font-size:24px;">
+    <i class="fas fa-plus"></i>
+</div>
+
+<div id="modalCatatTransaksi" class="modal">
+    <div class="modal-content" style="max-width:380px;">
+        <h3 style="color:var(--primary);margin-bottom:4px;">💰 Catat Transaksi</h3>
+        <div class="txt-muted mb-16" style="font-size:12px;">Pilih mau catat apa</div>
+        <div class="setting-card" style="cursor:pointer;margin-bottom:10px;" onclick="fabBayarSiswa()">
+            <div class="flex items-center gap-12">
+                <div class="menu-icon-circle" style="background:#3B82F6;width:44px;height:44px;font-size:18px;flex-shrink:0;"><i class="fas fa-graduation-cap"></i></div>
+                <div><div style="font-weight:700;font-size:14px;">Bayar Siswa</div><div class="txt-muted" style="font-size:11px;">SPP & Tagihan Lain jadi satu, cari nama siswa</div></div>
+            </div>
+        </div>
+        <div class="setting-card" style="cursor:pointer;margin-bottom:10px;" onclick="fabKas()">
+            <div class="flex items-center gap-12">
+                <div class="menu-icon-circle" style="background:var(--primary);width:44px;height:44px;font-size:18px;flex-shrink:0;"><i class="fas fa-wallet"></i></div>
+                <div><div style="font-weight:700;font-size:14px;">Kas Masuk / Keluar</div><div class="txt-muted" style="font-size:11px;">Uang di luar SPP & Tagihan Lain</div></div>
+            </div>
+        </div>
+        <div class="setting-card" style="cursor:pointer;" onclick="fabHonorGuru()">
+            <div class="flex items-center gap-12">
+                <div class="menu-icon-circle" style="background:#6366F1;width:44px;height:44px;font-size:18px;flex-shrink:0;"><i class="fas fa-chalkboard-teacher"></i></div>
+                <div><div style="font-weight:700;font-size:14px;">Honor Guru</div><div class="txt-muted" style="font-size:11px;">Bayar honor bulanan guru</div></div>
+            </div>
+        </div>
+        <button class="btn btn-gray w-full mt-16" onclick="document.getElementById('modalCatatTransaksi').style.display='none'">Batal</button>
     </div>
 </div>
 
@@ -384,34 +418,28 @@
             </div>
         </div>
 
-        <div class="row mb-16">
-            <button class="btn btn-small" style="flex:1;background:var(--primary-dark);color:white;" onclick="showPage('kelas-siswa');tambahSiswaBaru();"><i class="fas fa-user-plus"></i> Siswa</button>
-            <button class="btn btn-small" style="flex:1;background:#059669;color:white;" onclick="showPage('spp')"><i class="fas fa-money-bill-wave"></i> Bayar SPP</button>
-            <button class="btn btn-small" style="flex:1;background:var(--wa);color:white;" onclick="showPage('pengingat-wa')"><i class="fab fa-whatsapp"></i> WA Massal</button>
-        </div>
-
         <div class="card">
-            <div style="font-weight:700;margin-bottom:10px;">📊 Ringkasan Bulan Ini</div>
-            <div class="ringkasan-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
-                <div class="text-center ringkasan-item" style="padding:8px 4px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);">
-                    <div style="font-size:18px;">🎓</div>
-                    <div class="txt-muted" style="font-size:11px;margin-top:2px;">Total Siswa</div>
-                    <div id="statTotalSiswa" style="font-size:17px;font-weight:800;color:var(--primary);">0</div>
+            <div style="font-weight:700;margin-bottom:8px;">📊 Ringkasan Bulan Ini</div>
+            <div class="ringkasan-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;">
+                <div class="text-center ringkasan-item" style="padding:6px 2px;border-right:1px solid var(--border);">
+                    <div style="font-size:15px;">🎓</div>
+                    <div class="txt-muted" style="font-size:9px;margin-top:2px;line-height:1.2;">Siswa</div>
+                    <div id="statTotalSiswa" style="font-size:14px;font-weight:800;color:var(--primary);">0</div>
                 </div>
-                <div class="text-center ringkasan-item" style="padding:8px 4px;border-bottom:1px solid var(--border);">
-                    <div style="font-size:18px;">✅</div>
-                    <div class="txt-muted" style="font-size:11px;margin-top:2px;">SPP Lunas</div>
-                    <div id="statSppLunas" style="font-size:17px;font-weight:800;color:var(--green);">0</div>
+                <div class="text-center ringkasan-item" style="padding:6px 2px;border-right:1px solid var(--border);">
+                    <div style="font-size:15px;">✅</div>
+                    <div class="txt-muted" style="font-size:9px;margin-top:2px;line-height:1.2;">Lunas</div>
+                    <div id="statSppLunas" style="font-size:14px;font-weight:800;color:var(--green);">0</div>
                 </div>
-                <div class="text-center ringkasan-item" style="padding:8px 4px;border-right:1px solid var(--border);">
-                    <div style="font-size:18px;">⏳</div>
-                    <div class="txt-muted" style="font-size:11px;margin-top:2px;">Belum Bayar</div>
-                    <div id="statSppBelum" style="font-size:17px;font-weight:800;color:var(--red);">0</div>
+                <div class="text-center ringkasan-item" style="padding:6px 2px;border-right:1px solid var(--border);">
+                    <div style="font-size:15px;">⏳</div>
+                    <div class="txt-muted" style="font-size:9px;margin-top:2px;line-height:1.2;">Belum</div>
+                    <div id="statSppBelum" style="font-size:14px;font-weight:800;color:var(--red);">0</div>
                 </div>
-                <div class="text-center ringkasan-item" style="padding:8px 4px;">
-                    <div style="font-size:18px;">📌</div>
-                    <div class="txt-muted" style="font-size:11px;margin-top:2px;">Total Tunggakan</div>
-                    <div id="statTotalTunggakan" style="font-size:13.5px;font-weight:800;color:var(--orange);">Rp 0</div>
+                <div class="text-center ringkasan-item" style="padding:6px 2px;">
+                    <div style="font-size:15px;">📌</div>
+                    <div class="txt-muted" style="font-size:9px;margin-top:2px;line-height:1.2;">Tunggakan</div>
+                    <div id="statTotalTunggakan" style="font-size:11px;font-weight:800;color:var(--orange);">Rp 0</div>
                 </div>
             </div>
         </div>
@@ -435,122 +463,78 @@
             <button class="btn btn-small w-full mt-8" style="background:#D97706;color:white;" onclick="document.getElementById('perluDitagihCard').scrollIntoView({behavior:'smooth', block:'start'})"><i class="fas fa-arrow-down"></i> Lihat Tunggakan Terbesar</button>
         </div>
 
-        <div id="perluDitagihCard" class="card" style="display:none;">
-            <div class="flex items-center justify-between mb-8">
-                <div style="font-weight:700;">💸 Tunggakan Terbesar</div>
-                <span onclick="showPage('spp')" style="color:var(--primary);font-size:12px;font-weight:600;cursor:pointer;">Lihat Semua ›</span>
-            </div>
-            <div id="perluDitagihListWrap"></div>
-        </div>
-
         <div class="card">
-            <div style="font-weight:700;margin-bottom:2px;color:var(--gray-700);font-size:12.5px;">📋 KERJAAN HARIAN</div>
-            <div class="menu-grid-home mt-8">
-                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('tagihan-lain')">
-                    <div class="menu-icon-circle" style="background:#F59E0B;"><i class="fas fa-receipt"></i></div>
-                    <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Tagihan Lain-lain</div>
-                    <div class="menu-pill">Non-SPP</div>
+            <div style="font-weight:800;color:var(--primary);font-size:13px;letter-spacing:0.3px;display:inline-block;padding-bottom:4px;border-bottom:3px solid #D4A93A;">🧭 MENU UTAMA</div>
+            <div class="menu-grid-home mt-16">
+                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('siswa')">
+                    <div class="menu-icon-circle" style="background:#3B82F6;"><i class="fas fa-user-graduate"></i></div>
+                    <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Siswa &amp; Tagihan</div>
+                    <div class="menu-pill">Bayar</div>
                 </div>
-                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('kartu-siswa')">
-                    <div class="menu-icon-circle" style="background:#3B82F6;"><i class="fas fa-id-card"></i></div>
-                    <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Kartu Tagihan Siswa</div>
-                    <div class="menu-pill">Per Siswa</div>
+                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('kas')">
+                    <div class="menu-icon-circle" style="background:var(--primary);"><i class="fas fa-book"></i></div>
+                    <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Buku Kas</div>
+                    <div class="menu-pill">Uang</div>
                 </div>
-                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('kelas-siswa')">
-                    <div class="menu-icon-circle" style="background:#8B5CF6;"><i class="fas fa-users-cog"></i></div>
-                    <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Kelas &amp; Siswa</div>
-                    <div class="menu-pill">Data Induk</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card" style="cursor:pointer;" onclick="showPage('lainnya')">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center gap-12">
-                    <div class="menu-icon-circle" style="background:var(--gray-600);width:40px;height:40px;font-size:16px;"><i class="fas fa-ellipsis"></i></div>
-                    <div>
-                        <div style="font-weight:700;font-size:14px;">Menu Lainnya</div>
-                        <div class="txt-muted" style="font-size:11.5px;">RKAS, Gaji/Honor, Jurnal, Template, Log Kuitansi, Dashboard</div>
-                    </div>
-                </div>
-                <i class="fas fa-chevron-right" style="color:var(--gray-400);"></i>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- ==========================================================
-     MENU LAINNYA PAGE (fitur lanjutan, tidak dipakai harian)
-     ========================================================== -->
-<div id="page-lainnya" class="page">
-    <div class="header-premium header-premium-small">
-        <div class="back-header">
-            <i class="fas fa-arrow-left" onclick="showPage('home')"></i>
-            <h2>⋯ Menu Lainnya</h2>
-            <div style="width:18px;"></div>
-        </div>
-    </div>
-    <div class="container" style="padding-top:16px;">
-        <div class="card" style="background:var(--primary-light);border:1px solid var(--border);">
-            <div class="txt-muted" style="line-height:1.6;">Fitur di sini tidak dipakai tiap hari, tapi kalau ada yang perlu ditindaklanjuti (misal honor guru belum dibayar), tetap muncul otomatis di "Perlu Perhatian" pada Beranda.</div>
-        </div>
-
-        <div class="card">
-            <div style="font-weight:700;margin-bottom:2px;color:var(--gray-700);font-size:12.5px;">📄 DOKUMEN &amp; KOMUNIKASI</div>
-            <div class="menu-grid-home mt-8">
-                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('template-paket')">
-                    <div class="menu-icon-circle" style="background:#8B5CF6;"><i class="fas fa-boxes-stacked"></i></div>
-                    <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Template Paket Biaya</div>
-                    <div class="menu-pill">Paket</div>
-                </div>
-                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('kuitansi')">
-                    <div class="menu-icon-circle" style="background:#EC4899;"><i class="fas fa-file-invoice"></i></div>
-                    <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Log Kuitansi</div>
-                    <div class="menu-pill">Riwayat</div>
+                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('laporan')">
+                    <div class="menu-icon-circle" style="background:#0EA5E9;"><i class="fas fa-chart-pie"></i></div>
+                    <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Laporan</div>
+                    <div class="menu-pill">Cetak</div>
                 </div>
                 <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('pengingat-wa')">
                     <div class="menu-icon-circle" style="background:#22C55E;"><i class="fab fa-whatsapp"></i></div>
                     <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Pengingat WA</div>
                     <div class="menu-pill">Massal</div>
                 </div>
-            </div>
-        </div>
-
-        <div class="card">
-            <div style="font-weight:700;margin-bottom:2px;color:var(--gray-700);font-size:12.5px;">📊 ANALISIS &amp; PERENCANAAN</div>
-            <div class="menu-grid-home mt-8">
-                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('dashboard')">
-                    <div class="menu-icon-circle" style="background:var(--primary);"><i class="fas fa-chart-line"></i></div>
-                    <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Dashboard</div>
-                    <div class="menu-pill">Grafik</div>
+                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('kuitansi')">
+                    <div class="menu-icon-circle" style="background:#EC4899;"><i class="fas fa-file-invoice"></i></div>
+                    <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Kuitansi</div>
+                    <div class="menu-pill">Riwayat</div>
+                </div>
+                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('gaji')">
+                    <div class="menu-icon-circle" style="background:#6366F1;"><i class="fas fa-chalkboard-teacher"></i></div>
+                    <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Honor Guru</div>
+                    <div class="menu-pill">Bulanan</div>
                 </div>
                 <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('rkas')">
                     <div class="menu-icon-circle" style="background:#D97706;"><i class="fas fa-sitemap"></i></div>
                     <div style="font-size:12.5px;font-weight:600;margin-top:6px;">RKAS</div>
                     <div class="menu-pill">Anggaran</div>
                 </div>
-            </div>
-        </div>
-
-        <div class="card">
-            <div style="font-weight:700;margin-bottom:2px;color:var(--gray-700);font-size:12.5px;">🔁 RUTIN &amp; RIWAYAT</div>
-            <div class="menu-grid-home mt-8">
-                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('gaji')">
-                    <div class="menu-icon-circle" style="background:#6366F1;"><i class="fas fa-chalkboard-teacher"></i></div>
-                    <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Gaji/Honor Guru</div>
-                    <div class="menu-pill">Bulanan</div>
+                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('tagihan-lain')">
+                    <div class="menu-icon-circle" style="background:#F59E0B;"><i class="fas fa-receipt"></i></div>
+                    <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Jenis Tagihan</div>
+                    <div class="menu-pill">Non-SPP</div>
                 </div>
-                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('jurnal')">
-                    <div class="menu-icon-circle" style="background:#57534E;"><i class="fas fa-book"></i></div>
-                    <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Jurnal Harian</div>
-                    <div class="menu-pill">Harian</div>
+                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('template-paket')">
+                    <div class="menu-icon-circle" style="background:#8B5CF6;"><i class="fas fa-boxes-stacked"></i></div>
+                    <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Paket Biaya</div>
+                    <div class="menu-pill">Template</div>
+                </div>
+                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('kelas-siswa')">
+                    <div class="menu-icon-circle" style="background:#7C3AED;"><i class="fas fa-users-cog"></i></div>
+                    <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Data Kelas &amp; Siswa</div>
+                    <div class="menu-pill">Data Induk</div>
                 </div>
                 <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('riwayat-perubahan')">
                     <div class="menu-icon-circle" style="background:#0F766E;"><i class="fas fa-clock-rotate-left"></i></div>
                     <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Riwayat Perubahan</div>
                     <div class="menu-pill">Audit</div>
                 </div>
+                <div class="setting-card text-center" style="cursor:pointer;" onclick="showPage('pengaturan')">
+                    <div class="menu-icon-circle" style="background:#64748B;"><i class="fas fa-cog"></i></div>
+                    <div style="font-size:12.5px;font-weight:600;margin-top:6px;">Pengaturan</div>
+                    <div class="menu-pill">Setting</div>
+                </div>
             </div>
+        </div>
+
+        <div id="perluDitagihCard" class="card" style="display:none;">
+            <div class="flex items-center justify-between mb-8">
+                <div style="font-weight:700;">💸 Tunggakan Terbesar</div>
+                <span onclick="bukaSiswaFilterNunggak()" style="color:var(--primary);font-size:12px;font-weight:600;cursor:pointer;">Lihat Semua ›</span>
+            </div>
+            <div id="perluDitagihListWrap"></div>
         </div>
     </div>
 </div>
@@ -558,7 +542,7 @@
 <div id="page-riwayat-perubahan" class="page">
     <div class="header-premium header-premium-small">
         <div class="back-header">
-            <i class="fas fa-arrow-left" onclick="showPage('lainnya')"></i>
+            <i class="fas fa-arrow-left" onclick="showPage('home')"></i>
             <h2>🕓 Riwayat Perubahan</h2>
             <div style="width:18px;"></div>
         </div>
@@ -575,7 +559,7 @@
 <div id="page-pengingat-wa" class="page">
     <div class="header-premium header-premium-small">
         <div class="back-header">
-            <i class="fas fa-arrow-left" onclick="showPage('lainnya')"></i>
+            <i class="fas fa-arrow-left" onclick="showPage('home')"></i>
             <h2>📲 Pengingat WA Massal</h2>
             <div style="width:18px;"></div>
         </div>
@@ -622,7 +606,7 @@
     <div class="header-premium header-premium-small header-premium-overlap">
         <div class="back-header">
             <i class="fas fa-arrow-left" onclick="showPage('home')"></i>
-            <h2>💵 Kas Masuk/Keluar</h2>
+            <h2>📒 Buku Kas</h2>
             <div style="width:18px;"></div>
         </div>
     </div>
@@ -644,72 +628,59 @@
                     <div id="summaryKas" style="font-size:15px;font-weight:800;color:var(--primary);">Rp 0</div>
                 </div>
             </div>
-            <div class="txt-muted text-center mt-8" style="font-size:10.5px;">Saldo = seluruh Kas + SPP + Tagihan Lain yang sudah dibayar (Masuk/Keluar di atas hanya dari daftar transaksi Kas di bawah)</div>
+            <div class="txt-muted text-center mt-8" style="font-size:10.5px;">Masuk/Keluar = semua uang bulan terpilih (SPP, Tagihan Lain, Kas). Saldo = total uang saat ini.</div>
         </div>
 
-        <button class="btn btn-gray w-full mb-16" onclick="showKelolaKategoriModal()"><i class="fas fa-tags"></i> Kelola Kategori Kas</button>
+        <button id="btnToggleFormKas" class="btn btn-primary w-full mb-16" onclick="toggleFormKas()"><i class="fas fa-plus"></i> Catat Kas Masuk / Keluar</button>
 
-        <div class="card">
-            <div style="font-weight:700;margin-bottom:4px;">➕ Tambah Transaksi</div>
-            <div class="txt-muted mb-16" style="line-height:1.5;">Khusus kas umum (Dana BOS, ATK, Listrik, Kegiatan, dll). Untuk <b>SPP siswa</b> catat lewat menu <b>SPP</b>, untuk <b>Buku/Seragam/Pendaftaran</b> dll catat lewat menu <b>Tagihan Lain-lain</b> — supaya status per siswa ikut tercatat.</div>
+        <div class="card" id="formKasCard" style="display:none;">
+            <div style="font-weight:700;margin-bottom:4px;">➕ Catat Kas Masuk / Keluar</div>
+            <div class="txt-muted mb-16" style="line-height:1.5;">Untuk uang di luar pembayaran siswa (Dana BOS, ATK, Listrik, Kegiatan, dll). Pembayaran <b>SPP &amp; Tagihan Lain</b> dicatat lewat menu <b>Siswa</b> — otomatis ikut tampil di Buku Kas ini.</div>
             <div class="row mb-8">
                 <button class="btn btn-small" id="btnTipeMasuk" style="flex:1;background:var(--green);color:white;" onclick="pilihTipeKas('masuk')">⬆️ Masuk</button>
                 <button class="btn btn-small btn-gray" id="btnTipeKeluar" style="flex:1;" onclick="pilihTipeKas('keluar')">⬇️ Keluar</button>
             </div>
             <input type="hidden" id="tipeKas" value="masuk">
-
             <label>Kategori</label>
             <div class="row mb-8">
                 <select id="kategoriKas" style="flex:1;"></select>
                 <button class="btn btn-gray btn-small" onclick="tambahKategoriBaru()"><i class="fas fa-plus"></i></button>
                 <button class="btn btn-gray btn-small" onclick="showKelolaKategoriModal()"><i class="fas fa-cog"></i></button>
             </div>
-
             <label>Keterangan</label>
-            <input type="text" id="ketKas" placeholder="cth: SPP Kelas 4A bulan Agustus">
-
+            <input type="text" id="ketKas" placeholder="cth: Beli ATK kantor">
             <label class="mt-16">Nominal (Rp)</label>
             <input type="text" id="nomKas" placeholder="0" inputmode="numeric" oninput="formatNominalInput(this)">
-
             <button class="btn btn-primary w-full mt-16" onclick="tambahTransaksiKas()">💾 Simpan Transaksi</button>
         </div>
 
         <div class="card">
             <div class="flex items-center justify-between mb-8">
-                <div style="font-weight:700;">📋 Riwayat Transaksi</div>
+                <div style="font-weight:700;">📋 Semua Transaksi</div>
+                <input type="month" id="filterBulanKas" onchange="renderKasTable()" style="width:auto;padding:6px 8px;font-size:12px;">
             </div>
-            <div class="row mb-8">
-                <select id="filterKategoriKas" onchange="renderKasTable()" style="flex:1;">
-                    <option value="">Semua Kategori</option>
-                </select>
-                <input type="month" id="filterBulanKas" onchange="renderKasTable()" style="flex:1;">
+            <select id="filterKategoriKas" style="display:none;"><option value="">Semua Kategori</option></select>
+            <div class="flex gap-8 mb-8" style="overflow-x:auto;padding-bottom:2px;">
+                <button class="btn btn-small bukukas-chip" data-filter="semua" onclick="setFilterBukuKas('semua')">Semua</button>
+                <button class="btn btn-small bukukas-chip" data-filter="masuk" onclick="setFilterBukuKas('masuk')">Masuk</button>
+                <button class="btn btn-small bukukas-chip" data-filter="keluar" onclick="setFilterBukuKas('keluar')">Keluar</button>
+                <button class="btn btn-small bukukas-chip" data-filter="spp" onclick="setFilterBukuKas('spp')">SPP</button>
+                <button class="btn btn-small bukukas-chip" data-filter="tl" onclick="setFilterBukuKas('tl')" style="white-space:nowrap;">Tagihan Lain</button>
+                <button class="btn btn-small bukukas-chip" data-filter="kas" onclick="setFilterBukuKas('kas')" style="white-space:nowrap;">Kas Umum</button>
             </div>
-            <div style="overflow-x:auto;">
-                <table style="width:100%;border-collapse:collapse;font-size:12.5px;">
-                    <thead>
-                        <tr style="background:var(--surface-1);">
-                            <th style="text-align:left;padding:8px 6px;">Tgl</th>
-                            <th style="text-align:left;padding:8px 6px;">Kategori</th>
-                            <th style="text-align:left;padding:8px 6px;">Keterangan</th>
-                            <th style="text-align:right;padding:8px 6px;">Nominal</th>
-                            <th style="padding:8px 6px;"></th>
-                        </tr>
-                    </thead>
-                    <tbody id="bodyKas"></tbody>
-                </table>
-                <div id="kasEmptyState" class="text-center txt-muted" style="padding:32px 0;display:none;">
-                    <div style="font-size:40px;margin-bottom:8px;">💵</div>
-                    <div>Belum ada transaksi Kas</div>
-                    <div style="font-size:11.5px;margin-top:4px;">Catat pemasukan/pengeluaran pertama lewat form di atas</div>
-                </div>
+            <div id="bukuKasListWrap"></div>
+            <table style="display:none;"><tbody id="bodyKas"></tbody></table>
+            <div id="kasEmptyState" class="text-center txt-muted" style="padding:28px 0;display:none;">
+                <div style="font-size:40px;margin-bottom:8px;">📒</div>
+                <div>Belum ada transaksi di bulan ini</div>
             </div>
         </div>
 
         <div class="card">
             <div style="font-weight:700;margin-bottom:10px;">🖨️ Cetak &amp; Ekspor</div>
             <div class="row">
-                <button class="btn btn-blue btn-small" style="flex:1" onclick="cetakKasHTML()"><i class="fas fa-print"></i> Cetak</button>
-                <button class="btn btn-orange btn-small" style="flex:1" onclick="exportKasExcel()"><i class="fas fa-file-excel"></i> Excel</button>
+                <button class="btn btn-blue btn-small" style="flex:1" onclick="cetakBukuKas()"><i class="fas fa-print"></i> Cetak Buku Kas</button>
+                <button class="btn btn-orange btn-small" style="flex:1" onclick="exportKasExcel()"><i class="fas fa-file-excel"></i> Excel Kas Umum</button>
             </div>
         </div>
     </div>
@@ -1220,7 +1191,7 @@
 <div id="page-spp" class="page">
     <div class="header-premium header-premium-small">
         <div class="back-header">
-            <i class="fas fa-arrow-left" onclick="showPage('home')"></i>
+            <i class="fas fa-arrow-left" onclick="showPage('siswa')"></i>
             <h2>🎓 SPP Siswa</h2>
             <div style="width:18px;"></div>
         </div>
@@ -1345,26 +1316,40 @@
     </div>
     <div class="container" style="padding-top:16px;">
 
-        <div class="card">
-            <label>Periode</label>
-            <input type="month" id="laporanBulanAktif" onchange="renderLaporanKeuangan()">
+        <div class="card flex items-center justify-between" style="padding:12px 16px;">
+            <div style="font-weight:700;font-size:13px;">📅 Periode</div>
+            <input type="month" id="laporanBulanAktif" onchange="renderLaporanKeuangan()" style="width:auto;padding:6px 8px;font-size:13px;">
         </div>
 
         <div class="card" style="background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;">
-            <div class="row">
+            <div class="row" style="text-align:center;">
                 <div style="flex:1;">
-                    <div style="font-size:11px;opacity:0.85;">Total Pemasukan</div>
-                    <div id="lapTotalMasuk" style="font-size:16px;font-weight:800;">Rp 0</div>
+                    <div style="font-size:11px;opacity:0.85;">Masuk</div>
+                    <div id="lapTotalMasuk" style="font-size:14px;font-weight:800;">Rp 0</div>
+                </div>
+                <div style="flex:1;border-left:1px solid rgba(255,255,255,0.25);border-right:1px solid rgba(255,255,255,0.25);">
+                    <div style="font-size:11px;opacity:0.85;">Keluar</div>
+                    <div id="lapTotalKeluar" style="font-size:14px;font-weight:800;">Rp 0</div>
                 </div>
                 <div style="flex:1;">
-                    <div style="font-size:11px;opacity:0.85;">Total Pengeluaran</div>
-                    <div id="lapTotalKeluar" style="font-size:16px;font-weight:800;">Rp 0</div>
+                    <div style="font-size:11px;opacity:0.85;">Selisih</div>
+                    <div id="lapSaldo" style="font-size:14px;font-weight:800;">Rp 0</div>
                 </div>
             </div>
-            <div class="mt-16" style="border-top:1px solid rgba(255,255,255,0.25);padding-top:10px;">
-                <div style="font-size:11px;opacity:0.85;">Saldo Periode Ini</div>
-                <div id="lapSaldo" style="font-size:22px;font-weight:800;">Rp 0</div>
+        </div>
+
+        <button class="btn btn-primary w-full mb-16" style="padding:14px;font-size:14.5px;" onclick="document.getElementById('modalCetakLaporan').style.display='flex'">
+            <i class="fas fa-print"></i> Cetak / Kirim Laporan
+        </button>
+
+        <div class="card">
+            <div style="font-weight:700;margin-bottom:10px;">📈 Grafik 6 Bulan Terakhir</div>
+            <canvas id="chartTrenKeuangan" height="220"></canvas>
+            <div class="row mt-16" style="font-size:11.5px;">
+                <div style="flex:1;"><div class="txt-muted">Hari ini</div><span id="dbHariMasuk" class="txt-in">Rp 0</span> · <span id="dbHariKeluar" class="txt-out">Rp 0</span></div>
+                <div style="flex:1;"><div class="txt-muted">Tahun Ajaran <span id="dbTaLabel"></span></div><span id="dbTahunMasuk" class="txt-in">Rp 0</span> · <span id="dbTahunKeluar" class="txt-out">Rp 0</span></div>
             </div>
+            <span id="dbBulanMasuk" style="display:none;"></span><span id="dbBulanKeluar" style="display:none;"></span>
         </div>
 
         <div class="card" id="lapSetoranYayasanCard" style="display:none;background:#EFF6FF;border:1px solid #BFDBFE;">
@@ -1375,76 +1360,28 @@
             <div class="txt-muted mt-8" style="font-size:11px;">Periode ini · dari kategori Kas "Setor ke Yayasan"</div>
         </div>
 
-        <div class="card">
-            <div style="font-weight:700;margin-bottom:10px;">💵 Rincian Kas per Kategori</div>
-            <div id="lapKasKategori"></div>
-        </div>
-
-        <div class="card">
-            <div style="font-weight:700;margin-bottom:10px;">🎓 Rincian SPP per Kelas</div>
-            <div id="lapSppKelas"></div>
-        </div>
-
-        <div class="card">
-            <div style="font-weight:700;margin-bottom:10px;">🎒 Rincian Tagihan Lain per Jenis</div>
-            <div id="lapTagihanLain"></div>
-        </div>
-
-        <div class="card">
-            <div style="font-weight:700;margin-bottom:10px;">🖨️ Cetak &amp; Ekspor</div>
-            <div class="row mb-8">
-                <button class="btn btn-blue btn-small" style="flex:1" onclick="cetakLaporanKeuangan()"><i class="fas fa-print"></i> Cetak</button>
-                <button class="btn btn-orange btn-small" style="flex:1" onclick="exportLaporanKeuanganExcel()"><i class="fas fa-file-excel"></i> Excel</button>
-            </div>
-            <button class="btn btn-gray w-full mb-8" onclick="cetakLaporanBos()"><i class="fas fa-file-invoice-dollar"></i> Cetak Laporan Dana BOS (Sederhana)</button>
-            <button class="btn w-full mb-8" style="background:var(--wa);color:white;" onclick="shareRingkasanBulananWA()"><i class="fab fa-whatsapp"></i> Kirim Ringkasan ke Yayasan</button>
-            <button class="btn btn-primary w-full" onclick="cetakLaporanFormal()"><i class="fas fa-file-contract"></i> Cetak Laporan Formal (Posisi Keuangan &amp; Aktivitas)</button>
-            <div class="txt-muted mt-8" style="font-size:11px;">Format sesuai standar laporan yayasan/nonprofit (ISAK 35) — Laporan Posisi Keuangan (Aset) & Laporan Aktivitas (Penerimaan-Beban) periode ini.</div>
-        </div>
+        <details class="card lap-rincian">
+            <summary>💵 Rincian Kas per Kategori</summary>
+            <div id="lapKasKategori" class="mt-8"></div>
+        </details>
+        <details class="card lap-rincian">
+            <summary>🎓 Rincian SPP per Kelas</summary>
+            <div id="lapSppKelas" class="mt-8"></div>
+        </details>
+        <details class="card lap-rincian">
+            <summary>🎒 Rincian Tagihan Lain per Jenis</summary>
+            <div id="lapTagihanLain" class="mt-8"></div>
+        </details>
     </div>
 </div>
 
-<!-- ==========================================================
-     DASHBOARD PAGE
-     ========================================================== -->
-<div id="page-dashboard" class="page">
-    <div class="header-premium header-premium-small">
-        <div class="back-header">
-            <i class="fas fa-arrow-left" onclick="showPage('home')"></i>
-            <h2>📈 Dashboard Keuangan</h2>
-            <div style="width:18px;"></div>
-        </div>
-    </div>
-    <div class="container" style="padding-top:16px;">
-
-        <div class="card">
-            <div style="font-weight:700;margin-bottom:8px;">📅 Hari Ini</div>
-            <div class="row">
-                <div style="flex:1;"><div class="txt-muted">Masuk</div><div id="dbHariMasuk" class="txt-in">Rp 0</div></div>
-                <div style="flex:1;"><div class="txt-muted">Keluar</div><div id="dbHariKeluar" class="txt-out">Rp 0</div></div>
-            </div>
-        </div>
-
-        <div class="card">
-            <div style="font-weight:700;margin-bottom:8px;">🗓️ Bulan Ini</div>
-            <div class="row">
-                <div style="flex:1;"><div class="txt-muted">Masuk</div><div id="dbBulanMasuk" class="txt-in">Rp 0</div></div>
-                <div style="flex:1;"><div class="txt-muted">Keluar</div><div id="dbBulanKeluar" class="txt-out">Rp 0</div></div>
-            </div>
-        </div>
-
-        <div class="card">
-            <div style="font-weight:700;margin-bottom:8px;">📆 Tahun Ajaran <span id="dbTaLabel"></span></div>
-            <div class="row">
-                <div style="flex:1;"><div class="txt-muted">Masuk</div><div id="dbTahunMasuk" class="txt-in">Rp 0</div></div>
-                <div style="flex:1;"><div class="txt-muted">Keluar</div><div id="dbTahunKeluar" class="txt-out">Rp 0</div></div>
-            </div>
-        </div>
-
-        <div class="card">
-            <div style="font-weight:700;margin-bottom:10px;">📊 Grafik 6 Bulan Terakhir</div>
-            <canvas id="chartTrenKeuangan" height="220"></canvas>
-        </div>
+<!-- Modal pilihan Cetak / Kirim Laporan -->
+<div id="modalCetakLaporan" class="modal">
+    <div class="modal-content" style="max-width:420px;">
+        <h3 style="color:var(--primary);margin-bottom:4px;">🖨️ Cetak / Kirim Laporan</h3>
+        <div class="txt-muted mb-16" style="font-size:12px;">Untuk periode yang dipilih di halaman Laporan</div>
+        <div id="daftarPilihanLaporan"></div>
+        <button class="btn btn-gray w-full mt-8" onclick="document.getElementById('modalCetakLaporan').style.display='none'">Tutup</button>
     </div>
 </div>
 
@@ -1842,11 +1779,60 @@
 <!-- ==========================================================
      KARTU TAGIHAN SISWA PAGE
      ========================================================== -->
-<div id="page-kartu-siswa" class="page">
+<div id="page-siswa" class="page">
     <div class="header-premium header-premium-small">
         <div class="back-header">
             <i class="fas fa-arrow-left" onclick="showPage('home')"></i>
-            <h2>🪪 Kartu Tagihan Siswa</h2>
+            <h2>🎓 Siswa &amp; Tagihan</h2>
+            <div style="width:18px;"></div>
+        </div>
+    </div>
+    <div class="container" style="padding-top:16px;">
+        <div class="card">
+            <div class="row" style="text-align:center;">
+                <div style="flex:1;"><div class="txt-muted" style="font-size:11px;">Siswa Aktif</div><div id="siswaStatTotal" style="font-weight:800;font-size:15px;color:var(--primary);">0</div></div>
+                <div style="flex:1;border-left:1px solid var(--border);border-right:1px solid var(--border);"><div class="txt-muted" style="font-size:11px;">Nunggak</div><div id="siswaStatNunggak" style="font-weight:800;font-size:15px;color:var(--red);">0</div></div>
+                <div style="flex:1;"><div class="txt-muted" style="font-size:11px;">Total Tunggakan</div><div id="siswaStatRp" style="font-weight:800;font-size:13px;color:var(--orange);">Rp 0</div></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <input type="text" id="siswaCari" placeholder="🔍 Cari nama siswa..." oninput="renderSiswaList()" class="mb-8">
+            <select id="siswaFilterKelas" onchange="renderSiswaList()" class="mb-8"></select>
+            <div class="row">
+                <button class="btn btn-small siswa-chip" data-filter="semua" style="flex:1;" onclick="setFilterSiswa('semua')">Semua</button>
+                <button class="btn btn-small siswa-chip" data-filter="nunggak" style="flex:1;" onclick="setFilterSiswa('nunggak')">Nunggak</button>
+                <button class="btn btn-small siswa-chip" data-filter="lunas" style="flex:1;" onclick="setFilterSiswa('lunas')">Lunas</button>
+            </div>
+        </div>
+
+        <div class="txt-muted mb-8" style="font-size:11.5px;">Tap nama siswa untuk bayar SPP &amp; Tagihan Lain, kirim WA, atau cetak.</div>
+        <div id="siswaListWrap"></div>
+        <div id="siswaListEmpty" class="text-center txt-muted card" style="display:none;padding:24px 0;">
+            <div style="font-size:36px;margin-bottom:6px;">🎓</div>
+            <div class="mb-16">Tidak ada siswa yang cocok</div>
+            <button class="btn btn-primary btn-small" onclick="showPage('kelas-siswa');tambahSiswaBaru();"><i class="fas fa-user-plus"></i> Tambah Siswa</button>
+        </div>
+
+        <div class="card mt-16">
+            <div style="font-weight:700;margin-bottom:8px;font-size:12.5px;color:var(--gray-700);">ALAT LAINNYA</div>
+            <div class="row mb-8">
+                <button class="btn btn-gray btn-small" style="flex:1" onclick="showPage('kelas-siswa');tambahSiswaBaru();"><i class="fas fa-user-plus"></i> Tambah Siswa</button>
+                <button class="btn btn-gray btn-small" style="flex:1" onclick="showPage('spp')"><i class="fas fa-calendar-alt"></i> Rekap SPP per Bulan</button>
+            </div>
+            <div class="row">
+                <button class="btn btn-gray btn-small" style="flex:1" onclick="showPengaturanSppModal()"><i class="fas fa-cog"></i> Atur Nominal SPP</button>
+                <button class="btn btn-orange btn-small" style="flex:1" onclick="cetakRekapTunggakan()"><i class="fas fa-print"></i> Cetak Tunggakan</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="page-kartu-siswa" class="page">
+    <div class="header-premium header-premium-small">
+        <div class="back-header">
+            <i class="fas fa-arrow-left" onclick="showPage('siswa')"></i>
+            <h2>🪪 Tagihan Siswa</h2>
             <div style="width:18px;"></div>
         </div>
     </div>
@@ -1893,8 +1879,8 @@
      ========================================================== -->
 <div class="bottom-nav-premium" id="bottomNav">
     <div class="nav-item active" data-page="home" onclick="showPage('home')"><i class="fas fa-home"></i>Beranda</div>
-    <div class="nav-item" data-page="kas" onclick="showPage('kas')"><i class="fas fa-wallet"></i>Kas</div>
-    <div class="nav-item" data-page="spp" onclick="showPage('spp')"><i class="fas fa-graduation-cap"></i>SPP</div>
+    <div class="nav-item" data-page="kas" onclick="showPage('kas')"><i class="fas fa-book"></i>Buku Kas</div>
+    <div class="nav-item" data-page="siswa" onclick="showPage('siswa')"><i class="fas fa-graduation-cap"></i>Siswa</div>
     <div class="nav-item" data-page="laporan" onclick="showPage('laporan')"><i class="fas fa-chart-pie"></i>Laporan</div>
     <div class="nav-item" data-page="pengaturan" onclick="showPage('pengaturan')"><i class="fas fa-cog"></i>Pengaturan</div>
 </div>
@@ -1913,8 +1899,10 @@ function showPage(pageId, dariBack) {
         page.classList.add(dariBack ? 'anim-in-back' : 'anim-in');
     }
     sessionStorage.setItem('bendaharaku_halaman_terakhir', pageId); // biar refresh lanjut dari sini, bukan balik ke Beranda
+    var fab = document.getElementById('fabCatatTransaksi');
+    if (fab) fab.style.display = ['home','kas','siswa','spp','tagihan-lain','gaji'].indexOf(pageId) !== -1 ? 'flex' : 'none';
     document.querySelectorAll('.nav-item').forEach(function(n){
-        n.classList.toggle('active', n.dataset.page === pageId);
+        n.classList.toggle('active', n.dataset.page === pageId || (n.dataset.page === 'siswa' && ['spp','kartu-siswa'].indexOf(pageId) !== -1));
     });
     if (pageId === 'konfigurasi-instansi') loadKonfigurasiInstansiForm();
     if (pageId === 'home') {
@@ -1924,9 +1912,10 @@ function showPage(pageId, dariBack) {
     if (pageId === 'kas') renderKasTable();
     if (pageId === 'kelas-siswa') { renderListKelas(); renderListSiswa(); }
     if (pageId === 'spp') renderSppList();
+    if (pageId === 'siswa') renderSiswaList();
     if (pageId === 'kuitansi') renderRiwayatKuitansi();
     if (pageId === 'laporan') renderLaporanKeuangan();
-    if (pageId === 'dashboard') renderDashboard();
+    if (pageId === 'laporan') { renderPilihanLaporan(); setTimeout(renderDashboard, 50); } // grafik tren (dulu halaman Dashboard) sekarang di Laporan
     if (pageId === 'rkas') renderRkasPage();
     if (pageId === 'gaji') renderGajiList();
     if (pageId === 'jurnal') renderJurnal();
@@ -1982,6 +1971,35 @@ function tampilkanAnimasiSukses(teks) {
     document.getElementById('animasiSuksesTeks').textContent = teks || 'Berhasil!';
     overlay.style.display = 'flex';
     setTimeout(function(){ overlay.style.display = 'none'; }, 900);
+}
+
+/* ---------- Tombol Mengambang "+ Catat Transaksi" — 1 pintu masuk buat semua jenis transaksi ---------- */
+function showModalCatatTransaksi() {
+    document.getElementById('modalCatatTransaksi').style.display = 'flex';
+}
+
+function fabBayarSiswa() {
+    document.getElementById('modalCatatTransaksi').style.display = 'none';
+    showPage('siswa');
+    setTimeout(function(){
+        var el = document.getElementById('siswaCari');
+        if (el) el.focus();
+    }, 350);
+}
+
+function fabKas() {
+    document.getElementById('modalCatatTransaksi').style.display = 'none';
+    showPage('kas');
+    toggleFormKas(true);
+    setTimeout(function(){
+        var el = document.getElementById('ketKas');
+        if (el) el.focus();
+    }, 350);
+}
+
+function fabHonorGuru() {
+    document.getElementById('modalCatatTransaksi').style.display = 'none';
+    showPage('gaji');
 }
 
 /* ==============================================================
@@ -2405,6 +2423,83 @@ function renderRiwayatPerubahan() {
    terpilih, lalu bendahara tap "Kirim" satu-satu dari situ (jujur, bukan pura-pura otomatis).
    ============================================================== */
 var pengingatWaChecked = {};
+
+/* ==============================================================
+   SECTION: HALAMAN SISWA (pusat kerja harian: daftar siswa + tunggakan,
+   tap siswa -> Tagihan Siswa untuk bayar SPP & Tagihan Lain sekaligus)
+   ============================================================== */
+var filterSiswaAktif = 'semua';
+
+function setFilterSiswa(f) {
+    filterSiswaAktif = f;
+    renderSiswaList();
+}
+
+function bukaSiswaFilterNunggak() {
+    filterSiswaAktif = 'nunggak';
+    showPage('siswa');
+}
+
+function bukaKartuSiswa(siswaId) {
+    showPage('kartu-siswa');
+    var sel = document.getElementById('kartuSiswaSelect');
+    var cari = document.getElementById('kartuCariSiswa');
+    var fk = document.getElementById('kartuFilterKelas');
+    if (cari) cari.value = '';
+    if (fk) fk.value = '';
+    isiDropdownKartuSiswa();
+    sel.value = siswaId;
+    renderKartuTagihanSiswa();
+}
+
+function renderSiswaList() {
+    var wrap = document.getElementById('siswaListWrap');
+    if (!wrap) return;
+
+    var selKelas = document.getElementById('siswaFilterKelas');
+    var kelasTerpilih = selKelas.value;
+    selKelas.innerHTML = '<option value="">Semua Kelas</option>' + kelasList.map(function(k){
+        return '<option value="' + k.id + '">' + escapeHtmlKas(k.nama) + '</option>';
+    }).join('');
+    selKelas.value = kelasTerpilih;
+
+    document.querySelectorAll('.siswa-chip').forEach(function(b) {
+        var aktif = b.dataset.filter === filterSiswaAktif;
+        b.style.background = aktif ? 'var(--primary)' : 'var(--gray-200)';
+        b.style.color = aktif ? 'white' : 'var(--gray-700)';
+    });
+
+    var cari = (document.getElementById('siswaCari').value || '').trim().toLowerCase();
+    var semua = getSiswaAktif().map(function(s) {
+        return { s: s, tunggakan: getTotalTunggakanSiswa(s) };
+    });
+
+    var totalNunggak = semua.filter(function(x){ return x.tunggakan > 0; });
+    document.getElementById('siswaStatTotal').textContent = semua.length;
+    document.getElementById('siswaStatNunggak').textContent = totalNunggak.length;
+    document.getElementById('siswaStatRp').textContent = 'Rp ' + totalNunggak.reduce(function(t,x){ return t + x.tunggakan; }, 0).toLocaleString('id-ID');
+
+    var list = semua.filter(function(x) {
+        if (kelasTerpilih && String(x.s.kelasId) !== String(kelasTerpilih)) return false;
+        if (cari && x.s.nama.toLowerCase().indexOf(cari) === -1) return false;
+        if (filterSiswaAktif === 'nunggak' && x.tunggakan <= 0) return false;
+        if (filterSiswaAktif === 'lunas' && x.tunggakan > 0) return false;
+        return true;
+    });
+    list.sort(function(a,b){ return b.tunggakan - a.tunggakan || a.s.nama.localeCompare(b.s.nama); });
+
+    wrap.innerHTML = list.map(function(x) {
+        var badge = x.tunggakan > 0
+            ? '<div style="text-align:right;"><div style="font-weight:800;color:var(--red);font-size:13px;">Rp ' + x.tunggakan.toLocaleString('id-ID') + '</div><div class="txt-muted" style="font-size:10px;">belum dibayar</div></div>'
+            : '<span style="background:var(--green);color:white;padding:3px 10px;border-radius:12px;font-size:10.5px;font-weight:700;">LUNAS</span>';
+        return '<div class="setting-card flex items-center justify-between" style="cursor:pointer;" onclick="bukaKartuSiswa(' + x.s.id + ')">' +
+            '<div><div style="font-weight:700;font-size:13.5px;">' + escapeHtmlKas(x.s.nama) + '</div>' +
+            '<div class="txt-muted" style="font-size:11px;">' + escapeHtmlKas(getNamaKelas(x.s.kelasId)) + '</div></div>' +
+            '<div class="flex items-center gap-8">' + badge + '<i class="fas fa-chevron-right" style="color:var(--gray-400);"></i></div>' +
+        '</div>';
+    }).join('');
+    document.getElementById('siswaListEmpty').style.display = list.length === 0 ? 'block' : 'none';
+}
 
 function getTotalTunggakanSiswa(s) {
     var sisaSpp = getTunggakanSppKumulatifSiswa(s).totalSisa;
@@ -3055,28 +3150,111 @@ function getKasFiltered() {
     });
 }
 
-function renderKasTable() {
-    var body = document.getElementById('bodyKas');
-    if (!body) return;
-    var list = getKasFiltered();
-    var masuk = 0, keluar = 0;
-    body.innerHTML = '';
-    list.forEach(function(i) {
-        if (i.tipe === 'masuk') masuk += i.nom; else keluar += i.nom;
-        body.innerHTML += '<tr>' +
-            '<td style="padding:8px 6px;vertical-align:middle;">' + i.tgl + '</td>' +
-            '<td style="padding:8px 6px;vertical-align:middle;"><span style="background:var(--teal);color:white;padding:2px 8px;border-radius:12px;font-size:10px;white-space:nowrap;">' + escapeHtmlKas(i.kategori) + '</span></td>' +
-            '<td style="padding:8px 6px;vertical-align:middle;">' + escapeHtmlKas(i.ket) + '</td>' +
-            '<td style="padding:8px 6px;vertical-align:middle;text-align:right;" class="' + (i.tipe === 'masuk' ? 'txt-in' : 'txt-out') + '">Rp ' + i.nom.toLocaleString('id-ID') + '</td>' +
-            '<td style="padding:8px 6px;vertical-align:middle;white-space:nowrap;">' +
-                '<button onclick="editTransaksiKas(' + i.id + ')" style="background:none;border:none;color:var(--blue);font-size:14px;cursor:pointer;padding:4px;"><i class="fas fa-edit"></i></button>' +
-                '<button onclick="hapusTransaksiKas(' + i.id + ')" style="background:none;border:none;color:var(--red);font-size:14px;cursor:pointer;padding:4px;"><i class="fas fa-trash"></i></button>' +
-            '</td></tr>';
+/* ---------- BUKU KAS: semua uang masuk & keluar dalam 1 daftar ----------
+   Sumber: transaksi Kas umum (termasuk Honor Guru yang tercatat di Kas),
+   pembayaran SPP, dan pembayaran Tagihan Lain. Data tetap tersimpan terpisah
+   per jenis (laporan tetap akurat) — halaman ini cuma menampilkannya jadi satu. */
+var filterBukuKas = 'semua';
+
+function setFilterBukuKas(f) {
+    filterBukuKas = f;
+    renderKasTable();
+}
+
+function toggleFormKas(paksaBuka) {
+    var form = document.getElementById('formKasCard');
+    var tombol = document.getElementById('btnToggleFormKas');
+    if (!form || !tombol) return;
+    var buka = paksaBuka === true || form.style.display === 'none';
+    form.style.display = buka ? 'block' : 'none';
+    tombol.className = buka ? 'btn btn-gray w-full mb-16' : 'btn btn-primary w-full mb-16';
+    tombol.innerHTML = buka ? '<i class="fas fa-times"></i> Tutup Form' : '<i class="fas fa-plus"></i> Catat Kas Masuk / Keluar';
+}
+
+function getBukuKasEntries(bulan) {
+    var list = [];
+    dataKas.forEach(function(i) {
+        if (!i.tglIso || i.tglIso.slice(0,7) !== bulan) return;
+        list.push({ jenis: 'kas', id: i.id, tglIso: i.tglIso, tgl: i.tgl, label: i.kategori,
+            uraian: i.ket, masuk: i.tipe === 'masuk' ? i.nom : 0, keluar: i.tipe === 'keluar' ? i.nom : 0 });
     });
-    document.getElementById('kasEmptyState').style.display = list.length === 0 ? 'block' : 'none';
+    pembayaranSppList.forEach(function(p) {
+        if (!p.tglIso || p.tglIso.slice(0,7) !== bulan) return;
+        var s = siswaList.find(function(x){ return String(x.id) === String(p.siswaId); });
+        var namaBulan = p.bulan ? new Date(p.bulan + '-01').toLocaleDateString('id-ID', { month: 'short', year: 'numeric' }) : '';
+        list.push({ jenis: 'spp', id: p.id, siswaId: p.siswaId, tglIso: p.tglIso, tgl: p.tgl, label: 'SPP',
+            uraian: (s ? s.nama : '-') + (namaBulan ? ' · ' + namaBulan : ''), masuk: p.nominal, keluar: 0 });
+    });
+    pembayaranTagihanLainList.forEach(function(p) {
+        if (!p.tglIso || p.tglIso.slice(0,7) !== bulan) return;
+        var a = tagihanAssignList.find(function(x){ return String(x.id) === String(p.assignmentId); });
+        var s = a ? siswaList.find(function(x){ return String(x.id) === String(a.siswaId); }) : null;
+        var jt = a ? jenisTagihanList.find(function(x){ return String(x.id) === String(a.jenisTagihanId); }) : null;
+        list.push({ jenis: 'tl', id: p.id, siswaId: s ? s.id : null, tglIso: p.tglIso, tgl: p.tgl, label: jt ? jt.nama : 'Tagihan Lain',
+            uraian: s ? s.nama : '-', masuk: p.nominal, keluar: 0 });
+    });
+    list.sort(function(a,b){ return b.tglIso.localeCompare(a.tglIso) || (b.id - a.id); }); // terbaru di atas
+    return list;
+}
+
+function renderKasTable() {
+    var wrap = document.getElementById('bukuKasListWrap');
+    if (!wrap) return;
+    var bulanEl = document.getElementById('filterBulanKas');
+    if (!bulanEl.value) bulanEl.value = new Date().toISOString().slice(0,7);
+    var semua = getBukuKasEntries(bulanEl.value);
+
+    var masuk = 0, keluar = 0;
+    semua.forEach(function(x){ masuk += x.masuk; keluar += x.keluar; });
     document.getElementById('totalMasukKas').textContent = 'Rp ' + masuk.toLocaleString('id-ID');
     document.getElementById('totalKeluarKas').textContent = 'Rp ' + keluar.toLocaleString('id-ID');
     document.getElementById('summaryKas').textContent = 'Rp ' + getSaldoKeseluruhan().toLocaleString('id-ID');
+
+    document.querySelectorAll('.bukukas-chip').forEach(function(b) {
+        var aktif = b.dataset.filter === filterBukuKas;
+        b.style.background = aktif ? 'var(--primary)' : 'var(--gray-200)';
+        b.style.color = aktif ? 'white' : 'var(--gray-700)';
+    });
+
+    var list = semua.filter(function(x) {
+        if (filterBukuKas === 'masuk') return x.masuk > 0;
+        if (filterBukuKas === 'keluar') return x.keluar > 0;
+        if (filterBukuKas === 'spp' || filterBukuKas === 'tl' || filterBukuKas === 'kas') return x.jenis === filterBukuKas;
+        return true;
+    });
+
+    var warnaLabel = { spp: '#3B82F6', tl: '#F59E0B', kas: 'var(--teal)' };
+    wrap.innerHTML = list.map(function(x) {
+        var nominal = x.masuk > 0
+            ? '<div class="txt-in" style="font-weight:800;font-size:13.5px;white-space:nowrap;">+ Rp ' + x.masuk.toLocaleString('id-ID') + '</div>'
+            : '<div class="txt-out" style="font-weight:800;font-size:13.5px;white-space:nowrap;">− Rp ' + x.keluar.toLocaleString('id-ID') + '</div>';
+        var aksi = x.jenis === 'kas'
+            ? '<div style="margin-top:2px;">' +
+                '<button onclick="event.stopPropagation();editTransaksiKas(' + x.id + ')" style="background:none;border:none;color:var(--blue);font-size:13px;cursor:pointer;padding:2px 6px;"><i class="fas fa-edit"></i></button>' +
+                '<button onclick="event.stopPropagation();hapusTransaksiKas(' + x.id + ')" style="background:none;border:none;color:var(--red);font-size:13px;cursor:pointer;padding:2px 6px;"><i class="fas fa-trash"></i></button>' +
+              '</div>'
+            : (x.siswaId ? '<div class="txt-muted" style="font-size:10px;margin-top:2px;">lihat siswa ›</div>' : '');
+        var bisaKlik = x.jenis !== 'kas' && x.siswaId;
+        return '<div class="flex items-center justify-between" style="padding:10px 2px;border-bottom:1px solid var(--border);' + (bisaKlik ? 'cursor:pointer;' : '') + '"' +
+                (bisaKlik ? ' onclick="bukaKartuSiswa(' + x.siswaId + ')"' : '') + '>' +
+            '<div style="min-width:0;flex:1;padding-right:8px;">' +
+                '<div class="flex items-center gap-8" style="flex-wrap:wrap;">' +
+                    '<span class="txt-muted" style="font-size:11px;">' + x.tgl + '</span>' +
+                    '<span style="background:' + warnaLabel[x.jenis] + ';color:white;padding:1px 8px;border-radius:10px;font-size:10px;white-space:nowrap;">' + escapeHtmlKas(x.label) + '</span>' +
+                '</div>' +
+                '<div style="font-size:13px;font-weight:600;margin-top:3px;overflow:hidden;text-overflow:ellipsis;">' + escapeHtmlKas(x.uraian || '-') + '</div>' +
+            '</div>' +
+            '<div style="text-align:right;">' + nominal + aksi + '</div>' +
+        '</div>';
+    }).join('');
+    document.getElementById('kasEmptyState').style.display = list.length === 0 ? 'block' : 'none';
+}
+
+function cetakBukuKas() {
+    var bulan = document.getElementById('filterBulanKas').value || new Date().toISOString().slice(0,7);
+    var j = document.getElementById('jurnalBulanAktif');
+    if (j) j.value = bulan;
+    cetakJurnal(); // format cetak Jurnal sudah menggabungkan Kas + SPP + Tagihan Lain dengan saldo berjalan
 }
 
 function getSaldoAwalKasData() {
@@ -3165,11 +3343,7 @@ function renderPencarianGlobal() {
 function bukaSiswaDariPencarian(siswaId) {
     document.getElementById('pencarianGlobalHasil').style.display = 'none';
     document.getElementById('pencarianGlobal').value = '';
-    showPage('kartu-siswa');
-    setTimeout(function() {
-        document.getElementById('kartuSiswaSelect').value = siswaId;
-        renderKartuTagihanSiswa();
-    }, 350);
+    bukaKartuSiswa(siswaId);
 }
 
 function bukaKuitansiDariPencarian(noKuitansi) {
@@ -3309,13 +3483,23 @@ function renderRingkasanBerandaLengkap() {
     // ketinggalan cuma karena menunya tidak kelihatan langsung di Beranda
     var bulanIniCek = new Date().toISOString().slice(0,7);
     var guruBelumDibayar = guruList.filter(function(g){ return !getStatusHonor(g.id, bulanIniCek); }).length;
-    if (guruBelumDibayar > 0) poin.push(guruBelumDibayar + ' guru belum dibayar honornya bulan ini (menu Lainnya → Gaji/Honor Guru)');
+    if (guruBelumDibayar > 0) poin.push(guruBelumDibayar + ' guru belum dibayar honornya bulan ini (menu Honor Guru)');
 
     var perhatianCard = document.getElementById('perluPerhatianCard');
     if (poin.length > 0) {
-        document.getElementById('perluPerhatianListWrap').innerHTML = poin.map(function(p) {
-            return '<div style="font-size:12.5px;color:#92400E;padding:4px 0;">• ' + p + '</div>';
+        var maksTampil = 2;
+        var poinTampil = poin.slice(0, maksTampil);
+        var sisa = poin.length - maksTampil;
+        var html = poinTampil.map(function(p) {
+            return '<div style="font-size:12.5px;color:#92400E;padding:3px 0;">• ' + p + '</div>';
         }).join('');
+        if (sisa > 0) {
+            html += '<div id="perluPerhatianSisaWrap" style="display:none;">' +
+                poin.slice(maksTampil).map(function(p){ return '<div style="font-size:12.5px;color:#92400E;padding:3px 0;">• ' + p + '</div>'; }).join('') +
+            '</div>' +
+            '<div onclick="document.getElementById(\'perluPerhatianSisaWrap\').style.display=\'block\';this.style.display=\'none\';" style="font-size:11.5px;font-weight:700;color:#B45309;padding:4px 0;cursor:pointer;">▾ +' + sisa + ' lainnya</div>';
+        }
+        document.getElementById('perluPerhatianListWrap').innerHTML = html;
         perhatianCard.style.display = 'block';
     } else {
         perhatianCard.style.display = 'none';
@@ -5061,6 +5245,44 @@ function hitungTotalPeriode(tglMulaiIso, tglSelesaiIso) {
     return { masuk: masuk, keluar: keluar };
 }
 
+/* ---------- Pilihan Cetak / Kirim Laporan (1 tombol, pilihan jelas dengan penjelasan) ---------- */
+var PILIHAN_LAPORAN = [
+    { ikon: 'fas fa-file-alt', warna: 'var(--primary)', judul: 'Laporan Bulanan', ket: 'Ringkasan masuk & keluar bulan ini', fn: 'cetakLaporanKeuangan' },
+    { ikon: 'fas fa-book', warna: '#0EA5E9', judul: 'Buku Kas', ket: 'Semua transaksi beserta saldo berjalan', fn: 'cetakBukuKasDariLaporan' },
+    { ikon: 'fas fa-file-contract', warna: '#7C3AED', judul: 'Laporan Formal Yayasan', ket: 'Posisi Keuangan & Aktivitas (ISAK 35)', fn: 'cetakLaporanFormal' },
+    { ikon: 'fas fa-file-invoice-dollar', warna: '#D97706', judul: 'Laporan Dana BOS', ket: 'Penerimaan & penggunaan Dana BOS', fn: 'cetakLaporanBos' },
+    { ikon: 'fas fa-user-clock', warna: 'var(--red)', judul: 'Tunggakan Siswa', ket: 'Daftar siswa yang belum lunas', fn: 'cetakRekapTunggakan' },
+    { ikon: 'fas fa-file-excel', warna: '#1D6F42', judul: 'Excel', ket: 'Unduh laporan bulan ini ke Excel', fn: 'exportLaporanKeuanganExcel' },
+    { ikon: 'fab fa-whatsapp', warna: 'var(--wa)', judul: 'Kirim ke Yayasan (WA)', ket: 'Ringkasan singkat siap kirim', fn: 'shareRingkasanBulananWA' }
+];
+
+function renderPilihanLaporan() {
+    var wrap = document.getElementById('daftarPilihanLaporan');
+    if (!wrap) return;
+    wrap.innerHTML = PILIHAN_LAPORAN.map(function(p) {
+        return '<div class="setting-card" style="cursor:pointer;margin-bottom:8px;padding:10px 12px;" onclick="jalankanPilihanLaporan(\'' + p.fn + '\')">' +
+            '<div class="flex items-center gap-12">' +
+                '<div class="menu-icon-circle" style="background:' + p.warna + ';width:38px;height:38px;font-size:15px;margin:0;flex-shrink:0;"><i class="' + p.ikon + '"></i></div>' +
+                '<div style="flex:1;"><div style="font-weight:700;font-size:13.5px;">' + p.judul + '</div>' +
+                '<div class="txt-muted" style="font-size:11px;">' + p.ket + '</div></div>' +
+                '<i class="fas fa-chevron-right" style="color:var(--gray-400);"></i>' +
+            '</div></div>';
+    }).join('');
+}
+
+function jalankanPilihanLaporan(namaFn) {
+    document.getElementById('modalCetakLaporan').style.display = 'none';
+    var fn = window[namaFn];
+    if (typeof fn === 'function') fn();
+}
+
+function cetakBukuKasDariLaporan() {
+    var bulan = document.getElementById('laporanBulanAktif').value || new Date().toISOString().slice(0,7);
+    var j = document.getElementById('jurnalBulanAktif');
+    if (j) j.value = bulan;
+    cetakJurnal();
+}
+
 function renderDashboard() {
     var hariIni = new Date().toISOString().slice(0,10);
     var totHari = hitungTotalPeriode(hariIni, hariIni);
@@ -5864,7 +6086,9 @@ async function simpanPembayaranTagihanLain() {
     });
     savePembayaranTagihanLainList();
     document.getElementById('modalBayarTagihanLain').style.display = 'none';
-    renderTagihanDetail();
+    var halAktif = (document.querySelector('.page.active') || {}).id;
+    if (halAktif === 'page-kartu-siswa') renderKartuTagihanSiswa();
+    else if (halAktif === 'page-tagihan-detail') renderTagihanDetail();
     updateHomeSaldoRingkasan();
     tampilkanAnimasiSukses('Pembayaran Tercatat!');
     showToast('✅ Pembayaran tersimpan · Kuitansi ' + noKuitansi);
@@ -6185,7 +6409,7 @@ function getRincianTagihanSiswa(siswaId) {
     assigns.forEach(function(a) {
         var jt = jenisTagihanList.find(function(x){ return String(x.id) === String(a.jenisTagihanId); });
         var st = getStatusTagihanLain(a);
-        rows.push({ tipe: 'tagihan_lain', nama: jt ? jt.nama : 'Tagihan Lain', nominal: a.nominal, terbayar: st.terbayar, sisa: st.sisa, status: st.status });
+        rows.push({ tipe: 'tagihan_lain', assignId: a.id, nama: jt ? jt.nama : 'Tagihan Lain', nominal: a.nominal, terbayar: st.terbayar, sisa: st.sisa, status: st.status });
     });
     var totalTagihan = rows.reduce(function(sum,r){ return sum + r.nominal; }, 0);
     var totalBayar = rows.reduce(function(sum,r){ return sum + r.terbayar; }, 0);
@@ -6227,8 +6451,11 @@ function renderKartuTagihanSiswa() {
         var warna = r.status === 'LUNAS' ? 'var(--green)' : (r.status === 'CICIL' ? 'var(--orange)' : 'var(--red)');
         return '<div class="flex items-center justify-between" style="padding:8px 0;border-bottom:1px solid var(--border);">' +
             '<div><div style="font-weight:600;font-size:13px;">' + escapeHtmlKas(r.nama) + '</div>' +
-            '<div class="txt-muted">Rp ' + r.nominal.toLocaleString('id-ID') + '</div></div>' +
-            '<span style="background:' + warna + ';color:white;padding:3px 10px;border-radius:12px;font-size:10.5px;font-weight:700;">' + r.status + '</span></div>';
+            '<div class="txt-muted">Rp ' + r.nominal.toLocaleString('id-ID') + (r.sisa > 0 ? ' · sisa Rp ' + r.sisa.toLocaleString('id-ID') : '') + '</div></div>' +
+            '<div class="flex items-center gap-8">' +
+                '<span style="background:' + warna + ';color:white;padding:3px 10px;border-radius:12px;font-size:10.5px;font-weight:700;">' + r.status + '</span>' +
+                (r.sisa > 0 ? '<button class="btn btn-primary btn-small" style="padding:5px 10px;" onclick="showBayarTagihanLainModal(' + r.assignId + ')">Bayar</button>' : '') +
+            '</div></div>';
     }).join('');
 
     var totalTagihanSemua = rincianBulan.reduce(function(s,b){ return s+b.nominal; },0) + data.rows.filter(function(r){return r.tipe==='tagihan_lain';}).reduce(function(s,r){return s+r.nominal;},0);
@@ -6771,8 +6998,10 @@ window.addEventListener('DOMContentLoaded', function() {
         var halamanTerakhir = sessionStorage.getItem('bendaharaku_halaman_terakhir');
         if (halamanTerakhir && halamanTerakhir !== 'home' && document.getElementById('page-' + halamanTerakhir)) {
             showPage(halamanTerakhir);
-        } else if (perluOnboarding()) {
-            setTimeout(mulaiOnboarding, 600); // beri jeda dikit biar splash sempat tertutup dulu
+        } else {
+            var fab = document.getElementById('fabCatatTransaksi');
+            if (fab) fab.style.display = 'flex'; // Beranda aktif dari awal (bukan lewat showPage), jadi FAB perlu ditampilkan manual di sini
+            if (perluOnboarding()) setTimeout(mulaiOnboarding, 600); // beri jeda dikit biar splash sempat tertutup dulu
         }
     }).catch(function(e){
         console.error('Gagal buka IndexedDB:', e);

@@ -244,6 +244,10 @@
             display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
             z-index: 100000; align-items: center; justify-content: center; padding: 20px;
         }
+        /* Jendela yang bisa muncul DI ATAS jendela lain harus berlapis lebih tinggi,
+           kalau tidak ia tertutup jendela Bayar (keyboard tetap aktif tapi kotaknya tak terlihat). */
+        #modalKelolaMetode { z-index: 100050; }
+        #modalCustomConfirm, #modalCustomPrompt, #modalCustomAlert { z-index: 100100; }
         .modal-content {
             background: var(--card-bg); border-radius: 18px; padding: 22px;
             width: 100%; max-width: 420px; max-height: 88vh; overflow-y: auto;
@@ -724,6 +728,17 @@
     </div>
 </div>
 
+<!-- Modal Kelola Metode Pembayaran -->
+<div id="modalKelolaMetode" class="modal">
+    <div class="modal-content" style="max-width:400px;">
+        <h3 style="color:var(--primary);margin-bottom:4px;">💳 Kelola Metode Pembayaran</h3>
+        <div class="txt-muted mb-16" style="font-size:12px;">Ubah nama atau hapus metode yang salah ketik / dobel. Riwayat pembayaran lama tidak ikut terhapus.</div>
+        <div id="daftarKelolaMetode" style="max-height:360px;overflow-y:auto;"></div>
+        <button class="btn btn-primary w-full mt-16" onclick="tambahMetodeDariKelola()"><i class="fas fa-plus"></i> Tambah Metode</button>
+        <button class="btn btn-gray w-full mt-8" onclick="tutupKelolaMetode()">Selesai</button>
+    </div>
+</div>
+
 <!-- Modal Pilih Lembaga -->
 <div id="modalPilihLembaga" class="modal">
     <div class="modal-content" style="max-width:420px;">
@@ -841,13 +856,22 @@
             <div id="infoBackupTerakhir" class="txt-muted" style="font-size:11.5px;"></div>
             <div id="infoPenyimpananPermanen" class="txt-muted mb-8" style="font-size:11.5px;"></div>
             <div class="row mb-8">
-                <button class="btn btn-blue btn-small" style="flex:1" onclick="backupZipData()"><i class="fas fa-file-archive"></i> Backup ZIP</button>
+                <button class="btn btn-blue btn-small" style="flex:1" onclick="backupZipData()"><i class="fas fa-file-archive"></i> Simpan di HP</button>
                 <button class="btn btn-orange btn-small" style="flex:1" onclick="document.getElementById('restoreZipFile').click()"><i class="fas fa-upload"></i> Restore ZIP</button>
             </div>
             <input type="file" id="restoreZipFile" accept=".zip" style="display:none" onchange="restoreZipData(this)">
+            <button class="btn w-full mb-8" style="background:var(--wa);color:white;" onclick="kirimBackupZip()"><i class="fas fa-paper-plane"></i> Kirim Backup (WA / Google Drive)</button>
+            <div class="txt-muted mb-8" style="font-size:11px;">Disarankan: kirim ke WhatsApp nomor sendiri atau Google Drive, supaya backup tidak ikut hilang kalau HP hilang/rusak.</div>
             <div class="row">
                 <button class="btn btn-gray btn-small" style="flex:1" onclick="backupJsonKeClipboard()"><i class="fas fa-copy"></i> Salin JSON</button>
                 <button class="btn btn-gray btn-small" style="flex:1" onclick="showRestoreJsonPasteModal()"><i class="fas fa-paste"></i> Tempel JSON</button>
+            </div>
+        </div>
+
+        <div class="setting-card" style="cursor:pointer;" onclick="showKelolaMetodeModal()">
+            <div class="flex items-center gap-12">
+                <div style="font-size:24px;">💳</div>
+                <div style="font-weight:700;font-size:14px;">Kelola Metode Pembayaran</div>
             </div>
         </div>
 
@@ -1004,37 +1028,9 @@
     </div>
     <div class="container" style="padding-top:16px;">
 
-        <div class="card">
-            <button class="btn btn-gray w-full mb-8" onclick="showImportEduKuModal()"><i class="fas fa-file-import"></i> Impor Data dari Backup JSON EduKu</button>
-            <div class="row">
-                <button class="btn btn-teal btn-small" style="flex:1;background:#1D6F42;color:white;" onclick="downloadTemplateSiswaExcel()"><i class="fas fa-file-excel"></i> Template Excel</button>
-                <button class="btn btn-orange btn-small" style="flex:1;" onclick="document.getElementById('importSiswaExcelFile').click()"><i class="fas fa-upload"></i> Import Excel</button>
-            </div>
-            <input type="file" id="importSiswaExcelFile" accept=".xlsx,.xls" style="display:none" onchange="importSiswaFromExcel(this)">
-        </div>
-
-        <div class="card" style="background:#EFF6FF;border:1px solid #BFDBFE;">
-            <div style="font-weight:700;margin-bottom:6px;">📥 Import Histori Pembayaran SPP</div>
-            <div class="txt-muted mb-8">Sudah punya data lama di Excel (siapa bayar bulan apa)? Isi ke template, lalu import — tidak perlu input satu-satu manual lewat halaman SPP.</div>
-            <div class="row">
-                <button class="btn btn-teal btn-small" style="flex:1;background:#1D6F42;color:white;" onclick="downloadTemplateHistoriSppExcel()"><i class="fas fa-file-excel"></i> Template Excel</button>
-                <button class="btn btn-orange btn-small" style="flex:1;" onclick="document.getElementById('importHistoriSppFile').click()"><i class="fas fa-upload"></i> Import Excel</button>
-            </div>
-            <input type="file" id="importHistoriSppFile" accept=".xlsx,.xls" style="display:none" onchange="importHistoriSppFromExcel(this)">
-        </div>
-
-        <div class="card" style="background:var(--primary-light);border:1px solid var(--border);">
-            <div style="font-weight:700;margin-bottom:6px;">🗓️ Wajib SPP Sejak</div>
-            <div class="txt-muted mb-8">Sekali pakai: isi bulan mulai wajib SPP untuk banyak siswa sekaligus (mis. semua siswa lama diisi Mei 2026 kalau memang dari situ tunggakannya). Siswa baru otomatis ke-set ke bulan saat ditambahkan.</div>
-            <button class="btn btn-primary w-full" onclick="showAturWajibSppMassalModal()"><i class="fas fa-calendar-check"></i> Atur untuk Banyak Siswa Sekaligus</button>
-        </div>
-
-
-        <div class="card" style="background:#FFFBEB;border:1px solid #FDE68A;">
-            <div style="font-weight:700;margin-bottom:6px;">🎓 Kenaikan Kelas &amp; Kelulusan</div>
-            <div class="txt-muted mb-8">Pindahkan semua siswa 1 kelas ke kelas baru sekaligus (naik kelas), atau tandai lulus/keluar — siswa yang tidak aktif otomatis tidak muncul lagi di daftar tunggakan.</div>
-            <button class="btn btn-primary w-full" onclick="showKenaikanKelasModal()"><i class="fas fa-arrow-up-right-dots"></i> Proses Kenaikan Kelas / Kelulusan</button>
-        </div>
+        <div class="card" id="checklistPersiapanCard" style="border:1.5px solid var(--primary);"></div>
+        <input type="file" id="importSiswaExcelFile" accept=".xlsx,.xls" style="display:none" onchange="importSiswaFromExcel(this)">
+        <input type="file" id="importHistoriSppFile" accept=".xlsx,.xls" style="display:none" onchange="importHistoriSppFromExcel(this)">
 
         <div class="card">
             <div class="flex items-center justify-between mb-8">
@@ -1060,6 +1056,18 @@
                 <button class="btn btn-primary btn-small" onclick="tambahSiswaBaru()"><i class="fas fa-user-plus"></i> Tambah Siswa Pertama</button>
             </div>
         </div>
+
+        <details class="card lap-rincian">
+            <summary>🧰 Alat Lainnya (jarang dipakai)</summary>
+            <div class="mt-16">
+                <div style="font-weight:700;font-size:13px;margin-bottom:4px;">🎓 Kenaikan Kelas &amp; Kelulusan</div>
+                <div class="txt-muted mb-8" style="font-size:11.5px;">Pindahkan semua siswa 1 kelas ke kelas baru sekaligus, atau tandai lulus/keluar. Siswa tidak aktif otomatis hilang dari daftar tunggakan.</div>
+                <button class="btn btn-primary btn-small w-full mb-16" onclick="showKenaikanKelasModal()"><i class="fas fa-arrow-up-right-dots"></i> Proses Kenaikan Kelas / Kelulusan</button>
+                <div style="font-weight:700;font-size:13px;margin-bottom:4px;">📦 Impor dari Aplikasi EduKu</div>
+                <div class="txt-muted mb-8" style="font-size:11.5px;">Khusus kalau data siswa sudah ada di aplikasi EduKu.</div>
+                <button class="btn btn-gray btn-small w-full" onclick="showImportEduKuModal()"><i class="fas fa-file-import"></i> Impor Data dari Backup JSON EduKu</button>
+            </div>
+        </details>
     </div>
 </div>
 
@@ -1266,7 +1274,8 @@
         <label class="mt-16">Metode Pembayaran</label>
         <div class="row">
             <select id="inputMetodeBayarSpp" style="flex:1;"></select>
-            <button class="btn btn-gray btn-small" onclick="tambahMetodePembayaranBaru('inputMetodeBayarSpp')"><i class="fas fa-plus"></i></button>
+            <button class="btn btn-gray btn-small" onclick="tambahMetodePembayaranBaru('inputMetodeBayarSpp')" title="Tambah metode"><i class="fas fa-plus"></i></button>
+            <button class="btn btn-gray btn-small" onclick="showKelolaMetodeModal('inputMetodeBayarSpp')" title="Ubah / hapus metode"><i class="fas fa-pen"></i></button>
         </div>
         <label class="mt-16">No. Referensi/Jam Transfer (opsional)</label>
         <input type="text" id="inputRefBayarSpp" placeholder="cth: 16/7/26-08:59">
@@ -1658,7 +1667,8 @@
         <label class="mt-16">Metode Pembayaran</label>
         <div class="row">
             <select id="inputMetodeBayarTagihanLain" style="flex:1;"></select>
-            <button class="btn btn-gray btn-small" onclick="tambahMetodePembayaranBaru('inputMetodeBayarTagihanLain')"><i class="fas fa-plus"></i></button>
+            <button class="btn btn-gray btn-small" onclick="tambahMetodePembayaranBaru('inputMetodeBayarTagihanLain')" title="Tambah metode"><i class="fas fa-plus"></i></button>
+            <button class="btn btn-gray btn-small" onclick="showKelolaMetodeModal('inputMetodeBayarTagihanLain')" title="Ubah / hapus metode"><i class="fas fa-pen"></i></button>
         </div>
         <label class="mt-16">No. Referensi/Jam Transfer (opsional)</label>
         <input type="text" id="inputRefBayarTagihanLain" placeholder="cth: 16/7/26-08:59">
@@ -1866,7 +1876,8 @@
         <label class="mt-16">Metode Pembayaran</label>
         <div class="row">
             <select id="inputMetodeBayarMultiBulan" style="flex:1;"></select>
-            <button class="btn btn-gray btn-small" onclick="tambahMetodePembayaranBaru('inputMetodeBayarMultiBulan')"><i class="fas fa-plus"></i></button>
+            <button class="btn btn-gray btn-small" onclick="tambahMetodePembayaranBaru('inputMetodeBayarMultiBulan')" title="Tambah metode"><i class="fas fa-plus"></i></button>
+            <button class="btn btn-gray btn-small" onclick="showKelolaMetodeModal('inputMetodeBayarMultiBulan')" title="Ubah / hapus metode"><i class="fas fa-pen"></i></button>
         </div>
         <label class="mt-16">No. Referensi/Jam Transfer (opsional)</label>
         <input type="text" id="inputRefBayarMultiBulan" placeholder="cth: 16/7/26-08:59">
@@ -1917,7 +1928,7 @@ function showPage(pageId, dariBack) {
         if (perluOnboarding()) setTimeout(mulaiOnboarding, 400);
     }
     if (pageId === 'kas') renderKasTable();
-    if (pageId === 'kelas-siswa') { renderListKelas(); renderListSiswa(); }
+    if (pageId === 'kelas-siswa') { checklistPersiapanDibuka = false; renderListKelas(); renderListSiswa(); }
     if (pageId === 'spp') renderSppList();
     if (pageId === 'siswa') renderSiswaList();
     if (pageId === 'kuitansi') renderRiwayatKuitansi();
@@ -3016,16 +3027,102 @@ function isiDropdownMetodePembayaran(selectId, nilaiTerpilih) {
     if (nilaiTerpilih && list.indexOf(nilaiTerpilih) !== -1) sel.value = nilaiTerpilih;
 }
 
+/* ---------- Kelola Metode Pembayaran (ubah nama / hapus) ----------
+   "Tunai" dan "Lainnya" dikunci supaya daftar tidak pernah kosong. Mengubah nama
+   ikut memperbarui riwayat pembayaran lama (supaya rekap per metode tetap nyambung);
+   menghapus hanya membuang dari pilihan, riwayat lama tetap utuh. */
+var _kelolaMetodeTarget = null;
+var METODE_TERKUNCI = ['Tunai', 'Lainnya'];
+
+function showKelolaMetodeModal(selectId) {
+    _kelolaMetodeTarget = selectId || null;
+    renderKelolaMetode();
+    document.getElementById('modalKelolaMetode').style.display = 'flex';
+}
+
+function tutupKelolaMetode() {
+    document.getElementById('modalKelolaMetode').style.display = 'none';
+    if (_kelolaMetodeTarget) {
+        var sel = document.getElementById(_kelolaMetodeTarget);
+        isiDropdownMetodePembayaran(_kelolaMetodeTarget, sel ? sel.value : null);
+    }
+}
+
+function renderKelolaMetode() {
+    var list = getMetodePembayaranList();
+    document.getElementById('daftarKelolaMetode').innerHTML = list.map(function(m, i) {
+        var terkunci = METODE_TERKUNCI.indexOf(m) !== -1;
+        var dipakai = pembayaranSppList.filter(function(p){ return p.metode === m; }).length +
+                      pembayaranTagihanLainList.filter(function(p){ return p.metode === m; }).length;
+        return '<div class="flex items-center justify-between" style="padding:9px 0;border-bottom:1px solid var(--border);">' +
+            '<div><div style="font-weight:600;font-size:13.5px;">' + escapeHtmlKas(m) + (terkunci ? ' <i class="fas fa-lock" style="font-size:10px;color:var(--gray-400);"></i>' : '') + '</div>' +
+            '<div class="txt-muted" style="font-size:10.5px;">' + (dipakai > 0 ? 'dipakai di ' + dipakai + ' pembayaran' : 'belum pernah dipakai') + '</div></div>' +
+            (terkunci ? '' :
+                '<div>' +
+                    '<button onclick="ubahNamaMetode(' + i + ')" style="background:none;border:none;color:var(--blue);font-size:15px;cursor:pointer;padding:4px 8px;"><i class="fas fa-edit"></i></button>' +
+                    '<button onclick="hapusMetode(' + i + ')" style="background:none;border:none;color:var(--red);font-size:15px;cursor:pointer;padding:4px 8px;"><i class="fas fa-trash"></i></button>' +
+                '</div>') +
+        '</div>';
+    }).join('');
+}
+
+async function ubahNamaMetode(idx) {
+    var list = getMetodePembayaranList();
+    var lama = list[idx];
+    if (!lama) return;
+    var baru = await customPrompt('Ubah nama metode:', lama, { title: '✏️ Ubah Metode' });
+    if (baru === null) return;
+    baru = baru.trim();
+    if (!baru || baru === lama) return;
+    if (list.some(function(m){ return m.toLowerCase() === baru.toLowerCase() && m !== lama; })) return showToast('Metode "' + baru + '" sudah ada!');
+    list[idx] = baru;
+    saveMetodePembayaranList(list);
+    var diubah = 0;
+    pembayaranSppList.forEach(function(p){ if (p.metode === lama) { p.metode = baru; diubah++; } });
+    pembayaranTagihanLainList.forEach(function(p){ if (p.metode === lama) { p.metode = baru; diubah++; } });
+    if (diubah > 0) { savePembayaranSppList(); savePembayaranTagihanLainList(); }
+    catatAuditLog('Ubah nama metode pembayaran', '"' + lama + '" → "' + baru + '"' + (diubah ? ' (' + diubah + ' riwayat ikut diperbarui)' : ''));
+    renderKelolaMetode();
+    showToast('✅ Metode diubah jadi "' + baru + '"');
+}
+
+async function hapusMetode(idx) {
+    var list = getMetodePembayaranList();
+    var nama = list[idx];
+    if (!nama || METODE_TERKUNCI.indexOf(nama) !== -1) return;
+    if (!(await customConfirm('Hapus metode "' + nama + '" dari pilihan? Riwayat pembayaran lama yang memakai metode ini tetap tersimpan.', { danger: true }))) return;
+    list.splice(idx, 1);
+    saveMetodePembayaranList(list);
+    catatAuditLog('Hapus metode pembayaran', nama);
+    renderKelolaMetode();
+    showToast('🗑️ Metode "' + nama + '" dihapus');
+}
+
+async function tambahMetodeDariKelola() {
+    var nama = await customPrompt('Nama metode pembayaran baru:', '', { title: '💳 Metode Baru' });
+    if (!nama || !nama.trim()) return;
+    nama = nama.trim();
+    var list = getMetodePembayaranList();
+    if (list.some(function(m){ return m.toLowerCase() === nama.toLowerCase(); })) return showToast('Metode "' + nama + '" sudah ada!');
+    list.splice(list.length - 1, 0, nama);
+    saveMetodePembayaranList(list);
+    renderKelolaMetode();
+    showToast('✅ Metode "' + nama + '" ditambahkan');
+}
+
 async function tambahMetodePembayaranBaru(selectId) {
     var nama = await customPrompt('Nama metode pembayaran baru:', '', { title: '💳 Metode Baru' });
     if (!nama) return;
     nama = nama.trim();
     if (!nama) return;
     var list = getMetodePembayaranList();
-    if (list.indexOf(nama) === -1) {
-        list.splice(list.length - 1, 0, nama); // sisipkan sebelum "Lainnya"
-        saveMetodePembayaranList(list);
+    var sudahAda = list.find(function(m){ return m.toLowerCase() === nama.toLowerCase(); });
+    if (sudahAda) {
+        isiDropdownMetodePembayaran(selectId, sudahAda);
+        return showToast('Metode "' + sudahAda + '" sudah ada, langsung dipilih');
     }
+    list.splice(list.length - 1, 0, nama); // sisipkan sebelum "Lainnya"
+    saveMetodePembayaranList(list);
     isiDropdownMetodePembayaran(selectId, nama);
     showToast('✅ Metode "' + nama + '" ditambahkan');
 }
@@ -3270,7 +3367,10 @@ function renderKasTable() {
                 '<button onclick="event.stopPropagation();editTransaksiKas(' + x.id + ')" style="background:none;border:none;color:var(--blue);font-size:13px;cursor:pointer;padding:2px 6px;"><i class="fas fa-edit"></i></button>' +
                 '<button onclick="event.stopPropagation();hapusTransaksiKas(' + x.id + ')" style="background:none;border:none;color:var(--red);font-size:13px;cursor:pointer;padding:2px 6px;"><i class="fas fa-trash"></i></button>' +
               '</div>'
-            : (x.siswaId ? '<div class="txt-muted" style="font-size:10px;margin-top:2px;">lihat siswa ›</div>' : '');
+            : '<div style="margin-top:2px;">' +
+                (x.siswaId ? '<span class="txt-muted" style="font-size:10px;">lihat siswa ›</span>' : '') +
+                '<button onclick="event.stopPropagation();batalkanPembayaran(\'' + x.jenis + '\', ' + x.id + ')" title="Batalkan pembayaran" style="background:none;border:none;color:var(--red);font-size:13px;cursor:pointer;padding:2px 6px;"><i class="fas fa-trash"></i></button>' +
+              '</div>';
         var bisaKlik = x.jenis !== 'kas' && x.siswaId;
         return '<div class="flex items-center justify-between" style="padding:10px 2px;border-bottom:1px solid var(--border);' + (bisaKlik ? 'cursor:pointer;' : '') + '"' +
                 (bisaKlik ? ' onclick="bukaKartuSiswa(' + x.siswaId + ')"' : '') + '>' +
@@ -3524,10 +3624,10 @@ function renderRingkasanBerandaLengkap() {
     var poin = [];
     var lastBackupIso = localStorage.getItem(k('bendaharaku_last_backup'));
     if (!lastBackupIso) {
-        poin.push({ teks: '<b>Belum pernah backup data</b> — tap untuk backup sekarang', aksi: 'backupZipData()', merah: true });
+        poin.push({ teks: '<b>Belum pernah backup data</b> — tap untuk backup sekarang', aksi: 'kirimBackupZip()', merah: true });
     } else {
         var hariSejakBackup = Math.floor((Date.now() - new Date(lastBackupIso).getTime()) / 86400000);
-        if (hariSejakBackup >= 7) poin.push({ teks: '<b>Sudah ' + hariSejakBackup + ' hari tidak backup</b> — tap untuk backup sekarang', aksi: 'backupZipData()', merah: true });
+        if (hariSejakBackup >= 7) poin.push({ teks: '<b>Sudah ' + hariSejakBackup + ' hari tidak backup</b> — tap untuk backup sekarang', aksi: 'kirimBackupZip()', merah: true });
     }
     if (!cfg.nama || cfg.nama === 'BendaharaKu') poin.push({ teks: 'Nama sekolah belum diisi di <b>Konfigurasi Instansi</b>', aksi: "showPage('konfigurasi-instansi')" });
     if (kelasList.length === 0) poin.push({ teks: 'Belum ada <b>Kelas</b> dibuat', aksi: "showPage('kelas-siswa')" });
@@ -3766,8 +3866,8 @@ async function loadKelasSiswaData() {
     isiDropdownKelas();
 }
 
-async function saveKelasList() { await idbSet(STORE_KELAS, k('kelas_list'), kelasList); isiDropdownKelas(); }
-async function saveSiswaList() { await idbSet(STORE_SISWA, k('siswa_list'), siswaList); }
+async function saveKelasList() { await idbSet(STORE_KELAS, k('kelas_list'), kelasList); isiDropdownKelas(); renderChecklistPersiapan(); }
+async function saveSiswaList() { await idbSet(STORE_SISWA, k('siswa_list'), siswaList); renderChecklistPersiapan(); }
 
 function isiDropdownKelas() {
     var opts = '<option value="">- Pilih Kelas -</option>' + kelasList.map(function(k){
@@ -3836,6 +3936,78 @@ async function hapusKelas(id) {
     renderListSiswa();
     catatAuditLog('Hapus kelas', namaKelas + ' (' + jumlahSiswa + ' siswa ikut dikeluarkan dari kelas ini)');
     showToast('🗑️ Kelas dihapus');
+}
+
+/* ==============================================================
+   SECTION: CHECKLIST PERSIAPAN DATA (halaman Data Kelas & Siswa)
+   Centang terisi OTOMATIS dari data yang ada, supaya pemula tahu sudah
+   sampai mana & apa langkah berikutnya. Mengecil sendiri kalau sudah lengkap.
+   ============================================================== */
+var checklistPersiapanDibuka = false;
+
+function renderChecklistPersiapan() {
+    var wrap = document.getElementById('checklistPersiapanCard');
+    if (!wrap) return;
+    var aktif = getSiswaAktif();
+    var tanpaNominal = aktif.filter(function(s){ return getNominalSppSiswa(s) <= 0; }).length;
+    var tanpaWajib = aktif.filter(function(s){ return !s.bulanMulaiSpp; }).length;
+
+    var langkah = [
+        { judul: 'Buat Kelas', selesai: kelasList.length > 0,
+          info: kelasList.length > 0 ? kelasList.length + ' kelas' : 'Belum ada kelas',
+          tombol: '<button class="btn btn-primary btn-small" onclick="tambahKelasBaru()">+ Kelas</button>' },
+        { judul: 'Masukkan Siswa', selesai: siswaList.length > 0,
+          info: siswaList.length > 0 ? siswaList.length + ' siswa' : 'Isi lewat Excel atau satu per satu',
+          tombol: '<button class="btn btn-small" style="background:#1D6F42;color:white;" onclick="downloadTemplateSiswaExcel()"><i class="fas fa-file-excel"></i> Template Data Siswa</button>' +
+                  '<button class="btn btn-orange btn-small" onclick="document.getElementById(\'importSiswaExcelFile\').click()"><i class="fas fa-upload"></i> Import</button>' +
+                  '<button class="btn btn-gray btn-small" onclick="tambahSiswaBaru()">+ Manual</button>' },
+        { judul: 'Atur Nominal SPP', selesai: aktif.length > 0 && tanpaNominal === 0,
+          info: aktif.length === 0 ? 'Setelah siswa ada' : (tanpaNominal === 0 ? 'Semua siswa sudah diatur' : tanpaNominal + ' siswa belum diatur'),
+          tombol: '<button class="btn btn-primary btn-small" onclick="showPengaturanSppModal()">Atur per Kelas</button>' },
+        { judul: 'Wajib SPP Sejak', selesai: aktif.length > 0 && tanpaWajib === 0,
+          info: aktif.length === 0 ? 'Setelah siswa ada' : (tanpaWajib === 0 ? 'Semua siswa sudah diatur' : tanpaWajib + ' siswa belum diatur'),
+          tombol: '<button class="btn btn-primary btn-small" onclick="showAturWajibSppMassalModal()">Atur Sekaligus</button>' },
+        { judul: 'Histori Pembayaran Lama', opsional: true, selesai: pembayaranSppList.length > 0,
+          info: pembayaranSppList.length > 0 ? pembayaranSppList.length + ' pembayaran tercatat' : 'Opsional — kalau ada catatan bayar sebelum pakai aplikasi',
+          tombol: '<button class="btn btn-small" style="background:#1D6F42;color:white;" onclick="downloadTemplateHistoriSppExcel()"><i class="fas fa-file-excel"></i> Template Histori Pembayaran</button>' +
+                  '<button class="btn btn-orange btn-small" onclick="document.getElementById(\'importHistoriSppFile\').click()"><i class="fas fa-upload"></i> Import</button>' }
+    ];
+    var wajib = langkah.filter(function(l){ return !l.opsional; });
+    var jumlahSelesai = wajib.filter(function(l){ return l.selesai; }).length;
+    var lengkap = jumlahSelesai === wajib.length;
+
+    if (lengkap && !checklistPersiapanDibuka) {
+        wrap.style.border = '1px solid var(--border)';
+        wrap.innerHTML = '<div class="flex items-center justify-between" style="cursor:pointer;" onclick="checklistPersiapanDibuka=true;renderChecklistPersiapan();">' +
+            '<div style="font-weight:700;font-size:13px;color:var(--green);">✅ Persiapan data lengkap</div>' +
+            '<div class="txt-muted" style="font-size:11.5px;">Import / atur ulang ▾</div></div>';
+        return;
+    }
+    wrap.style.border = '1.5px solid var(--primary)';
+    var adaYangAktif = false;
+    wrap.innerHTML =
+        '<div class="flex items-center justify-between mb-8">' +
+            '<div style="font-weight:800;color:var(--primary);font-size:13.5px;">🚀 PERSIAPAN DATA</div>' +
+            '<div style="font-size:11.5px;font-weight:700;color:' + (lengkap ? 'var(--green)' : 'var(--orange)') + ';">' + jumlahSelesai + ' dari ' + wajib.length + ' selesai</div>' +
+        '</div>' +
+        '<div style="background:var(--gray-200);border-radius:20px;height:6px;overflow:hidden;margin-bottom:10px;">' +
+            '<div style="height:100%;width:' + Math.round(jumlahSelesai / wajib.length * 100) + '%;background:' + (lengkap ? 'var(--green)' : 'var(--primary)') + ';"></div></div>' +
+        langkah.map(function(l, i) {
+            // Tombol hanya tampil di langkah yang BELUM selesai (dan langkah pertama yang belum selesai ditandai),
+            // supaya pemula tidak bingung harus mulai dari mana
+            var ikon = l.selesai ? '✅' : (l.opsional ? '⬜' : '⚠️');
+            var jadiFokus = !l.selesai && !l.opsional && !adaYangAktif;
+            if (jadiFokus) adaYangAktif = true;
+            return '<div style="padding:9px 0;border-top:1px solid var(--border);' + (jadiFokus ? 'background:var(--primary-light);margin:0 -10px;padding:9px 10px;border-radius:10px;' : '') + '">' +
+                '<div class="flex items-center justify-between gap-8">' +
+                    '<div style="font-size:13px;font-weight:700;">' + ikon + ' ' + (i + 1) + '. ' + l.judul + (l.opsional ? ' <span class="txt-muted" style="font-weight:400;font-size:11px;">(opsional)</span>' : '') + '</div>' +
+                    (jadiFokus ? '<span style="font-size:10px;font-weight:700;color:var(--primary);">LANGKAH BERIKUTNYA</span>' : '') +
+                '</div>' +
+                '<div class="txt-muted" style="font-size:11.5px;margin:2px 0 ' + (l.selesai ? '0' : '6px') + ' 22px;">' + l.info + '</div>' +
+                (l.selesai && !checklistPersiapanDibuka ? '' : '<div class="flex gap-8" style="flex-wrap:wrap;margin-left:22px;">' + l.tombol + '</div>') +
+            '</div>';
+        }).join('') +
+        (lengkap ? '<div onclick="checklistPersiapanDibuka=false;renderChecklistPersiapan();" class="txt-muted text-center" style="font-size:11.5px;margin-top:8px;cursor:pointer;">▴ Ringkas</div>' : '');
 }
 
 function renderListKelas() {
@@ -3924,6 +4096,7 @@ async function hapusSiswa(id) {
 }
 
 function renderListSiswa() {
+    renderChecklistPersiapan();
     var wrap = document.getElementById('listSiswa');
     if (!wrap) return;
     var filterKelas = (document.getElementById('filterKelasSiswa') || {}).value || '';
@@ -4139,15 +4312,15 @@ function prosesAturWajibSppMassal() {
 
 /* ---------- TEMPLATE & IMPORT EXCEL (pola sama seperti EduKu) ---------- */
 function downloadTemplateSiswaExcel() {
-    var headers = ['Nama Lengkap', 'Kelas', 'Nominal SPP Khusus (opsional)'];
+    var headers = ['Nama Lengkap', 'Kelas', 'Nominal SPP Khusus (opsional)', 'No HP Wali (opsional)', 'Wajib Bayar Sejak Bulan (opsional, cth 2026-07)'];
     var contohKelas = kelasList.length > 0 ? kelasList[0].nama : '4A';
-    var contohRow = ['MOHAMMAD SUPRIYADI', contohKelas, ''];
+    var contohRow = ['MOHAMMAD SUPRIYADI', contohKelas, '', '081234567890', '2026-07'];
     var emptyRows = Array(14).fill(null).map(function(){ return Array(headers.length).fill(''); });
 
     var wsData = [headers, contohRow].concat(emptyRows);
     var wb = XLSX.utils.book_new();
     var ws = XLSX.utils.aoa_to_sheet(wsData);
-    ws['!cols'] = [{wch:30},{wch:15},{wch:26}];
+    ws['!cols'] = [{wch:30},{wch:15},{wch:26},{wch:20},{wch:34}];
     XLSX.utils.book_append_sheet(wb, ws, 'Data Siswa');
 
     var daftarKelas = [['DAFTAR KELAS YANG SUDAH DIBUAT'], ['']];
@@ -4172,6 +4345,9 @@ function downloadTemplateSiswaExcel() {
         ['   Kalau dikosongkan/tidak ditemukan, siswa masuk tanpa kelas (assign manual nanti).'],
         ['4. Kolom "Nominal SPP Khusus" opsional — isi angka saja (cth: 150000).'],
         ['   Kosongkan jika SPP siswa ini ikut nominal kelas/default.'],
+        ['   "No HP Wali" opsional — dipakai tombol WA supaya langsung ke nomor wali.'],
+        ['   "Wajib Bayar Sejak Bulan" opsional, format TAHUN-BULAN (cth 2026-07 = Juli 2026).'],
+        ['   Kosongkan = dihitung sejak awal Tahun Ajaran aktif.'],
         ['5. Jangan ubah nama kolom di baris pertama'],
         ['6. Simpan dalam format .xlsx sebelum diupload']
     ];
@@ -4308,6 +4484,17 @@ async function importHistoriSppFromExcel(input) {
     reader.readAsArrayBuffer(file);
 }
 
+// Baca bulan dari Excel dengan toleran: "2026-07", "07/2026", "7-2026", atau tanggal yang diubah Excel
+function parseBulanFleksibel(v) {
+    if (v === null || v === undefined || v === '') return null;
+    if (v instanceof Date && !isNaN(v)) return bulanLokalIso(v);
+    var t = v.toString().trim(), m;
+    if ((m = t.match(/^(\d{4})[-\/.](\d{1,2})/))) return m[1] + '-' + _pad2(parseInt(m[2], 10));
+    if ((m = t.match(/^(\d{1,2})[-\/.](\d{4})$/))) return m[2] + '-' + _pad2(parseInt(m[1], 10));
+    var d = new Date(t);
+    return isNaN(d) ? null : bulanLokalIso(d);
+}
+
 async function importSiswaFromExcel(input) {
     var file = input.files[0];
     if (!file) return;
@@ -4325,7 +4512,9 @@ async function importSiswaFromExcel(input) {
             var namaIndex = headers.findIndex(function(h){ return h.indexOf('nama') !== -1; });
             if (namaIndex === -1) { showToast('❌ Kolom "Nama Lengkap" tidak ditemukan!'); input.value = ''; return; }
             var kelasIndex = headers.findIndex(function(h){ return h.indexOf('kelas') !== -1; });
-            var sppIndex = headers.findIndex(function(h){ return h.indexOf('spp') !== -1; });
+            var sppIndex = headers.findIndex(function(h){ return h.indexOf('nominal') !== -1 || (h.indexOf('spp') !== -1 && h.indexOf('sejak') === -1 && h.indexOf('wajib') === -1); });
+            var hpIndex = headers.findIndex(function(h){ return h.indexOf('hp') !== -1 || h.indexOf('whatsapp') !== -1 || h.indexOf('telp') !== -1; });
+            var wajibIndex = headers.findIndex(function(h){ return h.indexOf('sejak') !== -1 || h.indexOf('wajib') !== -1; });
 
             var jumlahImpor = 0, jumlahKelasOtomatis = 0;
             var kelasTidakDitemukan = {};
@@ -4351,7 +4540,9 @@ async function importSiswaFromExcel(input) {
                     if (sppNominal <= 0) sppNominal = null;
                 }
 
-                siswaList.push({ id: Date.now() + i, nama: nama, kelasId: kelasId, sppNominal: sppNominal });
+                var hpWali = hpIndex !== -1 && row[hpIndex] ? row[hpIndex].toString().trim() : '';
+                var bulanMulaiSpp = wajibIndex !== -1 ? parseBulanFleksibel(row[wajibIndex]) : null;
+                siswaList.push({ id: Date.now() + i, nama: nama, kelasId: kelasId, status: 'aktif', hpWali: hpWali, sppNominal: sppNominal, bulanMulaiSpp: bulanMulaiSpp });
                 jumlahImpor++;
             }
 
@@ -4393,8 +4584,8 @@ async function loadSppData() {
     if (bulanInput && !bulanInput.value) bulanInput.value = bulanLokalIso();
 }
 
-async function saveSppConfig() { await idbSet(STORE_SPP, k('spp_config'), sppConfig); }
-async function savePembayaranSppList() { await idbSet(STORE_PEMBAYARAN, k('pembayaran_spp_list'), pembayaranSppList); }
+async function saveSppConfig() { await idbSet(STORE_SPP, k('spp_config'), sppConfig); renderChecklistPersiapan(); }
+async function savePembayaranSppList() { await idbSet(STORE_PEMBAYARAN, k('pembayaran_spp_list'), pembayaranSppList); renderChecklistPersiapan(); }
 
 function getNominalSppSiswa(siswa) {
     if (siswa.sppNominal) return siswa.sppNominal;
@@ -4582,12 +4773,76 @@ function showBayarSppModal(siswaId, bulan) {
                     '<span>' + p.tgl + (p.metode ? ' · ' + escapeHtmlKas(p.metode) : '') + (p.ket ? ' · ' + escapeHtmlKas(p.ket) : '') + '</span>' +
                     '<span class="flex items-center gap-8"><span style="font-weight:700;">Rp ' + p.nominal.toLocaleString('id-ID') + '</span>' +
                     '<button onclick="cetakKuitansiPdf(' + p.id + ')" style="background:none;border:none;color:var(--blue);cursor:pointer;padding:2px;"><i class="fas fa-print"></i></button>' +
-                    '<button onclick="shareKuitansiSpp(' + p.id + ')" style="background:none;border:none;color:var(--wa);cursor:pointer;padding:2px;"><i class="fas fa-share-alt"></i></button></span></div>';
+                    '<button onclick="shareKuitansiSpp(' + p.id + ')" style="background:none;border:none;color:var(--wa);cursor:pointer;padding:2px;"><i class="fas fa-share-alt"></i></button>' +
+                    '<button onclick="batalkanPembayaran(\'spp\', ' + p.id + ')" title="Batalkan pembayaran ini" style="background:none;border:none;color:var(--red);cursor:pointer;padding:2px;"><i class="fas fa-trash"></i></button>' + '</span></div>';
             }).join('');
     } else {
         riwayatWrap.innerHTML = '';
     }
     document.getElementById('modalBayarSpp').style.display = 'flex';
+}
+
+/* ---------- Batalkan pembayaran yang salah input ----------
+   1 transaksi = 1 nomor kuitansi. Pembayaran Multi-Bulan menyebar ke beberapa bulan
+   dengan nomor kuitansi yang SAMA, jadi dibatalkan bersamaan supaya tidak tersisa separuh.
+   Nomor kuitansi yang dibatalkan TIDAK dipakai ulang (tetap urut, jejaknya ada di Riwayat Perubahan).
+   Untuk mengoreksi nominal: batalkan, lalu catat ulang dengan nominal yang benar. */
+async function batalkanPembayaran(jenis, id) {
+    var list = jenis === 'spp' ? pembayaranSppList : pembayaranTagihanLainList;
+    var p = list.find(function(x){ return String(x.id) === String(id); });
+    if (!p) return showToast('Data pembayaran tidak ditemukan');
+    var satuTransaksi = p.noKuitansi
+        ? list.filter(function(x){ return x.noKuitansi === p.noKuitansi; })
+        : [p];
+    var total = satuTransaksi.reduce(function(t, x){ return t + x.nominal; }, 0);
+
+    var namaSiswa = '-', rincian = '';
+    if (jenis === 'spp') {
+        var s = siswaList.find(function(x){ return String(x.id) === String(p.siswaId); });
+        namaSiswa = s ? s.nama : '-';
+        rincian = satuTransaksi.map(function(x){
+            return '• SPP ' + new Date(x.bulan + '-01').toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }) + ': Rp ' + x.nominal.toLocaleString('id-ID');
+        }).join('\n');
+    } else {
+        var a = tagihanAssignList.find(function(x){ return String(x.id) === String(p.assignmentId); });
+        var s2 = a ? siswaList.find(function(x){ return String(x.id) === String(a.siswaId); }) : null;
+        var jt = a ? jenisTagihanList.find(function(x){ return String(x.id) === String(a.jenisTagihanId); }) : null;
+        namaSiswa = s2 ? s2.nama : '-';
+        rincian = '• ' + (jt ? jt.nama : 'Tagihan Lain') + ': Rp ' + p.nominal.toLocaleString('id-ID');
+    }
+
+    var pesan = 'Batalkan pembayaran ' + namaSiswa + '?\n\n' + rincian +
+        (satuTransaksi.length > 1 ? '\n\n' + satuTransaksi.length + ' bulan ini dibayar dalam 1 kuitansi, jadi dibatalkan bersamaan.' : '') +
+        '\n\nKuitansi ' + (p.noKuitansi || '-') + ' jadi tidak berlaku. Kalau nominalnya salah, catat ulang setelah ini.';
+    if (!(await customConfirm(pesan, { danger: true, title: '🗑️ Batalkan Pembayaran?', yaText: 'Ya, Batalkan' }))) return;
+
+    var idHapus = satuTransaksi.map(function(x){ return String(x.id); });
+    if (jenis === 'spp') {
+        pembayaranSppList = pembayaranSppList.filter(function(x){ return idHapus.indexOf(String(x.id)) === -1; });
+        await savePembayaranSppList();
+    } else {
+        pembayaranTagihanLainList = pembayaranTagihanLainList.filter(function(x){ return idHapus.indexOf(String(x.id)) === -1; });
+        await savePembayaranTagihanLainList();
+    }
+    catatAuditLog('Batalkan pembayaran ' + (jenis === 'spp' ? 'SPP' : 'Tagihan Lain'),
+        namaSiswa + ' — Rp ' + total.toLocaleString('id-ID') + ' (kuitansi ' + (p.noKuitansi || '-') + ')\n' + rincian);
+
+    ['modalBayarSpp', 'modalBayarTagihanLain'].forEach(function(mid){
+        var m = document.getElementById(mid); if (m) m.style.display = 'none';
+    });
+    renderUlangHalamanAktif();
+    updateHomeSaldoRingkasan();
+    showToast('🗑️ Pembayaran Rp ' + total.toLocaleString('id-ID') + ' dibatalkan');
+}
+
+function renderUlangHalamanAktif() {
+    var hal = ((document.querySelector('.page.active') || {}).id || '').replace('page-', '');
+    if (hal === 'kas') renderKasTable();
+    else if (hal === 'spp') renderSppList();
+    else if (hal === 'kartu-siswa') renderKartuTagihanSiswa();
+    else if (hal === 'tagihan-detail') renderTagihanDetail();
+    else if (hal === 'siswa') renderSiswaList();
+    else if (hal === 'kuitansi') renderRiwayatKuitansi();
 }
 
 async function simpanPembayaranSpp() {
@@ -6104,6 +6359,8 @@ function showBayarTagihanLainModal(assignmentId) {
     document.getElementById('bayarTagihanLainAssignId').value = assignmentId;
     document.getElementById('inputBayarTagihanLain').value = '';
     document.getElementById('inputKetBayarTagihanLain').value = '';
+    document.getElementById('inputRefBayarTagihanLain').value = '';
+    isiDropdownMetodePembayaran('inputMetodeBayarTagihanLain');
     document.getElementById('bayarTagihanLainInfo').innerHTML =
         '<b>' + escapeHtmlKas(s ? s.nama : '-') + '</b> · ' + escapeHtmlKas(s ? getNamaKelas(s.kelasId) : '-') + '<br>' +
         escapeHtmlKas(jt ? jt.nama : '-') + ' · Tagihan Rp ' + a.nominal.toLocaleString('id-ID') + '<br>' +
@@ -6115,10 +6372,11 @@ function showBayarTagihanLainModal(assignmentId) {
         riwayatWrap.innerHTML = '<div class="txt-muted mb-8">Riwayat pembayaran:</div>' +
             riwayat.map(function(p) {
                 return '<div class="flex items-center justify-between" style="font-size:12px;padding:6px 0;border-bottom:1px solid var(--border);">' +
-                    '<span>' + p.tgl + (p.ket ? ' · ' + escapeHtmlKas(p.ket) : '') + '</span>' +
+                    '<span>' + p.tgl + (p.metode ? ' · ' + escapeHtmlKas(p.metode) : '') + (p.ket ? ' · ' + escapeHtmlKas(p.ket) : '') + '</span>' +
                     '<span class="flex items-center gap-8"><span style="font-weight:700;">Rp ' + p.nominal.toLocaleString('id-ID') + '</span>' +
                     '<button onclick="cetakKuitansiTagihanLain(' + p.id + ')" style="background:none;border:none;color:var(--blue);cursor:pointer;padding:2px;"><i class="fas fa-print"></i></button>' +
-                    '<button onclick="shareKuitansiTagihanLain(' + p.id + ')" style="background:none;border:none;color:var(--wa);cursor:pointer;padding:2px;"><i class="fas fa-share-alt"></i></button></span></div>';
+                    '<button onclick="shareKuitansiTagihanLain(' + p.id + ')" style="background:none;border:none;color:var(--wa);cursor:pointer;padding:2px;"><i class="fas fa-share-alt"></i></button>' +
+                    '<button onclick="batalkanPembayaran(\'tl\', ' + p.id + ')" title="Batalkan pembayaran ini" style="background:none;border:none;color:var(--red);cursor:pointer;padding:2px;"><i class="fas fa-trash"></i></button>' + '</span></div>';
             }).join('');
     } else {
         riwayatWrap.innerHTML = '';
@@ -6130,10 +6388,12 @@ async function simpanPembayaranTagihanLain() {
     var assignmentId = document.getElementById('bayarTagihanLainAssignId').value;
     var nominal = parseNominal(document.getElementById('inputBayarTagihanLain').value);
     var ket = document.getElementById('inputKetBayarTagihanLain').value.trim();
+    var metode = document.getElementById('inputMetodeBayarTagihanLain').value;
+    var noRef = document.getElementById('inputRefBayarTagihanLain').value.trim();
     if (nominal <= 0) return showToast('Isi nominal pembayaran yang benar!');
     var noKuitansi = await generateNomorKuitansi();
     pembayaranTagihanLainList.unshift({
-        id: Date.now(), assignmentId: assignmentId, nominal: nominal, ket: ket, noKuitansi: noKuitansi,
+        id: Date.now(), assignmentId: assignmentId, nominal: nominal, ket: ket, metode: metode, noRef: noRef, noKuitansi: noKuitansi,
         tgl: new Date().toLocaleDateString('id-ID'), tglIso: tglLokalIso()
     });
     savePembayaranTagihanLainList();
@@ -6548,6 +6808,8 @@ function showBayarMultiBulanModal(siswaId) {
     var s = siswaList.find(function(x){ return String(x.id) === String(siswaId); });
     document.getElementById('bayarMultiBulanInfo').innerHTML = '<b>' + escapeHtmlKas(s.nama) + '</b> · ' + escapeHtmlKas(getNamaKelas(s.kelasId));
     document.getElementById('inputBayarMultiBulan').value = '';
+    document.getElementById('inputRefBayarMultiBulan').value = '';
+    isiDropdownMetodePembayaran('inputMetodeBayarMultiBulan');
     document.getElementById('previewAlokasiWrap').innerHTML = '';
     document.getElementById('modalBayarMultiBulan').style.display = 'flex';
 }
@@ -6589,12 +6851,14 @@ async function prosesBayarMultiBulan() {
     var hasil = hitungAlokasiMultiBulan(bayarMultiBulanSiswaIdAktif, nominal);
     if (hasil.alokasi.length === 0) return showToast('Tidak ada tunggakan SPP untuk dialokasikan!');
 
+    var metode = document.getElementById('inputMetodeBayarMultiBulan').value;
+    var noRef = document.getElementById('inputRefBayarMultiBulan').value.trim();
     var noKuitansi = await generateNomorKuitansi();
     var entriBaru = [];
     hasil.alokasi.forEach(function(a, idx) {
         var entri = {
             id: Date.now() + idx, siswaId: bayarMultiBulanSiswaIdAktif, bulan: a.bulan, nominal: a.dibayar,
-            ket: 'Bayar multi-bulan', noKuitansi: noKuitansi,
+            ket: 'Bayar multi-bulan', metode: metode, noRef: noRef, noKuitansi: noKuitansi,
             tgl: new Date().toLocaleDateString('id-ID'), tglIso: tglLokalIso()
         };
         pembayaranSppList.unshift(entri);
@@ -6868,8 +7132,8 @@ async function cekPopupPengingatBackup() {
     var pesan = last
         ? 'Backup terakhir ' + hari + ' hari lalu. Kalau HP hilang/rusak atau data terhapus, transaksi sejak itu tidak bisa dikembalikan.'
         : 'Data lembaga ini belum pernah di-backup. Kalau HP hilang/rusak atau data terhapus, semua data tidak bisa dikembalikan.';
-    var ya = await customConfirm(pesan + '\n\nBackup sekarang? (sekali tap, file tersimpan di HP)', { title: '💾 Waktunya Backup', yaText: 'Backup Sekarang' });
-    if (ya) backupZipData();
+    var ya = await customConfirm(pesan + '\n\nKirim backup sekarang ke WhatsApp / Google Drive? (paling aman, tidak ikut hilang kalau HP hilang)', { title: '💾 Waktunya Backup', yaText: 'Kirim Backup' });
+    if (ya) kirimBackupZip();
 }
 
 async function buildBackupJsonData() {
@@ -7047,14 +7311,50 @@ async function applyRestoreBackupData(backup) {
    SECTION: BACKUP / RESTORE — ZIP (untuk data + file/foto ke depan)
    Fase 1: kerangka dasar; isi lengkap menyusul saat modul data ada.
    ============================================================== */
+async function buatFileBackupZip() {
+    var zip = new JSZip();
+    var backupData = await buildBackupJsonData();
+    zip.file('data.json', JSON.stringify(backupData, null, 2));
+    var blob = await zip.generateAsync({ type: 'blob' });
+    var namaLembaga = getNamaLembagaAktif().replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_|_$/g, '');
+    return { blob: blob, nama: 'BendaharaKu_Backup_' + (namaLembaga ? namaLembaga + '_' : '') + tglLokalIso() + '.zip' };
+}
+
+// Kirim file backup ke luar HP (WA ke nomor sendiri, Google Drive, email), supaya
+// backup tidak ikut hilang kalau HP-nya hilang/rusak.
+async function kirimBackupZip() {
+    showToast('⏳ Menyiapkan file backup...');
+    try {
+        var f = await buatFileBackupZip();
+        var file = new File([f.blob], f.nama, { type: 'application/zip' });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            try {
+                await navigator.share({ files: [file], title: 'Backup BendaharaKu', text: 'Backup data BendaharaKu ' + tglLokalIso() });
+            } catch (e) {
+                if (e.name === 'AbortError') return showToast('Pengiriman dibatalkan');
+                throw e;
+            }
+            localStorage.setItem(k('bendaharaku_last_backup'), new Date().toISOString());
+            updateHomeSaldoRingkasan();
+            renderInfoKeselamatanData();
+            showToast('✅ Backup terkirim');
+        } else {
+            saveAs(f.blob, f.nama);
+            localStorage.setItem(k('bendaharaku_last_backup'), new Date().toISOString());
+            updateHomeSaldoRingkasan();
+            renderInfoKeselamatanData();
+            customAlert('Browser ini belum bisa mengirim file langsung. File backup sudah diunduh ke folder Download — silakan kirim manual lewat WhatsApp atau Google Drive.', 'ℹ️ File Diunduh');
+        }
+    } catch (err) {
+        showToast('❌ Gagal: ' + err.message);
+    }
+}
+
 async function backupZipData() {
     showToast('⏳ Menyiapkan backup ZIP...');
     try {
-        var zip = new JSZip();
-        var backupData = await buildBackupJsonData();
-        zip.file('data.json', JSON.stringify(backupData, null, 2));
-        var blob = await zip.generateAsync({ type: 'blob' });
-        saveAs(blob, 'BendaharaKu_Backup_' + tglLokalIso() + '.zip');
+        var f = await buatFileBackupZip();
+        saveAs(f.blob, f.nama);
         localStorage.setItem(k('bendaharaku_last_backup'), new Date().toISOString());
         updateHomeSaldoRingkasan();
         renderInfoKeselamatanData();

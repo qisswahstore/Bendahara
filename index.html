@@ -739,6 +739,42 @@
     </div>
 </div>
 
+<!-- Modal Pengaturan Google Drive -->
+<div id="modalGdrive" class="modal">
+    <div class="modal-content" style="max-width:440px;max-height:88vh;overflow-y:auto;">
+        <h3 style="color:var(--primary);margin-bottom:4px;">☁️ Pengaturan Google Drive</h3>
+        <div class="txt-muted mb-16" style="font-size:12px;">Disiapkan <b>sekali saja</b> (gratis, ±10 menit). Setelah itu, backup ke Drive cukup 1 ketukan.</div>
+
+        <div style="background:var(--primary-light);border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.6;margin-bottom:14px;">
+            <b>Langkah menyiapkan:</b>
+            <ol style="margin:6px 0 0 18px;padding:0;">
+                <li>Buka <b>console.cloud.google.com</b>, login dengan Gmail yang akan dipakai, lalu buat <b>Project</b> baru.</li>
+                <li>Menu <b>APIs &amp; Services → Library</b>, cari <b>Google Drive API</b>, klik <b>Enable</b>.</li>
+                <li><b>OAuth consent screen</b>: pilih <b>External</b>, isi nama aplikasi (bebas, mis. BendaharaKu) dan email Anda. Di <b>Test users</b>, tambahkan email Gmail yang sama.</li>
+                <li><b>Credentials → Create Credentials → OAuth client ID</b>, jenis <b>Web application</b>.</li>
+                <li>Di <b>Authorized JavaScript origins</b>, isi alamat aplikasi di bawah ini <b>persis sama</b> (tanpa garis miring di akhir).</li>
+                <li>Salin <b>Client ID</b> yang muncul, tempel di bawah, lalu Simpan.</li>
+            </ol>
+        </div>
+
+        <label>Alamat aplikasi ini (isi di langkah 5)</label>
+        <div class="row mb-8">
+            <input type="text" id="gdriveOriginInfo" readonly style="flex:1;font-size:12px;">
+            <button class="btn btn-gray btn-small" onclick="salinOriginGdrive()"><i class="fas fa-copy"></i></button>
+        </div>
+        <div id="gdriveOriginPeringatan" style="display:none;font-size:11.5px;color:#B45309;margin-bottom:10px;line-height:1.5;"></div>
+
+        <label>Client ID</label>
+        <input type="text" id="gdriveClientIdInput" placeholder="1234567890-abcdef.apps.googleusercontent.com" style="font-size:12px;">
+        <div class="row mt-16">
+            <button class="btn btn-primary" style="flex:1" onclick="simpanGdriveClientId()">Simpan &amp; Coba</button>
+            <button class="btn btn-gray" style="flex:1" onclick="document.getElementById('modalGdrive').style.display='none'">Tutup</button>
+        </div>
+        <button id="btnHapusGdrive" class="btn btn-gray btn-small w-full mt-8" style="display:none;color:var(--red);" onclick="hapusPengaturanGdrive()">Hapus pengaturan Google Drive</button>
+        <div class="txt-muted mt-8" style="font-size:10.5px;line-height:1.5;">Aplikasi hanya bisa melihat file yang ia buat sendiri (folder "BendaharaKu Backup"), bukan seluruh isi Drive Anda. Tampilan Google Cloud sering berubah, jadi nama menunya bisa sedikit berbeda.</div>
+    </div>
+</div>
+
 <!-- Modal Pilih Lembaga -->
 <div id="modalPilihLembaga" class="modal">
     <div class="modal-content" style="max-width:420px;">
@@ -854,18 +890,27 @@
         <div class="card">
             <div style="font-weight:700;margin-bottom:6px;">💾 Backup &amp; Restore</div>
             <div id="infoBackupTerakhir" class="txt-muted" style="font-size:11.5px;"></div>
+            <div id="infoGoogleDrive" class="txt-muted" style="font-size:11.5px;"></div>
             <div id="infoPenyimpananPermanen" class="txt-muted mb-8" style="font-size:11.5px;"></div>
+            <button class="btn btn-primary w-full mb-8" style="padding:13px;" onclick="simpanKeGoogleDrive()"><i class="fab fa-google-drive"></i> Simpan ke Google Drive</button>
             <div class="row mb-8">
                 <button class="btn btn-blue btn-small" style="flex:1" onclick="backupZipData()"><i class="fas fa-file-archive"></i> Simpan di HP</button>
-                <button class="btn btn-orange btn-small" style="flex:1" onclick="document.getElementById('restoreZipFile').click()"><i class="fas fa-upload"></i> Restore ZIP</button>
+                <button class="btn btn-small" style="flex:1;background:var(--wa);color:white;" onclick="kirimBackupZip()"><i class="fas fa-paper-plane"></i> Kirim / Bagikan</button>
             </div>
+            <button class="btn btn-orange btn-small w-full mb-8" onclick="document.getElementById('restoreZipFile').click()"><i class="fas fa-upload"></i> Restore dari File ZIP</button>
             <input type="file" id="restoreZipFile" accept=".zip" style="display:none" onchange="restoreZipData(this)">
-            <button class="btn w-full mb-8" style="background:var(--wa);color:white;" onclick="kirimBackupZip()"><i class="fas fa-paper-plane"></i> Kirim Backup (WA / Google Drive)</button>
-            <div class="txt-muted mb-8" style="font-size:11px;">Disarankan: kirim ke WhatsApp nomor sendiri atau Google Drive, supaya backup tidak ikut hilang kalau HP hilang/rusak.</div>
-            <div class="row">
-                <button class="btn btn-gray btn-small" style="flex:1" onclick="backupJsonKeClipboard()"><i class="fas fa-copy"></i> Salin JSON</button>
-                <button class="btn btn-gray btn-small" style="flex:1" onclick="showRestoreJsonPasteModal()"><i class="fas fa-paste"></i> Tempel JSON</button>
+            <div class="txt-muted mb-8" style="font-size:11px;">Disarankan: simpan ke Google Drive atau kirim ke WhatsApp nomor sendiri, supaya backup tidak ikut hilang kalau HP hilang/rusak. Untuk memulihkan dari Drive: unduh file ZIP-nya dulu, lalu pilih "Restore dari File ZIP".</div>
+            <div class="flex items-center justify-between" style="font-size:11.5px;">
+                <span onclick="showGdriveSetupModal()" style="color:var(--primary);font-weight:700;cursor:pointer;">⚙️ Pengaturan Google Drive</span>
             </div>
+            <details style="margin-top:10px;">
+                <summary class="txt-muted" style="font-size:11.5px;cursor:pointer;">Cara darurat (kalau file ZIP tidak bisa dipakai)</summary>
+                <div class="txt-muted mt-8 mb-8" style="font-size:11px;">Dipakai hanya kalau penampil/browser memblokir unduh atau pilih file. Datanya sama dengan ZIP, berupa teks yang disalin &amp; ditempel.</div>
+                <div class="row">
+                    <button class="btn btn-gray btn-small" style="flex:1" onclick="backupJsonKeClipboard()"><i class="fas fa-copy"></i> Salin JSON</button>
+                    <button class="btn btn-gray btn-small" style="flex:1" onclick="showRestoreJsonPasteModal()"><i class="fas fa-paste"></i> Tempel JSON</button>
+                </div>
+            </details>
         </div>
 
         <div class="setting-card" style="cursor:pointer;" onclick="showKelolaMetodeModal()">
@@ -1992,11 +2037,12 @@ function tambahBulanIso(bulanIso, n) {
     return bulanLokalIso(new Date(y, m, 1));
 }
 
-function showToast(msg) {
+function showToast(msg, lamaMs) {
     var toast = document.getElementById('toastPremium');
     toast.textContent = msg;
     toast.classList.add('show');
-    setTimeout(function(){ toast.classList.remove('show'); }, 3000);
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(function(){ toast.classList.remove('show'); }, lamaMs || 3000);
 }
 
 // Animasi ceklis besar — dipakai khusus buat momen penting (pembayaran tercatat),
@@ -2353,7 +2399,7 @@ async function hapusSemuaDataLembaga(lembagaId) {
         await idbDelete(storePerKunci[kunciIdb[i]], prefix + kunciIdb[i]);
     }
     ['bendaharaku_konfigurasi_instansi','bendaharaku_metode_pembayaran','bendaharaku_saldo_awal_nominal',
-     'bendaharaku_saldo_awal_tanggal','bendaharaku_tahun_ajaran_aktif','bendaharaku_last_backup'].forEach(function(lk) {
+     'bendaharaku_saldo_awal_tanggal','bendaharaku_tahun_ajaran_aktif','bendaharaku_last_backup','bendaharaku_last_drive_backup'].forEach(function(lk) {
         localStorage.removeItem(prefix + lk);
     });
 }
@@ -3624,10 +3670,10 @@ function renderRingkasanBerandaLengkap() {
     var poin = [];
     var lastBackupIso = localStorage.getItem(k('bendaharaku_last_backup'));
     if (!lastBackupIso) {
-        poin.push({ teks: '<b>Belum pernah backup data</b> — tap untuk backup sekarang', aksi: 'kirimBackupZip()', merah: true });
+        poin.push({ teks: '<b>Belum pernah backup data</b> — tap untuk backup sekarang', aksi: 'backupUtama()', merah: true });
     } else {
         var hariSejakBackup = Math.floor((Date.now() - new Date(lastBackupIso).getTime()) / 86400000);
-        if (hariSejakBackup >= 7) poin.push({ teks: '<b>Sudah ' + hariSejakBackup + ' hari tidak backup</b> — tap untuk backup sekarang', aksi: 'kirimBackupZip()', merah: true });
+        if (hariSejakBackup >= 7) poin.push({ teks: '<b>Sudah ' + hariSejakBackup + ' hari tidak backup</b> — tap untuk backup sekarang', aksi: 'backupUtama()', merah: true });
     }
     if (!cfg.nama || cfg.nama === 'BendaharaKu') poin.push({ teks: 'Nama sekolah belum diisi di <b>Konfigurasi Instansi</b>', aksi: "showPage('konfigurasi-instansi')" });
     if (kelasList.length === 0) poin.push({ teks: 'Belum ada <b>Kelas</b> dibuat', aksi: "showPage('kelas-siswa')" });
@@ -7110,6 +7156,15 @@ function renderInfoKeselamatanData() {
                 (hari === 0 ? ' (hari ini)' : ' (' + hari + ' hari lalu)');
         }
     }
+    var elD = document.getElementById('infoGoogleDrive');
+    if (elD) {
+        var lastD = localStorage.getItem(k('bendaharaku_last_drive_backup'));
+        elD.innerHTML = !getGdriveClientId()
+            ? '☁️ Google Drive: <b style="color:var(--orange);">belum disiapkan</b> — tap "Pengaturan Google Drive" di bawah.'
+            : (lastD
+                ? '☁️ Google Drive: terakhir <b>' + new Date(lastD).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) + '</b>'
+                : '☁️ Google Drive: <b style="color:var(--green);">siap dipakai</b>, belum pernah menyimpan untuk lembaga ini.');
+    }
     var elP = document.getElementById('infoPenyimpananPermanen');
     if (elP) {
         elP.innerHTML = statusPenyimpananPermanen === true
@@ -7132,8 +7187,8 @@ async function cekPopupPengingatBackup() {
     var pesan = last
         ? 'Backup terakhir ' + hari + ' hari lalu. Kalau HP hilang/rusak atau data terhapus, transaksi sejak itu tidak bisa dikembalikan.'
         : 'Data lembaga ini belum pernah di-backup. Kalau HP hilang/rusak atau data terhapus, semua data tidak bisa dikembalikan.';
-    var ya = await customConfirm(pesan + '\n\nKirim backup sekarang ke WhatsApp / Google Drive? (paling aman, tidak ikut hilang kalau HP hilang)', { title: '💾 Waktunya Backup', yaText: 'Kirim Backup' });
-    if (ya) kirimBackupZip();
+    var ya = await customConfirm(pesan + '\n\nBackup sekarang? ' + (getGdriveClientId() && location.protocol === 'https:' ? '(akan disimpan ke Google Drive)' : '(pilih WhatsApp / Google Drive di menu yang muncul)'), { title: '💾 Waktunya Backup', yaText: 'Backup Sekarang' });
+    if (ya) backupUtama();
 }
 
 async function buildBackupJsonData() {
@@ -7311,6 +7366,201 @@ async function applyRestoreBackupData(backup) {
    SECTION: BACKUP / RESTORE — ZIP (untuk data + file/foto ke depan)
    Fase 1: kerangka dasar; isi lengkap menyusul saat modul data ada.
    ============================================================== */
+/* ==============================================================
+   SECTION: BACKUP KE GOOGLE DRIVE (upload satu arah, BUKAN sinkron dua arah)
+   Memakai Google Identity Services + Drive API v3 dengan izin 'drive.file':
+   aplikasi hanya bisa melihat file yang ia buat sendiri. Perlu Client ID (gratis,
+   disiapkan sekali) dan alamat aplikasi https. Token hanya disimpan di memori.
+   ============================================================== */
+var GDRIVE_CLIENT_KEY = 'bendaharaku_gdrive_client_id';   // global: Client ID terikat pada alamat aplikasi
+var GDRIVE_FOLDER_KEY = 'bendaharaku_gdrive_folder_id';
+var GDRIVE_NAMA_FOLDER = 'BendaharaKu Backup';
+var _gdriveToken = null, _gdriveTokenExp = 0;
+
+function getGdriveClientId() { return (localStorage.getItem(GDRIVE_CLIENT_KEY) || '').trim(); }
+function clientIdGdriveValid(id) { return /^[0-9]+-[a-z0-9_]+\.apps\.googleusercontent\.com$/i.test((id || '').trim()); }
+
+function muatLayananGoogle() {
+    return new Promise(function(resolve, reject) {
+        if (window.google && google.accounts && google.accounts.oauth2) return resolve();
+        var s = document.createElement('script');
+        s.src = 'https://accounts.google.com/gsi/client';
+        s.async = true;
+        s.onload = function() { resolve(); };
+        s.onerror = function() { reject(new Error('Tidak bisa memuat layanan Google. Periksa koneksi internet.')); };
+        document.head.appendChild(s);
+    });
+}
+
+function dapatkanTokenDrive(paksaBaru) {
+    if (!paksaBaru && _gdriveToken && Date.now() < _gdriveTokenExp - 60000) return Promise.resolve(_gdriveToken);
+    return muatLayananGoogle().then(function() {
+        return new Promise(function(resolve, reject) {
+            var klien = google.accounts.oauth2.initTokenClient({
+                client_id: getGdriveClientId(),
+                scope: 'https://www.googleapis.com/auth/drive.file',
+                callback: function(resp) {
+                    if (resp.error) return reject(new Error(resp.error_description || resp.error));
+                    _gdriveToken = resp.access_token;
+                    _gdriveTokenExp = Date.now() + (parseInt(resp.expires_in, 10) || 3600) * 1000;
+                    resolve(_gdriveToken);
+                },
+                error_callback: function(err) {
+                    var t = err && err.type;
+                    reject(new Error(t === 'popup_closed' ? 'Jendela login Google ditutup sebelum selesai.'
+                        : t === 'popup_failed_to_open' ? 'Jendela login Google diblokir browser. Izinkan pop-up lalu coba lagi.'
+                        : 'Gagal login Google' + (t ? ' (' + t + ')' : '') + '.'));
+                }
+            });
+            klien.requestAccessToken({ prompt: '' });
+        });
+    });
+}
+
+function errorDrive(status, teks) {
+    var e = new Error('Google Drive menolak (' + status + '): ' + (teks || '').slice(0, 160));
+    e.status = status;
+    return e;
+}
+
+async function driveMinta(url, opsi, token) {
+    opsi = opsi || {};
+    opsi.headers = Object.assign({ Authorization: 'Bearer ' + token }, opsi.headers || {});
+    var r = await fetch(url, opsi);
+    if (!r.ok) {
+        var teks = ''; try { teks = await r.text(); } catch (e) {}
+        throw errorDrive(r.status, teks);
+    }
+    return r.json();
+}
+
+async function pastikanFolderDrive(token) {
+    var id = localStorage.getItem(GDRIVE_FOLDER_KEY);
+    if (id) {
+        try {
+            var j = await driveMinta('https://www.googleapis.com/drive/v3/files/' + id + '?fields=id,trashed', {}, token);
+            if (!j.trashed) return id;
+        } catch (e) { if (e.status === 401) throw e; /* 404 = folder sudah dihapus, lanjut cari/buat */ }
+        localStorage.removeItem(GDRIVE_FOLDER_KEY);
+    }
+    var q = encodeURIComponent("name='" + GDRIVE_NAMA_FOLDER + "' and mimeType='application/vnd.google-apps.folder' and trashed=false");
+    var cari = await driveMinta('https://www.googleapis.com/drive/v3/files?q=' + q + '&fields=files(id,name)&spaces=drive', {}, token);
+    if (cari.files && cari.files.length) { localStorage.setItem(GDRIVE_FOLDER_KEY, cari.files[0].id); return cari.files[0].id; }
+    var baru = await driveMinta('https://www.googleapis.com/drive/v3/files?fields=id', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: GDRIVE_NAMA_FOLDER, mimeType: 'application/vnd.google-apps.folder' })
+    }, token);
+    localStorage.setItem(GDRIVE_FOLDER_KEY, baru.id);
+    return baru.id;
+}
+
+function bangunMultipartDrive(meta, blob, batas) {
+    return new Blob([
+        '--' + batas + '\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n' + JSON.stringify(meta) + '\r\n',
+        '--' + batas + '\r\nContent-Type: ' + (blob.type || 'application/zip') + '\r\n\r\n',
+        blob,
+        '\r\n--' + batas + '--'
+    ]);
+}
+
+async function unggahFileKeDrive(f) {
+    var sudahCobaTokenBaru = false, sudahCobaFolderBaru = false;
+    var token = await dapatkanTokenDrive(false);
+    for (var percobaan = 0; percobaan < 4; percobaan++) {
+        try {
+            var folderId = await pastikanFolderDrive(token);
+            var batas = 'bk' + Date.now();
+            var body = bangunMultipartDrive({ name: f.nama, parents: [folderId] }, f.blob, batas);
+            return await driveMinta('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name', {
+                method: 'POST', headers: { 'Content-Type': 'multipart/related; boundary=' + batas }, body: body
+            }, token);
+        } catch (e) {
+            if (e.status === 401 && !sudahCobaTokenBaru) { sudahCobaTokenBaru = true; token = await dapatkanTokenDrive(true); continue; }
+            if (e.status === 404 && !sudahCobaFolderBaru) { sudahCobaFolderBaru = true; localStorage.removeItem(GDRIVE_FOLDER_KEY); continue; }
+            throw e;
+        }
+    }
+    throw new Error('Gagal mengunggah ke Google Drive.');
+}
+
+function pesanErrorDrive(e) {
+    var m = (e && e.message) || '';
+    if (e && e.status === 403 && /accessNotConfigured|has not been used|disabled/i.test(m)) return 'Google Drive API belum diaktifkan di project Google Cloud Anda (langkah 2).';
+    if (e && e.status === 403) return 'Izin ditolak Google. Pastikan email Anda terdaftar sebagai Test user (langkah 3).';
+    if (/access_denied/i.test(m)) return 'Akses ditolak. Pastikan memakai email yang terdaftar sebagai Test user.';
+    return m || 'Terjadi kesalahan tidak dikenal.';
+}
+
+async function simpanKeGoogleDrive() {
+    if (!getGdriveClientId()) return showGdriveSetupModal();
+    if (location.protocol !== 'https:') {
+        return customAlert('Simpan ke Google Drive hanya bisa dari alamat aplikasi yang berawalan https:// (misalnya GitHub Pages). Saat ini aplikasi dibuka dari: ' + location.protocol + '//...\n\nBuka aplikasi dari alamat tetapnya, atau gunakan "Kirim (WA dll)" lalu pilih Drive.', 'ℹ️ Perlu Alamat https');
+    }
+    if (navigator.onLine === false) return showToast('❌ Tidak ada koneksi internet');
+    showToast('⏳ Menyiapkan backup...');
+    try {
+        var f = await buatFileBackupZip();
+        showToast('⏳ Mengunggah ke Google Drive...');
+        var hasil = await unggahFileKeDrive(f);
+        var sekarang = new Date().toISOString();
+        localStorage.setItem(k('bendaharaku_last_backup'), sekarang);
+        localStorage.setItem(k('bendaharaku_last_drive_backup'), sekarang);
+        updateHomeSaldoRingkasan();
+        renderInfoKeselamatanData();
+        tampilkanAnimasiSukses('Tersimpan di Drive!');
+        showToast('✅ ' + hasil.name + ' (folder "' + GDRIVE_NAMA_FOLDER + '")');
+    } catch (e) {
+        customAlert('Backup ke Google Drive belum berhasil.\n\n' + pesanErrorDrive(e) + '\n\nBackup tetap bisa disimpan lewat "Simpan di HP" atau "Kirim (WA dll)".', '⚠️ Gagal Simpan ke Drive');
+    }
+}
+
+// Pintu backup utama (pengingat & Perlu Perhatian): Drive kalau sudah siap, kalau belum lewat menu berbagi HP
+function backupUtama() {
+    if (getGdriveClientId() && location.protocol === 'https:') return simpanKeGoogleDrive();
+    return kirimBackupZip();
+}
+
+function showGdriveSetupModal() {
+    document.getElementById('gdriveClientIdInput').value = getGdriveClientId();
+    document.getElementById('gdriveOriginInfo').value = location.origin && location.origin !== 'null' ? location.origin : '(tidak tersedia)';
+    var per = document.getElementById('gdriveOriginPeringatan');
+    if (location.protocol !== 'https:') {
+        per.style.display = 'block';
+        per.innerHTML = '⚠️ Aplikasi sedang dibuka dari alamat yang <b>bukan https</b>. Buka aplikasi dari alamat tetapnya (mis. GitHub Pages), lalu salin alamat yang tampil di sini.';
+    } else per.style.display = 'none';
+    document.getElementById('btnHapusGdrive').style.display = getGdriveClientId() ? 'block' : 'none';
+    document.getElementById('modalGdrive').style.display = 'flex';
+    if (location.protocol === 'https:') muatLayananGoogle().catch(function(){});
+}
+
+function salinOriginGdrive() {
+    var teks = document.getElementById('gdriveOriginInfo').value;
+    if (navigator.clipboard) navigator.clipboard.writeText(teks).then(function(){ showToast('✅ Alamat disalin'); }, function(){ showToast('Gagal menyalin, salin manual'); });
+    else showToast('Salin manual dari kotak di atas');
+}
+
+async function simpanGdriveClientId() {
+    var id = document.getElementById('gdriveClientIdInput').value.trim();
+    if (!clientIdGdriveValid(id)) return showToast('Format Client ID tidak sesuai (berakhiran .apps.googleusercontent.com)');
+    localStorage.setItem(GDRIVE_CLIENT_KEY, id);
+    _gdriveToken = null; _gdriveTokenExp = 0;
+    document.getElementById('modalGdrive').style.display = 'none';
+    renderInfoKeselamatanData();
+    showToast('✅ Client ID tersimpan — mencoba sambungan...');
+    simpanKeGoogleDrive();
+}
+
+async function hapusPengaturanGdrive() {
+    if (!(await customConfirm('Hapus pengaturan Google Drive dari aplikasi ini? File backup yang sudah ada di Drive tetap aman.', { danger: true, yaText: 'Ya, Hapus' }))) return;
+    localStorage.removeItem(GDRIVE_CLIENT_KEY);
+    localStorage.removeItem(GDRIVE_FOLDER_KEY);
+    _gdriveToken = null; _gdriveTokenExp = 0;
+    document.getElementById('modalGdrive').style.display = 'none';
+    renderInfoKeselamatanData();
+    showToast('🗑️ Pengaturan Google Drive dihapus');
+}
+/* === akhir SECTION GOOGLE DRIVE === */
+
 async function buatFileBackupZip() {
     var zip = new JSZip();
     var backupData = await buildBackupJsonData();
@@ -7324,30 +7574,40 @@ async function buatFileBackupZip() {
 // backup tidak ikut hilang kalau HP-nya hilang/rusak.
 async function kirimBackupZip() {
     showToast('⏳ Menyiapkan file backup...');
+    var f;
+    try { f = await buatFileBackupZip(); }
+    catch (err) { return showToast('❌ Gagal membuat backup: ' + err.message); }
+
+    // Coba menu berbagi bawaan HP. Banyak browser Android MEMBLOKIR file ZIP lewat menu ini
+    // (hanya mengizinkan gambar/video/PDF/teks), jadi kegagalan di sini normal dan bukan karena data rusak.
+    var terkirim = false;
     try {
-        var f = await buatFileBackupZip();
         var file = new File([f.blob], f.nama, { type: 'application/zip' });
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            try {
-                await navigator.share({ files: [file], title: 'Backup BendaharaKu', text: 'Backup data BendaharaKu ' + tglLokalIso() });
-            } catch (e) {
-                if (e.name === 'AbortError') return showToast('Pengiriman dibatalkan');
-                throw e;
-            }
-            localStorage.setItem(k('bendaharaku_last_backup'), new Date().toISOString());
-            updateHomeSaldoRingkasan();
-            renderInfoKeselamatanData();
-            showToast('✅ Backup terkirim');
-        } else {
-            saveAs(f.blob, f.nama);
-            localStorage.setItem(k('bendaharaku_last_backup'), new Date().toISOString());
-            updateHomeSaldoRingkasan();
-            renderInfoKeselamatanData();
-            customAlert('Browser ini belum bisa mengirim file langsung. File backup sudah diunduh ke folder Download — silakan kirim manual lewat WhatsApp atau Google Drive.', 'ℹ️ File Diunduh');
+            await navigator.share({ files: [file], title: 'Backup BendaharaKu', text: 'Backup data BendaharaKu ' + tglLokalIso() });
+            terkirim = true;
         }
-    } catch (err) {
-        showToast('❌ Gagal: ' + err.message);
+    } catch (e) {
+        if (e && e.name === 'AbortError') return showToast('Pengiriman dibatalkan');
+        terkirim = false; // ditolak browser -> lanjut simpan file di HP
     }
+
+    var sekarang = new Date().toISOString();
+    if (terkirim) {
+        localStorage.setItem(k('bendaharaku_last_backup'), sekarang);
+        updateHomeSaldoRingkasan();
+        renderInfoKeselamatanData();
+        return showToast('✅ Backup terkirim');
+    }
+
+    // Cadangan: file disimpan ke HP, lalu beri petunjuk jelas cara mengirimnya
+    saveAs(f.blob, f.nama);
+    localStorage.setItem(k('bendaharaku_last_backup'), sekarang);
+    updateHomeSaldoRingkasan();
+    renderInfoKeselamatanData();
+    customAlert('HP/browser ini tidak mengizinkan file ZIP dikirim langsung dari aplikasi. Tidak apa-apa — file backup SUDAH tersimpan di HP:\n\n' + f.nama +
+        '\n\nCara mengirimnya:\n• WhatsApp: buka chat → ikon klip → Dokumen → pilih file di folder Download.\n• Google Drive: buka aplikasi Drive → tombol + → Upload → pilih file tadi.\n\nLebih praktis: siapkan tombol "Simpan ke Google Drive" (Pengaturan Google Drive) supaya cukup 1 ketukan.',
+        '✅ Backup Tersimpan di HP');
 }
 
 async function backupZipData() {
@@ -7358,7 +7618,7 @@ async function backupZipData() {
         localStorage.setItem(k('bendaharaku_last_backup'), new Date().toISOString());
         updateHomeSaldoRingkasan();
         renderInfoKeselamatanData();
-        showToast('✅ Backup ZIP berhasil diunduh');
+        showToast('✅ Tersimpan sebagai file ZIP: ' + f.nama + ' (cek folder Download di HP)', 7000);
     } catch(err) {
         showToast('❌ Gagal backup: ' + err.message);
     }
@@ -7422,6 +7682,7 @@ window.addEventListener('DOMContentLoaded', function() {
         var skel = document.getElementById('skeletonBeranda');
         if (skel) skel.style.display = 'none';
         mintaPenyimpananPermanen();
+        if (getGdriveClientId() && location.protocol === 'https:') muatLayananGoogle().catch(function(){});
         setTimeout(function(){ if (!perluOnboarding()) cekPopupPengingatBackup(); }, 1500);
         // Lanjutkan dari halaman terakhir dibuka sebelum refresh, jangan selalu balik ke Beranda
         var halamanTerakhir = sessionStorage.getItem('bendaharaku_halaman_terakhir');
